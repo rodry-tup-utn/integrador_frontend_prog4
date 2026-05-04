@@ -59,6 +59,19 @@ export const useIngredients = () => {
     }
   };
 
+  const searchIngredient = async (
+    query: string,
+    offset: number = 0,
+    limit: number = 20,
+  ) => {
+    try {
+      const data = await ingredientService.admin.search(query, offset, limit);
+      setIngredients(data);
+    } catch (error: any) {
+      toast.error(error.msg || "Error al buscar el ingrediente");
+    }
+  };
+
   return {
     ingredients,
     loading,
@@ -66,5 +79,6 @@ export const useIngredients = () => {
     createIngredient,
     deleteIngredient,
     restoreIngredient,
+    searchIngredient,
   };
 };
