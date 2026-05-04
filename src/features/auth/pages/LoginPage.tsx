@@ -3,7 +3,7 @@ import { useLogin } from "../hooks/useLogin";
 import { useNavigate } from "react-router-dom";
 
 export const LoginPage: React.FC = () => {
-  const { executeLogin, loading, error } = useLogin();
+  const { executeLogin, loading } = useLogin();
   const navigate = useNavigate();
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     const success = await executeLogin(e);
@@ -24,13 +24,6 @@ export const LoginPage: React.FC = () => {
             Ingresa tus credenciales para acceder al sistema
           </p>
         </div>
-
-        {/* Alerta de Error */}
-        {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
-            <p className="text-sm text-red-700">{error}</p>
-          </div>
-        )}
 
         {/* Formulario */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
