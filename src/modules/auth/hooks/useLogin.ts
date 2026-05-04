@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { authService } from "../../../services/authService";
 import { useAuth } from "../context/AuthContext";
+import { toast } from "sonner";
 
 export const useLogin = () => {
   const [loading, setLoading] = useState(false);
@@ -16,11 +17,12 @@ export const useLogin = () => {
 
     try {
       const data = await authService.login(formData);
-
       login(data.access_token, data.user);
+      toast.success("Bienvenido!");
+
       return true;
     } catch (err: any) {
-      setError(err.response?.data?.detail || "Error al iniciar sesión");
+      toast.error(err.response?.data?.detail || "Error al iniciar sesión");
       return false;
     } finally {
       setLoading(false);

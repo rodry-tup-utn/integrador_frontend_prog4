@@ -1,16 +1,15 @@
 import React from "react";
 import { useLogin } from "../hooks/useLogin";
-import { useAuth } from "../context/AuthContext";
-import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 export const LoginPage: React.FC = () => {
   const { executeLogin, loading, error } = useLogin();
-  const { user } = useAuth();
+  const navigate = useNavigate();
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     const success = await executeLogin(e);
 
     if (success) {
-      toast(`Bienvenido ${user?.name}!`);
+      navigate("/dashboard");
       console.log("Navegando al inicio...");
     }
   };
