@@ -1,6 +1,7 @@
 import React from "react";
 import { useLogin } from "../hooks/useLogin";
 import { useAuth } from "../context/AuthContext";
+import { toast } from "sonner";
 
 export const LoginPage: React.FC = () => {
   const { executeLogin, loading, error } = useLogin();
@@ -9,7 +10,7 @@ export const LoginPage: React.FC = () => {
     const success = await executeLogin(e);
 
     if (success) {
-      alert(`Bienvenido ${user?.name}!`);
+      toast(`Bienvenido ${user?.name}!`);
       console.log("Navegando al inicio...");
     }
   };
