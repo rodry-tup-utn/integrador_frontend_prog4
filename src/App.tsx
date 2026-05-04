@@ -3,6 +3,8 @@ import { LoginPage } from "./modules/auth/pages/LoginPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { DashboardPage } from "./pages/DashboardPage";
 import { Toaster } from "sonner";
+import { IngredientsPage } from "./modules/ingredients/pages/ingredientPage";
+import { AdminRoute } from "./components/AdminRoute";
 
 function App() {
   return (
@@ -15,7 +17,13 @@ function App() {
         {/* Rutas Protegidas */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />
-          {/* Aquí irán luego Productos, Categorías, etc. */}
+          {/* Rutas de Administrador */}
+          <Route element={<AdminRoute />}>
+            <Route
+              path="/admin/ingredients"
+              element={<IngredientsPage />}
+            ></Route>
+          </Route>
         </Route>
 
         {/* Redirección por defecto */}
