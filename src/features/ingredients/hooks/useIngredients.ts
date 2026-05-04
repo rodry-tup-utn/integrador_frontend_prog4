@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
-import { ingredientService } from "../../../services/ingredientService";
 import type { IngredientCreate, IngredientList } from "../types/ingredient";
+import { ingredientService } from "../services/ingredientService";
 
 export const useIngredients = () => {
   const [ingredients, setIngredients] = useState<IngredientList | null>(null);

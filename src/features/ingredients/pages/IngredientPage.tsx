@@ -5,28 +5,21 @@ export const IngredientsPage = () => {
   const { ingredients, loading, fetchIngredients, searchIngredient } =
     useIngredients();
 
-  // Estados para la UI
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const limit = 10; // Fijo para esta vista
+  const limit = 10;
 
-  // Efecto que "escucha" los cambios de página
   useEffect(() => {
     const offset = (page - 1) * limit;
 
-    // Si hay un término de búsqueda, en un futuro aquí llamarías a tu endpoint de search
-    // Por ahora, usamos el fetchIngredients normal
     fetchIngredients(offset, limit);
   }, [page, fetchIngredients]);
 
-  // Handlers
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1);
     const offset = (page - 1) * limit;
 
-    // Aquí iría la llamada a: ingredientService.admin.search(searchTerm, 0, limit)
-    // Por el momento lo dejamos preparado para cuando agregues ese método al hook
     searchIngredient(searchTerm, offset, limit);
   };
 
@@ -41,7 +34,6 @@ export const IngredientsPage = () => {
         </button>
       </div>
 
-      {/* Buscador */}
       <form onSubmit={handleSearchSubmit} className="mb-6 flex gap-2">
         <input
           type="text"

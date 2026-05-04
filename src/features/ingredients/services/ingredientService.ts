@@ -1,11 +1,11 @@
-import api from "../api/axiosConfig";
+import api from "../../../shared/api/axiosConfig";
 import type {
   IngredientCreate,
   IngredientList,
   IngredientPrivate,
   IngredientPublic,
   IngredientUpdate,
-} from "../features/ingredients/types/ingredient";
+} from "../types/ingredient";
 
 const ADMIN_URL = "/admin/ingredient";
 const PUBLIC_URL = "/ingredient";
