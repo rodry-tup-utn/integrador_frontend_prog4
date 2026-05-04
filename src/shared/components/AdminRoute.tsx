@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../modules/auth/context/AuthContext";
+import { useAuth } from "../features/auth/context/AuthContext";
 import { toast } from "sonner";
 import { useEffect, useRef } from "react";
 

@@ -8,7 +8,7 @@ export interface AuthResponse {
 export interface UserInfo {
   id: number;
   role: UserRole;
-  email: string;
+  name: string;
 }
 
 export interface AuthResponse {
@@ -18,11 +18,10 @@ export interface AuthResponse {
 }
 
 export interface AuthContextType {
-  user: UserPrivateResponse | null;
-  login: (token: string, user: UserInfo) => void;
+  user: UserInfo | null;
+  login: (user: UserInfo) => void;
   logout: () => void;
   isAuthenticated: boolean;
-  isLoading: boolean;
 }
 
 export interface UserPrivateResponse {

@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { LoginPage } from "./modules/auth/pages/LoginPage";
-import { ProtectedRoute } from "./components/ProtectedRoute";
+import { LoginPage } from "./features/auth/pages/LoginPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { Toaster } from "sonner";
-import { IngredientsPage } from "./modules/ingredients/pages/ingredientPage";
-import { AdminRoute } from "./components/AdminRoute";
+import { IngredientsPage } from "./features/ingredients/pages/IngredientPage";
+import { AdminRoute } from "./shared/components/AdminRoute";
+import { ProtectedRoute } from "./shared/components/ProtectedRoute";
 
 function App() {
   return (

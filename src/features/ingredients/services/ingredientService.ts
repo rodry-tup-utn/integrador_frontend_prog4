@@ -5,7 +5,7 @@ import type {
   IngredientPrivate,
   IngredientPublic,
   IngredientUpdate,
-} from "../types/ingredient";
+} from "../features/ingredients/types/ingredient";
 
 const ADMIN_URL = "/admin/ingredient";
 const PUBLIC_URL = "/ingredient";

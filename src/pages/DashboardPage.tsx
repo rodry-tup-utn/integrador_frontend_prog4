@@ -1,4 +1,4 @@
-import { useAuth } from "../modules/auth/context/AuthContext";
+import { useAuth } from "../features/auth/context/AuthContext";
 
 export const DashboardPage = () => {
   const { user, logout } = useAuth();
