@@ -18,18 +18,11 @@ export const DashboardPage = () => {
 
         <div className="mt-6">
           <p className="text-lg">
-            ¡Bienvenido,{" "}
-            <span className="font-semibold">
-              {user?.name} {user?.lastname}
-            </span>
-            !
+            ¡Bienvenido, <span className="font-semibold">{user?.name}</span>!
           </p>
           <div className="mt-4 p-4 bg-blue-50 rounded-lg">
             <p className="text-sm text-blue-700">
               <strong>Rol actual:</strong> {user?.role}
-            </p>
-            <p className="text-sm text-blue-700">
-              <strong>Email:</strong> {user?.email}
             </p>
           </div>
         </div>
