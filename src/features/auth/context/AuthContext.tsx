@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { UserInfo, AuthContextType } from "../types/auth";
 
@@ -6,12 +6,28 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<UserInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const login = (user: UserInfo) => {
+  useEffect(() => {
+    setIsLoading(true);
+    const token = localStorage.getItem("token");
+    if (token) {
+      const savedUser = localStorage.getItem("user_info");
+      if (savedUser) setUser(JSON.parse(savedUser));
+    }
+    setIsLoading(false);
+  }, []);
+  const login = (user: UserInfo, token: string) => {
+    console.log("TOKEN RECIBIDO EN LOGIN:", token); // <--- Mirá esto en la consola
+    console.log("TIPO DE DATO:", typeof token);
+    localStorage.setItem("user_info", JSON.stringify(user));
+    localStorage.setItem("token", token);
     setUser(user);
   };
 
   const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user_info");
     setUser(null);
   };
 
@@ -22,6 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         login,
         logout,
         isAuthenticated: !!user,
+        isLoading,
       }}
     >
       {children}
