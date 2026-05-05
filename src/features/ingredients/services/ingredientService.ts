@@ -62,14 +62,14 @@ export const ingredientService = {
       data: IngredientUpdate,
     ): Promise<IngredientPrivate> => {
       const response = await api.patch<IngredientPrivate>(
-        `${ADMIN_URL}${id}`,
+        `${ADMIN_URL}/${id}`,
         data,
       );
       return response.data;
     },
 
     delete: async (id: number): Promise<void> => {
-      await api.delete(`${ADMIN_URL}${id}`);
+      await api.delete(`${ADMIN_URL}/${id}`);
     },
 
     restore: async (id: number): Promise<IngredientPrivate> => {
