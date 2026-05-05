@@ -9,45 +9,51 @@ import { IngredientsPage } from "../../features/ingredients/pages/IngredientsPag
 import ProductsPage from "../../pages/Products/ProductsPage";
 import CategoriesPage from "../../pages/Categories/CategoriesPage";
 import RegisterPage from "../../pages/Register/RegisterPage";
-
+import { IngredientsPublicPage } from "../../features/ingredients/pages/PublicIngredientsPage";
 
 export const router = createBrowserRouter([
-    {
-        element: <MainLayout />,
-        children: [{
-            path: ROUTES.LOGIN,
-            element: <LoginPage />
-        },
-        {
-            path: ROUTES.REGISTER,
-            element: <RegisterPage />
-        },
-        {
-            element: <ProtectedRoute />,
-            children: [
-                {
-                    path: ROUTES.HOME,
-                    element: <DashboardPage />
-                }
-            ]
-        },
-        {
-            element: <AdminRoute />,
-            children: [
-                {
-                    path: ROUTES.INGREDIENTS,
-                    element: <IngredientsPage />
-                },
-                {
-                    path: ROUTES.PRODUCTS,
-                    element: <ProductsPage />
-                },
-                {
-                    path: ROUTES.CATEGORIES,
-                    element: <CategoriesPage />
-                }
-            ]
-        }
-        ]
-    }
-])
+  {
+    element: <MainLayout />,
+    children: [
+      {
+        path: ROUTES.LOGIN,
+        element: <LoginPage />,
+      },
+      {
+        path: ROUTES.REGISTER,
+        element: <RegisterPage />,
+      },
+      {
+        element: <ProtectedRoute />,
+        children: [
+          {
+            path: ROUTES.HOME,
+            element: <DashboardPage />,
+          },
+          {
+            path: ROUTES.PUBLICINGREDIENTS,
+            element: <IngredientsPublicPage />,
+          },
+          { path: "/", element: <DashboardPage /> },
+        ],
+      },
+      {
+        element: <AdminRoute />,
+        children: [
+          {
+            path: ROUTES.INGREDIENTS,
+            element: <IngredientsPage />,
+          },
+          {
+            path: ROUTES.PRODUCTS,
+            element: <ProductsPage />,
+          },
+          {
+            path: ROUTES.CATEGORIES,
+            element: <CategoriesPage />,
+          },
+        ],
+      },
+    ],
+  },
+]);
