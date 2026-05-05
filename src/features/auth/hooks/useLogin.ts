@@ -15,7 +15,7 @@ export const useLogin = () => {
 
     try {
       const data = await authService.login(formData);
-      login(data.user);
+      login(data.user, data.access_token);
       toast.success(`Bienvenido ${data.user.name}!`);
       return true;
     } catch (err: any) {
