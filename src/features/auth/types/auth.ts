@@ -1,10 +1,5 @@
 export type UserRole = "USER" | "ADMIN";
 
-export interface AuthResponse {
-  access_token: string;
-  token_type: string;
-}
-
 export interface UserInfo {
   id: number;
   role: UserRole;
@@ -19,9 +14,10 @@ export interface AuthResponse {
 
 export interface AuthContextType {
   user: UserInfo | null;
-  login: (user: UserInfo) => void;
+  login: (user: UserInfo, token: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
+  isLoading: boolean;
 }
 
 export interface UserPrivateResponse {

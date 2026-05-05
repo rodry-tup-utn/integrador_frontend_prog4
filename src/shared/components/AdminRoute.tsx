@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../features/auth/context/AuthContext";
 import { toast } from "sonner";
 import { useEffect, useRef } from "react";
+import { useAuth } from "../../features/auth/context/AuthContext";
 
 export const AdminRoute = () => {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -14,17 +14,14 @@ export const AdminRoute = () => {
       user?.role !== "ADMIN" &&
       !hasNotified.current
     ) {
-      toast.error("No tienes permisos de administrador para acceder aquí");
+      toast.error("No tienes permisos de administrador");
       hasNotified.current = true;
     }
-  }, [isLoading, isAuthenticated, user]);
+  }, [isAuthenticated, user]);
 
-  if (isLoading)
-    return (
-      <div className="flex justify-center items-center h-screen">
-        Verificando permisos...
-      </div>
-    );
+  if (isLoading) {
+    return <p>Cargando sesión...</p>;
+  }
 
   if (!isAuthenticated || user?.role !== "ADMIN") {
     return <Navigate to="/dashboard" replace />;
