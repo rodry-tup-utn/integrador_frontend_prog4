@@ -2,7 +2,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ingredientService } from "../services/ingredientService";
 import { toast } from "sonner";
 
-export const useIngredients = (offset = 0, limit = 20, search = "") => {
+export const useIngredients = (
+  offset = 0,
+  limit = 20,
+  search = "",
+  selectedId: string | null = null,
+) => {
   const queryClient = useQueryClient();
 
   // --- 1. LECTURA (Query) ---
@@ -13,6 +18,13 @@ export const useIngredients = (offset = 0, limit = 20, search = "") => {
       search
         ? ingredientService.admin.search(search, offset, limit)
         : ingredientService.admin.getAll(offset, limit),
+  });
+
+  const singleIngredientQuery = useQuery({
+    queryKey: ["ingredients", "admin", "detail", selectedId],
+    queryFn: () => ingredientService.admin.getById(selectedId!),
+    enabled: !!selectedId, // <--- Solo se dispara si le pasás un ID
+    staleTime: 1000 * 60 * 5,
   });
 
   const createMutation = useMutation({
@@ -52,6 +64,9 @@ export const useIngredients = (offset = 0, limit = 20, search = "") => {
     ingredients: ingredientsQuery.data,
     isLoading: ingredientsQuery.isLoading,
     isError: ingredientsQuery.isError,
+    ingredientDetail: singleIngredientQuery.data,
+    isLoadingDetail: singleIngredientQuery.isLoading,
+    isErrorDetail: singleIngredientQuery.isError,
 
     createIngredient: createMutation.mutateAsync,
     deleteIngredient: deleteMutation.mutateAsync,
