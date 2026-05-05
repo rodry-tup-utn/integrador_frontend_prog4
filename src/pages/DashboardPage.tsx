@@ -19,7 +19,7 @@ export const DashboardPage = () => {
 
         <div className="mt-6">
           <p className="text-lg">
-            ¡Bienvenido, <span className="font-semibold">{user?.name}</span>!
+            ¡Bienvenid@, <span className="font-semibold">{user?.name}</span>!
           </p>
           <div className="mt-4 p-4 bg-blue-50 rounded-lg flex justify-between items-center">
             <div>
