@@ -1,81 +1,63 @@
-import { useState, useCallback } from "react";
-import { toast } from "sonner";
-import type { IngredientCreate, IngredientList } from "../types/ingredient";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ingredientService } from "../services/ingredientService";
+import { toast } from "sonner";
 
-export const useIngredients = () => {
-  const [ingredients, setIngredients] = useState<IngredientList | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+export const useIngredients = (offset = 0, limit = 20, search = "") => {
+  const queryClient = useQueryClient();
 
-  const fetchIngredients = useCallback(async (offset = 0, limit = 20) => {
-    setLoading(true);
-    try {
-      const data = await ingredientService.admin.getAll(offset, limit);
-      setIngredients(data);
-    } catch (error: any) {
-      toast.error(
-        error.response?.data?.detail || "Error al cargar ingredientes",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // --- 1. LECTURA (Query) ---
+  const ingredientsQuery = useQuery({
+    // La Query Key es sagrada: si el offset o search cambian, se refetchea solo
+    queryKey: ["ingredients", "admin", { offset, limit, search }],
+    queryFn: () =>
+      search
+        ? ingredientService.admin.search(search, offset, limit)
+        : ingredientService.admin.getAll(offset, limit),
+  });
 
-  const createIngredient = async (data: IngredientCreate) => {
-    setLoading(true);
-    try {
-      await ingredientService.admin.create(data);
-      toast.success("Ingrediente creado correctamente");
-      await fetchIngredients();
-      return true;
-    } catch (error: any) {
-      toast.error(error.response?.data?.detail || "Error al crear ingrediente");
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
+  const createMutation = useMutation({
+    mutationFn: ingredientService.admin.create,
+    onSuccess: (updatedData) => {
+      toast.success(`Ingrediente ${updatedData.name} creado`);
+      queryClient.invalidateQueries({ queryKey: ["ingredients"] });
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.detail || "Error al crear");
+    },
+  });
 
-  const deleteIngredient = async (id: number) => {
-    try {
-      await ingredientService.admin.delete(id);
+  const deleteMutation = useMutation({
+    mutationFn: ingredientService.admin.delete,
+    onSuccess: () => {
       toast.success("Ingrediente eliminado");
-      await fetchIngredients();
-    } catch (error: any) {
-      toast.error("No se pudo eliminar el ingrediente");
-    }
-  };
+      queryClient.invalidateQueries({ queryKey: ["ingredients"] });
+    },
+  });
 
-  const restoreIngredient = async (id: number) => {
-    try {
-      await ingredientService.admin.restore(id);
-      toast.success("Ingrediente restaurado");
-      await fetchIngredients();
-    } catch (error: any) {
-      toast.error("Error al restaurar");
-    }
-  };
-
-  const searchIngredient = async (
-    query: string,
-    offset: number = 0,
-    limit: number = 20,
-  ) => {
-    try {
-      const data = await ingredientService.admin.search(query, offset, limit);
-      setIngredients(data);
-    } catch (error: any) {
-      toast.error(error.msg || "Error al buscar el ingrediente");
-    }
-  };
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) =>
+      ingredientService.admin.update(id, data),
+    onSuccess: (updatedData) => {
+      toast.success(`Ingrediente ${updatedData.name} actualizado`);
+      queryClient.invalidateQueries({ queryKey: ["ingredients"] });
+    },
+    onError: (error: any) => {
+      toast.error(
+        error.response?.data?.detail || "No se pudo actualizar el producto",
+      );
+    },
+  });
 
   return {
-    ingredients,
-    loading,
-    fetchIngredients,
-    createIngredient,
-    deleteIngredient,
-    restoreIngredient,
-    searchIngredient,
+    ingredients: ingredientsQuery.data,
+    isLoading: ingredientsQuery.isLoading,
+    isError: ingredientsQuery.isError,
+
+    createIngredient: createMutation.mutateAsync,
+    deleteIngredient: deleteMutation.mutateAsync,
+    isCreating: createMutation.isPending,
+    isDeleting: deleteMutation.isPending,
+    updateIngredient: updateMutation.mutateAsync,
+    isUpdating: updateMutation.isPending,
   };
 };
