@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useIngredients } from "../hooks/useIngredients";
 import { IngredientModal } from "../components/IngredientModal";
-import type { IngredientPublic } from "../types/ingredient";
+import { RowIngredient } from "../components/RowIngredient";
 
 export const IngredientsPage = () => {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedIngredient, setSelectedIngredient] =
-    useState<IngredientPublic | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const limit = 20;
 
@@ -15,11 +14,13 @@ export const IngredientsPage = () => {
   const offset = (page - 1) * limit;
 
   // El hook ahora recibe el searchTerm. React Query hará el fetch automáticamente al cambiar page o searchTerm.
-  const { ingredients, isLoading, deleteIngredient } = useIngredients(
-    offset,
-    limit,
-    searchTerm,
-  );
+  const {
+    ingredients,
+    isLoading,
+    deleteIngredient,
+    ingredientDetail,
+    isDeleting,
+  } = useIngredients(offset, limit, searchTerm, selectedId);
 
   const totalPages = ingredients ? Math.ceil(ingredients.total / limit) : 0;
 
@@ -29,14 +30,13 @@ export const IngredientsPage = () => {
     setPage(1);
   };
 
-  const handleEditClick = (ingredient: IngredientPublic) => {
-    console.log(ingredient);
-    setSelectedIngredient(ingredient);
+  const handleEditClick = (id: string) => {
+    setSelectedId(id);
     setIsModalOpen(true);
   };
 
   const handleAddClick = () => {
-    setSelectedIngredient(null);
+    setSelectedId(null);
     setIsModalOpen(true);
   };
 
@@ -87,38 +87,13 @@ export const IngredientsPage = () => {
               </tr>
             ) : (
               ingredients?.data.map((item) => (
-                <tr
+                <RowIngredient
                   key={item.id}
-                  className="border-b border-gray-100 hover:bg-gray-50"
-                >
-                  <td className="p-4 text-sm text-gray-500">#{item.id}</td>
-                  <td className="p-4 font-medium text-gray-800">{item.name}</td>
-                  <td className="p-4">
-                    {item.is_allergen ? (
-                      <span className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full">
-                        Sí
-                      </span>
-                    ) : (
-                      <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">
-                        No
-                      </span>
-                    )}
-                  </td>
-                  <td className="p-4 text-sm">
-                    <button
-                      onClick={() => handleEditClick(item)}
-                      className="text-blue-600 hover:underline mr-3"
-                    >
-                      Editar
-                    </button>
-                    <button
-                      onClick={() => deleteIngredient(item.id)}
-                      className="text-red-600 hover:underline"
-                    >
-                      Borrar
-                    </button>
-                  </td>
-                </tr>
+                  item={item}
+                  onEdit={handleEditClick}
+                  onDelete={deleteIngredient}
+                  isDeleting={isDeleting} // Viene de tu hook useIngredients
+                />
               ))
             )}
           </tbody>
@@ -155,7 +130,7 @@ export const IngredientsPage = () => {
       <IngredientModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        ingredientData={selectedIngredient}
+        ingredientData={ingredientDetail}
       />
     </div>
   );
