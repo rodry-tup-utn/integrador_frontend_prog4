@@ -1,12 +1,8 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { LoginPage } from "./features/auth/pages/LoginPage";
-import { DashboardPage } from "./pages/DashboardPage";
+import { RouterProvider } from "react-router-dom";
 import { Toaster } from "sonner";
-import { IngredientsPage } from "./features/ingredients/pages/IngredientsPage";
-import { AdminRoute } from "./shared/components/AdminRoute";
-import { ProtectedRoute } from "./shared/components/ProtectedRoute";
 import { AuthProvider } from "./features/auth/context/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { router } from "./shared/components/router";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,28 +16,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <BrowserRouter>
-          <Toaster position="top-right" richColors closeButton></Toaster>
-          <Routes>
-            {/* Rutas Públicas */}
-            <Route path="/login" element={<LoginPage />} />
-
-            {/* Rutas Protegidas */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<DashboardPage />} />
-              {/* Rutas de Administrador */}
-              <Route element={<AdminRoute />}>
-                <Route
-                  path="/admin/ingredients"
-                  element={<IngredientsPage />}
-                ></Route>
-              </Route>
-            </Route>
-
-            {/* Redirección por defecto */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        </BrowserRouter>
+        <Toaster position="top-right" richColors closeButton></Toaster>
+        <RouterProvider router={router} />
       </AuthProvider>
     </QueryClientProvider>
   );
