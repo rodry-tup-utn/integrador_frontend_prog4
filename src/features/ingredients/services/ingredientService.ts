@@ -20,7 +20,7 @@ export const ingredientService = {
       return response.data;
     },
 
-    getById: async (id: number): Promise<IngredientPublic> => {
+    getById: async (id: string): Promise<IngredientPublic> => {
       const response = await api.get<IngredientPublic>(`${PUBLIC_URL}/${id}`);
       return response.data;
     },
@@ -47,7 +47,7 @@ export const ingredientService = {
       return response.data;
     },
 
-    getById: async (id: number): Promise<IngredientPrivate> => {
+    getById: async (id: string): Promise<IngredientPrivate> => {
       const response = await api.get<IngredientPrivate>(`${ADMIN_URL}/${id}`);
       return response.data;
     },
