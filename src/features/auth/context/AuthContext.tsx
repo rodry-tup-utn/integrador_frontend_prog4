@@ -18,8 +18,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(false);
   }, []);
   const login = (user: UserInfo, token: string) => {
-    console.log("TOKEN RECIBIDO EN LOGIN:", token); // <--- Mirá esto en la consola
-    console.log("TIPO DE DATO:", typeof token);
     localStorage.setItem("user_info", JSON.stringify(user));
     localStorage.setItem("token", token);
     setUser(user);
