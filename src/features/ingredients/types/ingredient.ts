@@ -20,6 +20,11 @@ export interface IngredientList {
   total: number;
 }
 
+export interface IngredientsListFull {
+  data: IngredientPrivate[];
+  total: number;
+}
+
 export interface IngredientUpdate {
   name?: string;
   description?: string;
