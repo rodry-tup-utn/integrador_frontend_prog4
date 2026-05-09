@@ -1,19 +1,16 @@
 import { useState } from "react";
 import { IngredientPublicCard } from "../components/IngredientPublicCard";
 import { usePublicIngredients } from "../hooks/usePublicIngredients";
+import AllergenFilterButtons from "../components/AllergenFilterButtons";
+import { useAllergenFilter } from "../hooks/useAllergenFilter";
 
 export const IngredientsPublicPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterAllergen, setFilterAllergen] = useState<boolean | null>(null);
 
   // Hook configurado para vista pública (offset, limit, search, selectedId)
   const { ingredients, isLoading } = usePublicIngredients(0, 50, searchTerm);
-
-  // Filtrado local para la UI de alérgenos
-  const filteredIngredients = ingredients?.data?.filter((ing) => {
-    if (filterAllergen === null) return true;
-    return ing.is_allergen === filterAllergen;
-  });
+  const { filterAllergen, filteredIngredients, setFilterAllergen } =
+    useAllergenFilter(ingredients?.data || []);
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -41,28 +38,10 @@ export const IngredientsPublicPage = () => {
         </div>
 
         {/* Filtros de Alérgenos */}
-        <div className="flex justify-center gap-3 mb-10">
-          <button
-            onClick={() => setFilterAllergen(null)}
-            className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${
-              filterAllergen === null
-                ? "bg-gray-900 text-white"
-                : "bg-white text-gray-600 border border-gray-200"
-            }`}
-          >
-            Todos
-          </button>
-          <button
-            onClick={() => setFilterAllergen(true)}
-            className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${
-              filterAllergen === true
-                ? "bg-red-500 text-white"
-                : "bg-white text-red-500 border border-red-200"
-            }`}
-          >
-            Solo Alérgenos ⚠️
-          </button>
-        </div>
+        <AllergenFilterButtons
+          onChange={setFilterAllergen}
+          value={filterAllergen}
+        />
 
         {/* Grid de Contenido */}
         {isLoading ? (
