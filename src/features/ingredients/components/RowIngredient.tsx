@@ -1,36 +1,80 @@
-interface Ingredient {
-  id: number;
-  name: string;
-  is_allergen: boolean;
-}
+import { toast } from "sonner";
+import type { IngredientPrivate } from "../types/ingredient";
 
 interface RowIngredientProps {
-  item: Ingredient;
+  item: IngredientPrivate;
   onEdit: (id: string) => void;
   onDelete: (id: number) => void;
+  onRestore: (id: number) => void;
   isDeleting?: boolean;
+  isRestoring?: boolean;
 }
 
 export const RowIngredient = ({
   item,
   onEdit,
   onDelete,
+  onRestore,
   isDeleting,
+  isRestoring,
 }: RowIngredientProps) => {
+  const isDeleted = !!item.deleted_at;
+
+  const handleDeleteOrRestore = () => {
+    toast(
+      isDeleted ? `¿Restaurar "${item.name}"?` : `¿Eliminar "${item.name}"?`,
+      {
+        action: {
+          label: isDeleted ? "Restaurar" : "Eliminar",
+          onClick: () => {
+            if (isDeleted) {
+              onRestore(item.id);
+            } else {
+              onDelete(item.id);
+            }
+          },
+        },
+      },
+    );
+  };
+
+  const label = isDeleted
+    ? isRestoring
+      ? "Restaurando..."
+      : "Restaurar"
+    : isDeleting
+      ? "Borrando..."
+      : "Borrar";
+
   return (
-    <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+    <tr
+      className={`
+        border-b border-gray-100 transition-all duration-200
+        ${
+          isDeleted
+            ? "bg-gray-50 opacity-70 border-l-4 border-l-red-400"
+            : "hover:bg-gray-50"
+        }
+      `}
+    >
       <td className="p-4 text-sm text-gray-500 font-mono">#{item.id}</td>
 
-      <td className="p-4 font-medium text-gray-800">{item.name}</td>
+      <td
+        className={`p-4 font-medium transition-all ${
+          isDeleted ? "text-gray-400 line-through" : "text-gray-800"
+        }`}
+      >
+        {item.name}
+      </td>
 
       <td className="p-4">
         {item.is_allergen ? (
-          <span className="inline-flex items-center bg-red-100 text-red-700 text-xs font-medium px-2.5 py-0.5 rounded-full">
+          <span className="inline-flex items-center bg-red-100 text-red-700 text-xs font-medium px-2.5 py-1 rounded-full border border-red-200">
             <span className="w-1.5 h-1.5 mr-1.5 bg-red-500 rounded-full"></span>
             Alérgeno
           </span>
         ) : (
-          <span className="inline-flex items-center bg-green-100 text-green-700 text-xs font-medium px-2.5 py-0.5 rounded-full">
+          <span className="inline-flex items-center bg-green-100 text-green-700 text-xs font-medium px-2.5 py-1 rounded-full border border-green-200">
             <span className="w-1.5 h-1.5 mr-1.5 bg-green-500 rounded-full"></span>
             Seguro
           </span>
@@ -38,28 +82,55 @@ export const RowIngredient = ({
       </td>
 
       <td className="p-4 text-sm">
-        <div className="flex items-center gap-3">
+        <div className="flex justify-center gap-3">
           <button
             onClick={() => onEdit(item.id.toString())}
-            className="text-blue-600 hover:text-blue-800 font-medium hover:underline transition-all"
+            className={`
+              px-4 py-2 rounded-2xl w-28 font-medium text-white transition-all
+              ${
+                isDeleted
+                  ? "bg-gray-500 hover:bg-gray-600"
+                  : "bg-teal-600 hover:bg-teal-800"
+              }
+              hover:cursor-pointer
+            `}
           >
-            Editar
+            {isDeleted ? "Detalle" : "Editar"}
           </button>
 
           <button
-            onClick={() => {
-              if (window.confirm(`¿Estás seguro de eliminar "${item.name}"?`)) {
-                onDelete(item.id);
+            onClick={handleDeleteOrRestore}
+            disabled={isDeleting || isRestoring}
+            className={`
+              px-4 py-2 w-28 rounded-2xl font-medium text-white transition-all
+              ${
+                isDeleting || isRestoring
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : isDeleted
+                    ? "bg-green-600 hover:bg-green-800 cursor-pointer"
+                    : "bg-red-600 hover:bg-red-800 cursor-pointer"
               }
-            }}
-            disabled={isDeleting}
-            className={`text-red-600 hover:text-red-800 font-medium hover:underline transition-all ${
-              isDeleting ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            `}
           >
-            {isDeleting ? "Borrando..." : "Borrar"}
+            {label}
           </button>
         </div>
+      </td>
+
+      <td className="p-4 text-sm">
+        <span
+          className={`
+            inline-flex items-center rounded-full px-3 py-1
+            text-xs font-bold uppercase tracking-wide border
+            ${
+              isDeleted
+                ? "bg-red-100 text-red-700 border-red-200"
+                : "bg-emerald-100 text-emerald-700 border-emerald-200"
+            }
+          `}
+        >
+          {isDeleted ? "Eliminado" : "Activo"}
+        </span>
       </td>
     </tr>
   );
