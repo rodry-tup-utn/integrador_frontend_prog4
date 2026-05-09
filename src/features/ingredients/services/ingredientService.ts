@@ -4,6 +4,7 @@ import type {
   IngredientList,
   IngredientPrivate,
   IngredientPublic,
+  IngredientsListFull,
   IngredientUpdate,
 } from "../types/ingredient";
 
@@ -40,8 +41,8 @@ export const ingredientService = {
   // -- Métodos Administrativos ----------------------
 
   admin: {
-    getAll: async (offset = 0, limit = 20): Promise<IngredientList> => {
-      const response = await api.get<IngredientList>(`${ADMIN_URL}`, {
+    getAll: async (offset = 0, limit = 20): Promise<IngredientsListFull> => {
+      const response = await api.get<IngredientsListFull>(`${ADMIN_URL}`, {
         params: { offset, limit },
       });
       return response.data;
@@ -74,7 +75,7 @@ export const ingredientService = {
 
     restore: async (id: number): Promise<IngredientPrivate> => {
       const response = await api.patch<IngredientPrivate>(
-        `${ADMIN_URL}${id}/restore`,
+        `${ADMIN_URL}/${id}/restore`,
       );
       return response.data;
     },
@@ -83,10 +84,13 @@ export const ingredientService = {
       query: string,
       offset = 0,
       limit = 20,
-    ): Promise<IngredientList> => {
-      const response = await api.get<IngredientList>(`${ADMIN_URL}/search`, {
-        params: { query, offset, limit },
-      });
+    ): Promise<IngredientsListFull> => {
+      const response = await api.get<IngredientsListFull>(
+        `${ADMIN_URL}/search`,
+        {
+          params: { query, offset, limit },
+        },
+      );
       return response.data;
     },
   },
