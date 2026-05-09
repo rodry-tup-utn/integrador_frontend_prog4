@@ -2,16 +2,23 @@ import { useIngredients } from "../hooks/useIngredients";
 import { useState, useEffect } from "react";
 import type { IngredientPrivate } from "../types/ingredient";
 import { X, Calendar, Clock, AlertTriangle } from "lucide-react"; // Si usas lucide-react
+import { formatDate } from "../helpers/helpers";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   ingredientData?: IngredientPrivate | null;
+  isDeleted: boolean;
 }
 
 const initialState = { name: "", description: "", is_allergen: false };
 
-export const IngredientModal = ({ isOpen, onClose, ingredientData }: Props) => {
+export const IngredientModal = ({
+  isOpen,
+  onClose,
+  ingredientData,
+  isDeleted,
+}: Props) => {
   const { createIngredient, updateIngredient, isCreating, isUpdating } =
     useIngredients();
   const [formData, setFormData] = useState(initialState);
@@ -32,6 +39,15 @@ export const IngredientModal = ({ isOpen, onClose, ingredientData }: Props) => {
 
   const isEditing = !!ingredientData;
   const isLoading = isCreating || isUpdating;
+  let title = "Nuevo Ingrediente";
+
+  if (isDeleted) {
+    title = "Detalle Ingrediente";
+  } else if (isEditing) {
+    title = "Editar Ingrediente";
+  } else {
+    title = "Nuevo Ingrediente";
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,27 +63,13 @@ export const IngredientModal = ({ isOpen, onClose, ingredientData }: Props) => {
     }
   };
 
-  // Helper para formatear fechas
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleString("es-AR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-opacity">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col border border-gray-200">
         {/* Cabecera */}
         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
           <div>
-            <h2 className="text-xl font-bold text-gray-800">
-              {isEditing ? "Editar Ingrediente" : "Nuevo Ingrediente"}
-            </h2>
+            <h2 className="text-xl font-bold text-gray-800">{title}</h2>
             {isEditing && (
               <p className="text-xs text-gray-500 font-mono">
                 ID: {ingredientData.id}
@@ -91,6 +93,7 @@ export const IngredientModal = ({ isOpen, onClose, ingredientData }: Props) => {
                 Nombre
               </label>
               <input
+                disabled={isDeleted}
                 type="text"
                 required
                 placeholder="Ej. Harina de Trigo"
@@ -112,6 +115,7 @@ export const IngredientModal = ({ isOpen, onClose, ingredientData }: Props) => {
                 className="w-full border border-gray-300 rounded-xl p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
                 rows={3}
                 value={formData.description}
+                disabled={isDeleted}
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
@@ -129,6 +133,7 @@ export const IngredientModal = ({ isOpen, onClose, ingredientData }: Props) => {
                     id="is_allergen"
                     className="h-5 w-5 text-red-600 border-gray-300 rounded-md focus:ring-red-500 cursor-pointer"
                     checked={formData.is_allergen}
+                    disabled={isDeleted}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
@@ -182,31 +187,33 @@ export const IngredientModal = ({ isOpen, onClose, ingredientData }: Props) => {
           </div>
 
           {/* Acciones */}
-          <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-5 py-2 text-sm font-semibold text-gray-600 hover:text-gray-800 transition-colors"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="px-6 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 disabled:bg-blue-300 shadow-lg shadow-blue-200 transition-all active:scale-95"
-            >
-              {isLoading ? (
-                <span className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Guardando...
-                </span>
-              ) : isEditing ? (
-                "Guardar Cambios"
-              ) : (
-                "Crear Ingrediente"
-              )}
-            </button>
-          </div>
+          {!isDeleted && (
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-5 py-2 text-sm font-semibold text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="px-6 py-2 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 disabled:bg-blue-300 shadow-lg shadow-blue-200 transition-all active:scale-95"
+              >
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Guardando...
+                  </span>
+                ) : isEditing ? (
+                  "Guardar Cambios"
+                ) : (
+                  "Crear Ingrediente"
+                )}
+              </button>
+            </div>
+          )}
         </form>
       </div>
     </div>
