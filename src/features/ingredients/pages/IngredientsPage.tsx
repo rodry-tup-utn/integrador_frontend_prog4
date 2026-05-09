@@ -2,13 +2,18 @@ import { useState } from "react";
 import { useIngredients } from "../hooks/useIngredients";
 import { IngredientModal } from "../components/IngredientModal";
 import { RowIngredient } from "../components/RowIngredient";
-
+import type { IngredientPrivate } from "../types/ingredient";
+import { PlusCircleIcon } from "lucide-react";
+import AllergenFilterButtons from "../components/AllergenFilterButtons";
+import { useAllergenFilter } from "../hooks/useAllergenFilter";
 export const IngredientsPage = () => {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<IngredientPrivate | null>(
+    null,
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const limit = 20;
+  const limit = 10;
 
   // Calculamos el offset para la API
   const offset = (page - 1) * limit;
@@ -18,9 +23,13 @@ export const IngredientsPage = () => {
     ingredients,
     isLoading,
     deleteIngredient,
-    ingredientDetail,
+    restoreIngredient,
+    isRestoring,
     isDeleting,
-  } = useIngredients(offset, limit, searchTerm, selectedId);
+  } = useIngredients(offset, limit, searchTerm);
+
+  const { filterAllergen, filteredIngredients, setFilterAllergen } =
+    useAllergenFilter(ingredients?.data || []);
 
   const totalPages = ingredients ? Math.ceil(ingredients.total / limit) : 0;
 
@@ -30,13 +39,13 @@ export const IngredientsPage = () => {
     setPage(1);
   };
 
-  const handleEditClick = (id: string) => {
-    setSelectedId(id);
+  const handleEditClick = (item: IngredientPrivate) => {
+    setSelectedItem(item);
     setIsModalOpen(true);
   };
 
   const handleAddClick = () => {
-    setSelectedId(null);
+    setSelectedItem(null);
     setIsModalOpen(true);
   };
 
@@ -48,7 +57,9 @@ export const IngredientsPage = () => {
           onClick={() => handleAddClick()}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
         >
-          + Nuevo Ingrediente
+          <div className="flex items-center gap-2">
+            <PlusCircleIcon /> Nuevo Ingrediente
+          </div>
         </button>
       </div>
 
@@ -68,9 +79,14 @@ export const IngredientsPage = () => {
         </button>
       </form>
 
+      <AllergenFilterButtons
+        onChange={setFilterAllergen}
+        value={filterAllergen}
+      />
+
       {/* Tabla (Mismo código que tenías) */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <table className="w-full text-left border-collapse">
+        <table className="w-full text-center border-collapse">
           {/* ... thead ... */}
           <tbody>
             {isLoading ? (
@@ -86,13 +102,15 @@ export const IngredientsPage = () => {
                 </td>
               </tr>
             ) : (
-              ingredients?.data.map((item) => (
+              filteredIngredients.map((item) => (
                 <RowIngredient
                   key={item.id}
                   item={item}
-                  onEdit={handleEditClick}
+                  onEdit={() => handleEditClick(item)}
                   onDelete={deleteIngredient}
-                  isDeleting={isDeleting} // Viene de tu hook useIngredients
+                  onRestore={restoreIngredient}
+                  isDeleting={isDeleting}
+                  isRestoring={isRestoring}
                 />
               ))
             )}
@@ -130,7 +148,8 @@ export const IngredientsPage = () => {
       <IngredientModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        ingredientData={ingredientDetail}
+        ingredientData={selectedItem}
+        isDeleted={!!selectedItem?.deleted_at}
       />
     </div>
   );
