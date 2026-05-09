@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ingredientService } from "../services/ingredientService";
 import { toast } from "sonner";
+import type { IngredientUpdate } from "../types/ingredient";
 
 export const useIngredients = (
   offset = 0,
@@ -47,11 +48,25 @@ export const useIngredients = (
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: any }) =>
+    mutationFn: ({ id, data }: { id: number; data: IngredientUpdate }) =>
       ingredientService.admin.update(id, data),
     onSuccess: (updatedData) => {
       toast.success(`Ingrediente ${updatedData.name} actualizado`);
       queryClient.invalidateQueries({ queryKey: ["ingredients"] });
+    },
+    onError: (error: any) => {
+      toast.error(
+        error.response?.data?.detail || "No se pudo actualizar el producto",
+      );
+    },
+  });
+
+  const restoreMutation = useMutation({
+    mutationFn: ingredientService.admin.restore,
+    onSuccess: (updatedData) => {
+      toast.success(`Producto ${updatedData.name} restaurado correctamente`);
+      queryClient.invalidateQueries({ queryKey: ["ingredients"] });
+      return updatedData;
     },
     onError: (error: any) => {
       toast.error(
@@ -66,7 +81,6 @@ export const useIngredients = (
     isError: ingredientsQuery.isError,
     ingredientDetail: singleIngredientQuery.data,
     isLoadingDetail: singleIngredientQuery.isLoading,
-    isErrorDetail: singleIngredientQuery.isError,
 
     createIngredient: createMutation.mutateAsync,
     deleteIngredient: deleteMutation.mutateAsync,
@@ -74,5 +88,7 @@ export const useIngredients = (
     isDeleting: deleteMutation.isPending,
     updateIngredient: updateMutation.mutateAsync,
     isUpdating: updateMutation.isPending,
+    restoreIngredient: restoreMutation.mutateAsync,
+    isRestoring: restoreMutation.isPending,
   };
 };
