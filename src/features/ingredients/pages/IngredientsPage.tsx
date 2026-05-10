@@ -6,6 +6,7 @@ import type { IngredientPrivate } from "../types/ingredient";
 import { PlusCircleIcon } from "lucide-react";
 import AllergenFilterButtons from "../components/AllergenFilterButtons";
 import { useAllergenFilter } from "../hooks/useAllergenFilter";
+import { toast } from "sonner";
 export const IngredientsPage = () => {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -49,6 +50,29 @@ export const IngredientsPage = () => {
     setIsModalOpen(true);
   };
 
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteIngredient(id);
+
+      toast.success("Ingrediente eliminado");
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.detail || "Error al eliminar el ingrediente",
+      );
+    }
+  };
+  const handleRestore = async (id: number) => {
+    try {
+      await restoreIngredient(id);
+
+      toast.success("Ingrediente restaurado");
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.detail || "Error al restaurar el ingrediente",
+      );
+    }
+  };
+
   return (
     <div className="p-6 max-w-6xl mx-auto w-full">
       <div className="flex justify-between items-center mb-6">
@@ -84,10 +108,8 @@ export const IngredientsPage = () => {
         value={filterAllergen}
       />
 
-      {/* Tabla (Mismo código que tenías) */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <table className="w-full text-center border-collapse">
-          {/* ... thead ... */}
           <tbody>
             {isLoading ? (
               <tr>
@@ -107,8 +129,8 @@ export const IngredientsPage = () => {
                   key={item.id}
                   item={item}
                   onEdit={() => handleEditClick(item)}
-                  onDelete={deleteIngredient}
-                  onRestore={restoreIngredient}
+                  onDelete={handleDelete}
+                  onRestore={handleRestore}
                   isDeleting={isDeleting}
                   isRestoring={isRestoring}
                 />
@@ -118,7 +140,6 @@ export const IngredientsPage = () => {
         </table>
       </div>
 
-      {/* Paginación */}
       <div className="flex justify-between items-center mt-4">
         <p className="text-sm text-gray-600">
           Total: {ingredients?.total || 0}
@@ -144,7 +165,6 @@ export const IngredientsPage = () => {
         </div>
       </div>
 
-      {/* Modal de Creación */}
       <IngredientModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
