@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import type { IngredientPrivate } from "../types/ingredient";
 import { X, Calendar, Clock, AlertTriangle } from "lucide-react"; // Si usas lucide-react
 import { formatDate } from "../helpers/helpers";
+import { toast } from "sonner";
 
 interface Props {
   isOpen: boolean;
@@ -39,29 +40,48 @@ export const IngredientModal = ({
 
   const isEditing = !!ingredientData;
   const isLoading = isCreating || isUpdating;
-  let title = "Nuevo Ingrediente";
 
-  if (isDeleted) {
-    title = "Detalle Ingrediente";
-  } else if (isEditing) {
-    title = "Editar Ingrediente";
-  } else {
-    title = "Nuevo Ingrediente";
-  }
+  const actionConfig = isDeleted
+    ? null
+    : isEditing && ingredientData
+      ? {
+          successMessage: "editado",
+          submit: () =>
+            updateIngredient({
+              id: ingredientData.id,
+              data: formData,
+            }),
+        }
+      : {
+          successMessage: "creado",
+          submit: () => createIngredient(formData),
+        };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!actionConfig) return;
+
     try {
-      if (isEditing && ingredientData) {
-        await updateIngredient({ id: ingredientData.id, data: formData });
-      } else {
-        await createIngredient(formData);
-      }
+      const result = await actionConfig.submit();
+
+      toast.success(
+        `Ingrediente ${result.name} ${actionConfig.successMessage} exitosamente`,
+      );
+
       onClose();
-    } catch (error) {
-      console.error("Error en la operación:", error);
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.detail || "Error al ejecutar la operación",
+      );
     }
   };
+
+  const title = isDeleted
+    ? "Detalle Ingrediente"
+    : isEditing
+      ? "Editar Ingrediente"
+      : "Nuevo Ingrediente";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-opacity">
