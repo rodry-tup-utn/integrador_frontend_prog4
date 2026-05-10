@@ -20,31 +20,34 @@ export const RowIngredient = ({
 }: RowIngredientProps) => {
   const isDeleted = !!item.deleted_at;
 
-  const handleDeleteOrRestore = () => {
-    toast(
-      isDeleted ? `¿Restaurar "${item.name}"?` : `¿Eliminar "${item.name}"?`,
-      {
-        action: {
-          label: isDeleted ? "Restaurar" : "Eliminar",
-          onClick: () => {
-            if (isDeleted) {
-              onRestore(item.id);
-            } else {
-              onDelete(item.id);
-            }
-          },
-        },
-      },
-    );
+  const restoreAction = {
+    text: `¿Restaurar "${item.name}"?`,
+    label: "Restaurar",
+    fn: () => onRestore(item.id),
+    textLoading: "Restaurando...",
+  };
+  const deleteAction = {
+    text: `¿Eliminar "${item.name}"?`,
+    label: "Eliminar",
+    fn: () => onDelete(item.id),
+    textLoading: "Eliminando...",
   };
 
-  const label = isDeleted
-    ? isRestoring
-      ? "Restaurando..."
-      : "Restaurar"
-    : isDeleting
-      ? "Borrando..."
-      : "Borrar";
+  const finalAction = isDeleted ? restoreAction : deleteAction;
+
+  const handleAction = () => {
+    toast(finalAction.text, {
+      action: {
+        label: finalAction.label,
+        onClick: () => {
+          finalAction.fn();
+        },
+      },
+    });
+  };
+
+  const label =
+    isRestoring || isDeleting ? finalAction.textLoading : finalAction.label;
 
   return (
     <tr
@@ -99,7 +102,7 @@ export const RowIngredient = ({
           </button>
 
           <button
-            onClick={handleDeleteOrRestore}
+            onClick={handleAction}
             disabled={isDeleting || isRestoring}
             className={`
               px-4 py-2 w-28 rounded-2xl font-medium text-white transition-all
