@@ -1,4 +1,5 @@
-import { useAuth } from "../modules/auth/context/AuthContext";
+import { Link } from "react-router-dom"; // Importante para la navegación
+import { useAuth } from "../features/auth/context/AuthContext";
 
 export const DashboardPage = () => {
   const { user, logout } = useAuth();
@@ -18,19 +19,23 @@ export const DashboardPage = () => {
 
         <div className="mt-6">
           <p className="text-lg">
-            ¡Bienvenido,{" "}
-            <span className="font-semibold">
-              {user?.name} {user?.lastname}
-            </span>
-            !
+            ¡Bienvenid@, <span className="font-semibold">{user?.name}</span>!
           </p>
-          <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-            <p className="text-sm text-blue-700">
-              <strong>Rol actual:</strong> {user?.role}
-            </p>
-            <p className="text-sm text-blue-700">
-              <strong>Email:</strong> {user?.email}
-            </p>
+          <div className="mt-4 p-4 bg-blue-50 rounded-lg flex justify-between items-center">
+            <div>
+              <p className="text-sm text-blue-700">
+                <strong>Rol actual:</strong> {user?.role}
+              </p>
+            </div>
+
+            {user?.role === "ADMIN" && (
+              <Link
+                to="/admin/ingredients"
+                className="text-sm bg-teal-600 hover:bg-teal-700 text-white font-medium px-4 py-2 rounded-lg transition-colors"
+              >
+                Gestionar Ingredientes
+              </Link>
+            )}
           </div>
         </div>
       </div>

@@ -1,27 +1,25 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { LoginPage } from "./modules/auth/pages/LoginPage";
-import { ProtectedRoute } from "./components/ProtectedRoute";
-import { DashboardPage } from "./pages/DashboardPage";
+import { RouterProvider } from "react-router-dom";
 import { Toaster } from "sonner";
+import { AuthProvider } from "./features/auth/context/AuthContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { router } from "./shared/components/router";
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1, // Si falla la API, reintenta solo una vez
+      refetchOnWindowFocus: false, // Evita que se recargue la data cada vez que cambias de pestaña
+    },
+  },
+});
 function App() {
   return (
-    <BrowserRouter>
-      <Toaster position="top-right" richColors closeButton></Toaster>
-      <Routes>
-        {/* Rutas Públicas */}
-        <Route path="/login" element={<LoginPage />} />
-
-        {/* Rutas Protegidas */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
-          {/* Aquí irán luego Productos, Categorías, etc. */}
-        </Route>
-
-        {/* Redirección por defecto */}
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <Toaster position="top-right" richColors closeButton></Toaster>
+        <RouterProvider router={router} />
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 

@@ -1,4 +1,4 @@
-import api from "../api/axiosConfig";
+import api from "../../../shared/api/axiosConfig";
 import type { AuthResponse, UserPrivateResponse } from "../types/auth";
 
 export const authService = {

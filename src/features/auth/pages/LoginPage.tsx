@@ -1,22 +1,21 @@
 import React from "react";
 import { useLogin } from "../hooks/useLogin";
-import { useAuth } from "../context/AuthContext";
-import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 export const LoginPage: React.FC = () => {
-  const { executeLogin, loading, error } = useLogin();
-  const { user } = useAuth();
+  const { executeLogin, loading } = useLogin();
+  const navigate = useNavigate();
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     const success = await executeLogin(e);
 
     if (success) {
-      toast(`Bienvenido ${user?.name}!`);
+      navigate("/dashboard");
       console.log("Navegando al inicio...");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 m-0-auto">
       <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl">
         {/* Encabezado */}
         <div className="text-center">
@@ -25,13 +24,6 @@ export const LoginPage: React.FC = () => {
             Ingresa tus credenciales para acceder al sistema
           </p>
         </div>
-
-        {/* Alerta de Error */}
-        {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
-            <p className="text-sm text-red-700">{error}</p>
-          </div>
-        )}
 
         {/* Formulario */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
