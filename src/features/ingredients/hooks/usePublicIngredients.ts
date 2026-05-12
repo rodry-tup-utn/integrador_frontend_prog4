@@ -7,9 +7,7 @@ export const usePublicIngredients = (
   search = "",
   selectedId: string | null = null,
 ) => {
-  // --- 1. LECTURA (Query) ---
   const ingredientsQuery = useQuery({
-    // La Query Key es sagrada: si el offset o search cambian, se refetchea solo
     queryKey: ["ingredients", "public", { offset, limit, search }],
     queryFn: () =>
       search
@@ -20,7 +18,7 @@ export const usePublicIngredients = (
   const singleIngredientQuery = useQuery({
     queryKey: ["ingredients", "public", "detail", selectedId],
     queryFn: () => ingredientService.public.getById(selectedId!),
-    enabled: !!selectedId, // <--- Solo se dispara si le pasás un ID
+    enabled: !!selectedId,
     staleTime: 1000 * 60 * 5,
   });
 

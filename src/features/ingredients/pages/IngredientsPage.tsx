@@ -16,10 +16,8 @@ export const IngredientsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const limit = 10;
 
-  // Calculamos el offset para la API
   const offset = (page - 1) * limit;
 
-  // El hook ahora recibe el searchTerm. React Query hará el fetch automáticamente al cambiar page o searchTerm.
   const {
     ingredients,
     isLoading,
@@ -34,7 +32,6 @@ export const IngredientsPage = () => {
 
   const totalPages = ingredients ? Math.ceil(ingredients.total / limit) : 0;
 
-  // Manejo de búsqueda: Solo reseteamos la página, el hook detecta el cambio de searchTerm
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1);

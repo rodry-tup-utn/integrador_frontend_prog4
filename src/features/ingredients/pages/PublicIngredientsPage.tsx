@@ -7,7 +7,6 @@ import { useAllergenFilter } from "../hooks/useAllergenFilter";
 export const IngredientsPublicPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Hook configurado para vista pública (offset, limit, search, selectedId)
   const { ingredients, isLoading } = usePublicIngredients(0, 50, searchTerm);
   const { filterAllergen, filteredIngredients, setFilterAllergen } =
     useAllergenFilter(ingredients?.data || []);

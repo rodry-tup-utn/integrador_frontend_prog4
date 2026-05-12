@@ -5,9 +5,7 @@ import type { IngredientUpdate } from "../types/ingredient";
 export const useIngredients = (offset = 0, limit = 20, search = "") => {
   const queryClient = useQueryClient();
 
-  // --- 1. LECTURA (Query) ---
   const ingredientsQuery = useQuery({
-    // La Query Key es sagrada: si el offset o search cambian, se refetchea solo
     queryKey: ["ingredients", "admin", { offset, limit, search }],
     queryFn: () =>
       search
