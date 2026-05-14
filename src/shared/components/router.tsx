@@ -31,7 +31,7 @@ export const router = createBrowserRouter([
             element: <DashboardPage />,
           },
           {
-            path: ROUTES.PUBLICINGREDIENTS,
+            path: ROUTES.PUBLIC_INGREDIENTS,
             element: <IngredientsPublicPage />,
           },
           { path: "/", element: <DashboardPage /> },
@@ -41,15 +41,15 @@ export const router = createBrowserRouter([
         element: <AdminRoute />,
         children: [
           {
-            path: ROUTES.INGREDIENTS,
+            path: ROUTES.ADMIN_INGREDIENTS,
             element: <IngredientsPage />,
           },
           {
-            path: ROUTES.PRODUCTS,
+            path: ROUTES.ADMIN_PRODUCTS,
             element: <ProductsPage />,
           },
           {
-            path: ROUTES.CATEGORIES,
+            path: ROUTES.ADMIN_CATEGORIES,
             element: <CategoriesPage />,
           },
         ],
