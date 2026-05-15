@@ -7,5 +7,5 @@ export const ROUTES = {
   ADMIN_INGREDIENTS: "/admin/ingredients",
   PUBLIC_INGREDIENTS: "/ingredients",
   ADMIN_CATEGORIES: "/admin/categories",
-  PUBLIC_CATEGORIES: "/admin/categories",
+  PUBLIC_CATEGORIES: "/categories",
 } as const;
