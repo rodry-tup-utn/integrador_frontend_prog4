@@ -10,7 +10,7 @@ export const usePublicCategoryDetail = (id: string | null) => {
         throw new Error(
           "Es necesario un id para acceder a los detalles de la categoria",
         );
-      categoryService.public.getById(id);
+      return categoryService.public.getById(id);
     },
     enabled: !!id,
   });

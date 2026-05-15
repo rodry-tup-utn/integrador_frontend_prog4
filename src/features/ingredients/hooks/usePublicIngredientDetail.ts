@@ -10,7 +10,7 @@ export const usePublicIngredientDetail = (id: string | null) => {
         throw new Error(
           "Es necesario un id para obtener los detalles del ingrediente",
         );
-      ingredientService.public.getById(id);
+      return ingredientService.public.getById(id);
     },
     enabled: !!id,
     staleTime: 1000 * 60 * 5,

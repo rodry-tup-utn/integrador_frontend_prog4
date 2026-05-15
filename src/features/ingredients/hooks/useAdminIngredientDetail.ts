@@ -7,7 +7,7 @@ export const useAdminIngredientDetail = (id: string | null) => {
     queryKey: ingredientsKeys.adminDetail(id),
     queryFn: () => {
       if (!id) throw new Error("No puede buscarse un ingrediente sin id");
-      ingredientService.admin.getById(id);
+      return ingredientService.admin.getById(id);
     },
     enabled: !!id,
   });
