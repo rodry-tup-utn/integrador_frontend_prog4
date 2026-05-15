@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useIngredients } from "../hooks/useIngredients";
+import { useAdminIngredientsList } from "../hooks/useAdminIngredientsList";
+import { useIngredientMutations } from "../hooks/useIngredientMutations";
 import { IngredientModal } from "../components/IngredientModal";
 import { RowIngredient } from "../components/RowIngredient";
 import type { IngredientPrivate } from "../types/ingredient";
@@ -18,14 +19,13 @@ export const IngredientsPage = () => {
 
   const offset = (page - 1) * limit;
 
-  const {
-    ingredients,
-    isLoading,
-    deleteIngredient,
-    restoreIngredient,
-    isRestoring,
-    isDeleting,
-  } = useIngredients(offset, limit, searchTerm);
+  const { data: ingredients, isLoading } = useAdminIngredientsList(
+    offset,
+    limit,
+    searchTerm,
+  );
+  const { deleteIngredient, restoreIngredient, isRestoring, isDeleting } =
+    useIngredientMutations();
 
   const { filterAllergen, filteredIngredients, setFilterAllergen } =
     useAllergenFilter(ingredients?.data || []);

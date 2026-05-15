@@ -1,4 +1,4 @@
-import { useIngredients } from "../hooks/useIngredients";
+import { useIngredientMutations } from "../hooks/useIngredientMutations";
 import { useState, useEffect } from "react";
 import type { IngredientPrivate } from "../types/ingredient";
 import { X, Calendar, Clock, AlertTriangle } from "lucide-react"; // Si usas lucide-react
@@ -21,7 +21,7 @@ export const IngredientModal = ({
   isDeleted,
 }: Props) => {
   const { createIngredient, updateIngredient, isCreating, isUpdating } =
-    useIngredients();
+    useIngredientMutations();
   const [formData, setFormData] = useState(initialState);
 
   useEffect(() => {

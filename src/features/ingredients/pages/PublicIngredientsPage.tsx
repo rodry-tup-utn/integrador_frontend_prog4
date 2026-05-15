@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { IngredientPublicCard } from "../components/IngredientPublicCard";
-import { usePublicIngredients } from "../hooks/usePublicIngredients";
+import { usePublicIngredientsList } from "../hooks/usePublicIngredientsList";
 import AllergenFilterButtons from "../components/AllergenFilterButtons";
 import { useAllergenFilter } from "../hooks/useAllergenFilter";
 
 export const IngredientsPublicPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { ingredients, isLoading } = usePublicIngredients(0, 50, searchTerm);
+  const { data: ingredients, isLoading } = usePublicIngredientsList(
+    0,
+    50,
+    searchTerm,
+  );
   const { filterAllergen, filteredIngredients, setFilterAllergen } =
     useAllergenFilter(ingredients?.data || []);
 
