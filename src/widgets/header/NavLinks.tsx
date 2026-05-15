@@ -22,7 +22,7 @@ const NavLinks = () => {
       {isAuthenticated && (
         <>
           <NavLink
-            to={ROUTES.PRODUCTS}
+            to={ROUTES.PUBLIC_PRODUCTS}
             className={({ isActive }) =>
               `text-sm font-medium transition-colors ${
                 isActive
@@ -36,8 +36,8 @@ const NavLinks = () => {
           <NavLink
             to={
               user?.role == "ADMIN"
-                ? ROUTES.INGREDIENTS
-                : ROUTES.PUBLICINGREDIENTS
+                ? ROUTES.ADMIN_INGREDIENTS
+                : ROUTES.PUBLIC_INGREDIENTS
             }
             className={({ isActive }) =>
               `text-sm font-medium transition-colors ${
@@ -50,7 +50,11 @@ const NavLinks = () => {
             Ingredientes
           </NavLink>
           <NavLink
-            to={ROUTES.CATEGORIES}
+            to={
+              user?.role == "ADMIN"
+                ? ROUTES.ADMIN_CATEGORIES
+                : ROUTES.PUBLIC_CATEGORIES
+            }
             className={({ isActive }) =>
               `text-sm font-medium transition-colors ${
                 isActive
