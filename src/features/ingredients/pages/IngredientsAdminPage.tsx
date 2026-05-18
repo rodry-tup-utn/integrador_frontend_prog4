@@ -18,7 +18,7 @@ import AllergenFilterButtons from "../components/AllergenFilterButtons";
 import { useAllergenFilter } from "../hooks/useAllergenFilter";
 import { notifications } from "@mantine/notifications";
 import type { IngredientPrivate } from "../types/ingredient";
-export const IngredientsPage = () => {
+export const IngredientsAdminPage = () => {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItem, setSelectedItem] = useState<IngredientPrivate | null>(
