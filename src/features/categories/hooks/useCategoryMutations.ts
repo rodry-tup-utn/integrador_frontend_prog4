@@ -31,10 +31,10 @@ export const useCategoryMutations = () => {
   });
 
   return {
-    createIngredient: createMutation.mutateAsync,
-    deleteIngredient: deleteMutation.mutateAsync,
-    updateIngredient: updateMutation.mutateAsync,
-    restoreIngredient: restoreMutation.mutateAsync,
+    createCategory: createMutation.mutateAsync,
+    deleteCategory: deleteMutation.mutateAsync,
+    updateCategory: updateMutation.mutateAsync,
+    restoreCategory: restoreMutation.mutateAsync,
     isCreating: createMutation.isPending,
     isDeleting: deleteMutation.isPending,
     isUpdating: updateMutation.isPending,
