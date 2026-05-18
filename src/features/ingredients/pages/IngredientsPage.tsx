@@ -1,13 +1,23 @@
 import { useState } from "react";
+import {
+  Table,
+  TextInput,
+  Button,
+  Group,
+  Title,
+  Pagination,
+  Paper,
+  Text,
+} from "@mantine/core";
+import { IconSearch, IconPlus } from "@tabler/icons-react";
 import { useAdminIngredientsList } from "../hooks/useAdminIngredientsList";
 import { useIngredientMutations } from "../hooks/useIngredientMutations";
 import { IngredientModal } from "../components/IngredientModal";
 import { RowIngredient } from "../components/RowIngredient";
-import type { IngredientPrivate } from "../types/ingredient";
-import { PlusCircleIcon } from "lucide-react";
 import AllergenFilterButtons from "../components/AllergenFilterButtons";
 import { useAllergenFilter } from "../hooks/useAllergenFilter";
-import { toast } from "sonner";
+import { notifications } from "@mantine/notifications";
+import type { IngredientPrivate } from "../types/ingredient";
 export const IngredientsPage = () => {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,116 +26,110 @@ export const IngredientsPage = () => {
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const limit = 10;
-
-  const offset = (page - 1) * limit;
-
   const { data: ingredients, isLoading } = useAdminIngredientsList(
-    offset,
+    (page - 1) * limit,
     limit,
     searchTerm,
   );
   const { deleteIngredient, restoreIngredient, isRestoring, isDeleting } =
     useIngredientMutations();
-
   const { filterAllergen, filteredIngredients, setFilterAllergen } =
     useAllergenFilter(ingredients?.data || []);
-
   const totalPages = ingredients ? Math.ceil(ingredients.total / limit) : 0;
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setPage(1);
-  };
-
-  const handleEditClick = (item: IngredientPrivate) => {
-    setSelectedItem(item);
-    setIsModalOpen(true);
-  };
-
-  const handleAddClick = () => {
-    setSelectedItem(null);
-    setIsModalOpen(true);
-  };
-
   const handleDelete = async (id: number) => {
     try {
       await deleteIngredient(id);
-
-      toast.success("Ingrediente eliminado");
-    } catch (error: any) {
-      toast.error(
-        error.response?.data?.detail || "Error al eliminar el ingrediente",
-      );
+      notifications.show({ color: "green", message: "Ingrediente eliminado" });
+    } catch (e: any) {
+      notifications.show({
+        color: "red",
+        message: e.response?.data?.detail || "Error",
+      });
     }
   };
   const handleRestore = async (id: number) => {
     try {
       await restoreIngredient(id);
-
-      toast.success("Ingrediente restaurado");
-    } catch (error: any) {
-      toast.error(
-        error.response?.data?.detail || "Error al restaurar el ingrediente",
-      );
+      notifications.show({ color: "cyan", message: "Ingrediente restaurado" });
+    } catch (e: any) {
+      notifications.show({
+        color: "red",
+        message: e.response?.data?.detail || "Error",
+      });
     }
   };
-
   return (
-    <div className="p-6 max-w-6xl mx-auto w-full">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Ingredientes</h1>
-        <button
-          onClick={() => handleAddClick()}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+    <>
+      <Group justify="space-between" mb="lg">
+        <Title order={2}>Ingredientes</Title>
+        <Button
+          leftSection={<IconPlus size={16} />}
+          onClick={() => {
+            setSelectedItem(null);
+            setIsModalOpen(true);
+          }}
         >
-          <div className="flex items-center gap-2">
-            <PlusCircleIcon /> Nuevo Ingrediente
-          </div>
-        </button>
-      </div>
-
-      <form onSubmit={handleSearchSubmit} className="mb-6 flex gap-2">
-        <input
-          type="text"
-          placeholder="Buscar ingrediente..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-1 max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-        />
-        <button
-          type="submit"
-          className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg transition-colors"
-        >
-          Buscar
-        </button>
-      </form>
-
+          Nuevo Ingrediente
+        </Button>
+      </Group>
+      <TextInput
+        placeholder="Buscar ingrediente..."
+        leftSection={<IconSearch size={16} />}
+        value={searchTerm}
+        onChange={(e) => {
+          setSearchTerm(e.currentTarget.value);
+          setPage(1);
+        }}
+        mb="md"
+        maw={400}
+      />
       <AllergenFilterButtons
         onChange={setFilterAllergen}
         value={filterAllergen}
       />
-
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <table className="w-full text-center border-collapse">
-          <tbody>
+      <Paper shadow="sm" withBorder radius="md" mb="md">
+        <Table striped highlightOnHover>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>ID</Table.Th>
+              <Table.Th>Nombre</Table.Th>
+              <Table.Th>Tipo</Table.Th>
+              <Table.Th>Estado</Table.Th>
+              <Table.Th style={{ textAlign: "center" }}>Acciones</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
             {isLoading ? (
-              <tr>
-                <td colSpan={4} className="p-8 text-center text-gray-500">
-                  Cargando...
-                </td>
-              </tr>
-            ) : ingredients?.data.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="p-8 text-center text-gray-500">
-                  No hay ingredientes.
-                </td>
-              </tr>
+              <Table.Tr>
+                <Table.Td colSpan={5}>
+                  <Text ta="center" py="xl">
+                    Cargando...
+                  </Text>
+                </Table.Td>
+              </Table.Tr>
+            ) : filteredIngredients.length === 0 ? (
+              <Table.Tr>
+                <Table.Td colSpan={5}>
+                  <Text ta="center" py="xl">
+                    No hay ingredientes.
+                  </Text>
+                </Table.Td>
+              </Table.Tr>
             ) : (
               filteredIngredients.map((item) => (
                 <RowIngredient
                   key={item.id}
                   item={item}
-                  onEdit={() => handleEditClick(item)}
+                  onEdit={(id) => {
+                    // find the ingredient from data and set it
+                    const found = ingredients?.data.find(
+                      (i) => i.id.toString() === id,
+                    );
+                    if (found) {
+                      setSelectedItem(found);
+                      setIsModalOpen(true);
+                    }
+                  }}
                   onDelete={handleDelete}
                   onRestore={handleRestore}
                   isDeleting={isDeleting}
@@ -133,41 +137,21 @@ export const IngredientsPage = () => {
                 />
               ))
             )}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="flex justify-between items-center mt-4">
-        <p className="text-sm text-gray-600">
+          </Table.Tbody>
+        </Table>
+      </Paper>
+      <Group justify="space-between">
+        <Text size="sm" c="dimmed">
           Total: {ingredients?.total || 0}
-        </p>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1 || isLoading}
-            className="px-4 py-2 border rounded-lg disabled:opacity-50"
-          >
-            Anterior
-          </button>
-          <span className="px-4 py-2 text-sm">
-            Página {page} de {totalPages || 1}
-          </span>
-          <button
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages || isLoading}
-            className="px-4 py-2 border rounded-lg disabled:opacity-50"
-          >
-            Siguiente
-          </button>
-        </div>
-      </div>
-
+        </Text>
+        <Pagination total={totalPages || 1} value={page} onChange={setPage} />
+      </Group>
       <IngredientModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         ingredientData={selectedItem}
         isDeleted={!!selectedItem?.deleted_at}
       />
-    </div>
+    </>
   );
 };
