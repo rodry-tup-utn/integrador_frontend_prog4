@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { toast } from "sonner";
-import { authService } from "../services/authService";
 import { useAuth } from "../context/AuthContext";
+import { notifications } from "@mantine/notifications";
 
 export const useLogin = () => {
   const [loading, setLoading] = useState(false);
@@ -14,12 +13,21 @@ export const useLogin = () => {
     const formData = new FormData(e.currentTarget);
 
     try {
-      const data = await authService.login(formData);
-      login(data.user, data.access_token);
-      toast.success(`Bienvenido ${data.user.name}!`);
-      return true;
+      const user = await login(formData);
+      if (user) {
+        notifications.show({
+          title: "Exito!",
+          message: `Bienvenido ${user.name}!`,
+        });
+        return true;
+      }
+      throw new Error("Login failed");
     } catch (err: any) {
-      toast.error(err.response?.data?.detail || "Error al iniciar sesión");
+      notifications.show({
+        color: "red",
+        title: "Error",
+        message: err.response?.data?.detail || "Error al iniciar sesión",
+      });
       return false;
     } finally {
       setLoading(false);

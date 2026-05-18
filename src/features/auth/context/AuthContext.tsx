@@ -1,31 +1,44 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import type { UserInfo, AuthContextType } from "../types/auth";
+import type { UserInfo, AuthContextType, MeResponse } from "../types/auth";
+import { authService } from "../services/authService";
+
+const toUserInfo = (data: MeResponse): UserInfo => ({
+  id: data.id,
+  name: data.name,
+  lastname: data.lastname,
+  email: data.email,
+  roles: data.roles.map((r) => r.role_code),
+});
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
-    setIsLoading(true);
-    const token = localStorage.getItem("token");
-    if (token) {
-      const savedUser = localStorage.getItem("user_info");
-      if (savedUser) setUser(JSON.parse(savedUser));
-    }
-    setIsLoading(false);
+    authService
+      .getMe()
+      .then((data) => setUser(toUserInfo(data)))
+      .catch(() => setUser(null))
+      .finally(() => setIsLoading(false));
   }, []);
-  const login = (user: UserInfo, token: string) => {
-    localStorage.setItem("user_info", JSON.stringify(user));
-    localStorage.setItem("token", token);
-    setUser(user);
+
+  const login = async (formData: FormData): Promise<UserInfo | null> => {
+    try {
+      await authService.login(formData);
+      const data = await authService.getMe();
+      const info = toUserInfo(data);
+      setUser(info);
+      return info;
+    } catch {
+      setUser(null);
+      return null;
+    }
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user_info");
+    authService.logout().catch(() => {});
     setUser(null);
   };
 
