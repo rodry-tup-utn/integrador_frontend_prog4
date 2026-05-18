@@ -1,4 +1,6 @@
 export const ROUTES = {
+  FORBIDDEN: "/forbidden",
+  LANDING: "/",
   HOME: "/dashboard",
   LOGIN: "/login",
   REGISTER: "/register",
