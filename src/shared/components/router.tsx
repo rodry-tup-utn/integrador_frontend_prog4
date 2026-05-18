@@ -6,12 +6,13 @@ import { LoginPage } from "../../features/auth/pages/LoginPage";
 import { DashboardPage } from "../../pages/DashboardPage";
 import { LandingPage } from "../../pages/LandingPage";
 import { AdminRoute } from "./AdminRoute";
-import { IngredientsPage } from "../../features/ingredients/pages/IngredientsPage";
+import { IngredientsAdminPage } from "../../features/ingredients/pages/IngredientsAdminPage";
 import ProductsPage from "../../pages/Products/ProductsPage";
 import RegisterPage from "../../pages/Register/RegisterPage";
-import { IngredientsPublicPage } from "../../features/ingredients/pages/PublicIngredientsPage";
+import { IngredientsPublicPage } from "../../features/ingredients/pages/IngredientsPublicPage";
 import CategoriesAdminPage from "../../features/categories/pages/CategoriesAdminPage";
 import { ForbiddenPage } from "../../pages/ForbiddenPage";
+import UserAdminPage from "../../features/user/pages/UserAdminPage";
 
 export const router = createBrowserRouter([
   {
@@ -53,7 +54,7 @@ export const router = createBrowserRouter([
         children: [
           {
             path: ROUTES.ADMIN_INGREDIENTS,
-            element: <IngredientsPage />,
+            element: <IngredientsAdminPage />,
           },
           {
             path: ROUTES.ADMIN_PRODUCTS,
@@ -63,6 +64,7 @@ export const router = createBrowserRouter([
             path: ROUTES.ADMIN_CATEGORIES,
             element: <CategoriesAdminPage />,
           },
+          { path: ROUTES.ADMIN_USERS, element: <UserAdminPage /> },
         ],
       },
     ],
