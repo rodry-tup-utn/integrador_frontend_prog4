@@ -19,8 +19,8 @@ export const categoryService = {
       return response.data;
     },
 
-    getById: async (id: string): Promise<CategoryPublic> => {
-      const response = await api.get<CategoryPublic>(`${PUBLIC_URL}/${id}`);
+    getById: async (id: string): Promise<CategoryPrivate> => {
+      const response = await api.get<CategoryPrivate>(`${PUBLIC_URL}/${id}`);
       return response.data;
     },
 
@@ -29,9 +29,12 @@ export const categoryService = {
       offset = 0,
       limit = 20,
     ): Promise<CategoryList> => {
-      const response = await api.get<CategoryList>(`${PUBLIC_URL}/search`, {
-        params: { query, offset, limit },
-      });
+      const response = await api.get<CategoryListPrivate>(
+        `${PUBLIC_URL}/search`,
+        {
+          params: { query, offset, limit },
+        },
+      );
       return response.data;
     },
   },
