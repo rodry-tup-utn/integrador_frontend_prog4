@@ -29,7 +29,7 @@ export interface UserInfo {
 
 export interface AuthContextType {
   user: UserInfo | null;
-  login: (formData: FormData) => Promise<UserInfo | null>;
+  executeLogin: (e: React.FormEvent<HTMLFormElement>) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
   isLoading: boolean;
