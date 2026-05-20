@@ -8,11 +8,11 @@ import {
   Stack,
   Center,
 } from "@mantine/core";
-import { useLogin } from "../hooks/useLogin";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const { executeLogin, loading } = useLogin();
+  const { executeLogin, isLoading } = useAuth();
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     const success = await executeLogin(e);
     if (success) navigate("/dashboard");
@@ -40,7 +40,7 @@ export const LoginPage = () => {
               placeholder="********"
               required
             />
-            <Button type="submit" loading={loading} fullWidth mt="sm">
+            <Button type="submit" loading={isLoading} fullWidth mt="sm">
               Iniciar Sesión
             </Button>
           </Stack>
