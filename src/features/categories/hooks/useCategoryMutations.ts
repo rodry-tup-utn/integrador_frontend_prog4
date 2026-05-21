@@ -1,5 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { categoryKeys, type CategoryUpdate } from "../types/category";
+import {
+  categoryKeys,
+  type CategoryParentUpdate,
+  type CategoryUpdate,
+} from "../types/category";
 import { categoryService } from "../services/categoryServices";
 
 export const useCategoryMutations = () => {
@@ -30,14 +34,23 @@ export const useCategoryMutations = () => {
     onSuccess: invalidate,
   });
 
+  const updateParentMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: CategoryParentUpdate }) =>
+      categoryService.admin.update_parent(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: categoryKeys.publicTree() });
+    },
+  });
+
   return {
     createCategory: createMutation.mutateAsync,
     deleteCategory: deleteMutation.mutateAsync,
     updateCategory: updateMutation.mutateAsync,
     restoreCategory: restoreMutation.mutateAsync,
+    updateParentCategory: updateParentMutation.mutateAsync,
     isCreating: createMutation.isPending,
     isDeleting: deleteMutation.isPending,
-    isUpdating: updateMutation.isPending,
+    isUpdating: updateMutation.isPending || updateParentMutation.isPending,
     isRestoring: restoreMutation.isPending,
   };
 };
