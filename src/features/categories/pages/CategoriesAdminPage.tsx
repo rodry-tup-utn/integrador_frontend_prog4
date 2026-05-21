@@ -10,7 +10,7 @@ import {
   Text,
   Badge,
   Modal,
-  Stack,
+  ModalContent,
 } from "@mantine/core";
 import { IconSearch, IconPlus, IconEdit } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
@@ -18,6 +18,8 @@ import { useAdminCategoryList } from "../hooks/useAdminCategoryList";
 import { useCategoryMutations } from "../hooks/useCategoryMutations";
 import type { CategoryPrivate } from "../types/category";
 import { useDebouncedValue } from "@mantine/hooks";
+import { CategoryModal } from "../components/CategoryModal";
+import { useDisclosure } from "@mantine/hooks";
 export default function CategoriesAdminPage() {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,9 +32,9 @@ export default function CategoriesAdminPage() {
     limit,
     debounsedSearch,
   );
-  const { createCategory, updateCategory, deleteCategory, restoreCategory } =
-    useCategoryMutations();
+  const { deleteCategory, restoreCategory } = useCategoryMutations();
   const totalPages = data ? Math.ceil(data.total / limit) : 0;
+  const [opened, { open, close }] = useDisclosure(false);
   const handleDelete = async (id: number) => {
     try {
       await deleteCategory(id);
@@ -207,6 +209,16 @@ export default function CategoriesAdminPage() {
         </Text>
         <Pagination total={totalPages || 1} value={page} onChange={setPage} />
       </Group>
+      <Button onClick={open}>Abrir Modal</Button>
+
+      <CategoryModal
+        opened={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          setEditing(null);
+        }}
+        categoryData={editing}
+      />
     </>
   );
 }
