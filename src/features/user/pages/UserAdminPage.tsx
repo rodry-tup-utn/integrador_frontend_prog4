@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAdminUserList } from "../hooks/admin/useAdminUserList";
-import type { UserPrivate } from "../types/user";
+import type { UserDetailRead } from "../types/user";
 import { useDebouncedValue } from "@mantine/hooks";
 import {
   Badge,
@@ -18,7 +18,7 @@ import { IconEdit, IconPlus, IconSearch } from "@tabler/icons-react";
 const UserAdminPage = () => {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [editing, setEditing] = useState<UserPrivate | null>(null);
+  const [editing, setEditing] = useState<UserDetailRead | null>(null);
   const [debounsedSearch] = useDebouncedValue(searchTerm, 300);
   const [modal, setModalOpen] = useState(false);
   const limit = 10;

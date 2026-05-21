@@ -1,17 +1,16 @@
 import api from "../../../shared/api/axiosConfig";
 
 import type {
-  UserBase,
   UserCreate,
   UserCreateByAdmin,
-  UserDetail,
-  UserList,
-  UserPrivate,
-  UserProfile,
   UserUpdate,
   AddressCreate,
   AddressRead,
   AddressUpdate,
+  UserResponse,
+  UserProfileRead,
+  UserPaginatedRead,
+  UserDetailRead,
 } from "../types/user";
 
 const ADMIN_URL = "/admin/user";
@@ -20,20 +19,20 @@ const PROFILE_URL = "/profile";
 
 export const userService = {
   public: {
-    create: async (data: UserCreate): Promise<UserBase> => {
-      const response = await api.post<UserBase>(`${PUBLIC_URL}`, data);
+    create: async (data: UserCreate): Promise<UserResponse> => {
+      const response = await api.post<UserResponse>(`${PUBLIC_URL}`, data);
       return response.data;
     },
   },
 
   profile: {
-    me: async (): Promise<UserProfile> => {
-      const response = await api.get<UserProfile>(`${PROFILE_URL}/me`);
+    me: async (): Promise<UserProfileRead> => {
+      const response = await api.get<UserProfileRead>(`${PROFILE_URL}/me`);
       return response.data;
     },
 
-    update: async (data: UserUpdate): Promise<UserPrivate> => {
-      const response = await api.patch<UserPrivate>(
+    update: async (data: UserUpdate): Promise<UserResponse> => {
+      const response = await api.patch<UserResponse>(
         `${PROFILE_URL}/update`,
         data,
       );
@@ -76,8 +75,8 @@ export const userService = {
   },
 
   admin: {
-    getAll: async (offset = 0, limit = 20): Promise<UserList> => {
-      const response = await api.get<UserList>(`${ADMIN_URL}`, {
+    getAll: async (offset = 0, limit = 20): Promise<UserPaginatedRead> => {
+      const response = await api.get<UserPaginatedRead>(`${ADMIN_URL}`, {
         params: { offset, limit },
       });
 
@@ -88,20 +87,20 @@ export const userService = {
       query: string,
       offset = 0,
       limit = 20,
-    ): Promise<UserList> => {
-      const response = await api.get<UserList>(`${ADMIN_URL}/search`, {
+    ): Promise<UserPaginatedRead> => {
+      const response = await api.get<UserPaginatedRead>(`${ADMIN_URL}/search`, {
         params: { query, offset, limit },
       });
       return response.data;
     },
 
-    getById: async (id: number): Promise<UserDetail> => {
-      const response = await api.get<UserDetail>(`${ADMIN_URL}/${id}`);
+    getById: async (id: number): Promise<UserDetailRead> => {
+      const response = await api.get<UserDetailRead>(`${ADMIN_URL}/${id}`);
       return response.data;
     },
 
-    create: async (data: UserCreateByAdmin): Promise<UserBase> => {
-      const response = await api.post<UserBase>(`${ADMIN_URL}`, data);
+    create: async (data: UserCreateByAdmin): Promise<UserResponse> => {
+      const response = await api.post<UserResponse>(`${ADMIN_URL}`, data);
       return response.data;
     },
 
@@ -131,8 +130,10 @@ export const userService = {
       await api.delete(`${ADMIN_URL}/${id}`);
     },
 
-    restore: async (id: number): Promise<UserBase> => {
-      const response = await api.patch<UserBase>(`${ADMIN_URL}/restore/${id}`);
+    restore: async (id: number): Promise<UserResponse> => {
+      const response = await api.patch<UserResponse>(
+        `${ADMIN_URL}/restore/${id}`,
+      );
 
       return response.data;
     },

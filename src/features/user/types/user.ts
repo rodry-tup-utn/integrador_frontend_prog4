@@ -10,7 +10,7 @@ export interface UserCreateByAdmin extends UserCreate {
   role_code: string;
 }
 
-export interface UserBase {
+export interface UserResponse {
   id: number;
   name: string;
   lastname: string;
@@ -71,47 +71,43 @@ export interface AddressCreate {
   is_main?: boolean | null;
 }
 
-export interface UserRole {
-  role_code: string;
+export interface UserRoleRead {
   role_user: RoleRead;
   assigned_by_id: number;
   expires_at?: string | null;
   created_at: string;
 }
 
-export interface UserPrivate extends UserBase {
+export interface UserAdminRead extends UserResponse {
   created_at: string;
-  updated_at: string | null;
-  deleted_at: string | null;
-  roles: RoleRead[];
+  updated_at?: string | null;
+  deleted_at?: string | null;
+  roles: UserRoleRead[];
 }
 
-export interface UserDetail extends UserBase {
-  roles: UserRole[];
+export interface UserDetailRead extends UserResponse {
+  roles: UserRoleRead[];
 }
 
-export interface UserProfile extends UserBase {
-  roles: UserRole[];
+export interface UserProfileRead extends UserResponse {
+  roles: UserRoleRead[];
   addresses: AddressRead[];
 }
 
-export interface UserLogin {
-  email: string;
-  password: string;
-}
-
-export interface UserAuthCredentials {
+export interface TokenPayloadData {
   id: number;
   name: string;
   roles: string[];
-  hashed_pass: string;
 }
 
-export interface UserList {
-  data: UserPrivate[];
+export interface UserSessionRead extends UserResponse {
+  roles: string[];
+}
+
+export interface UserPaginatedRead {
+  data: UserAdminRead[];
   total: number;
 }
-
 export const userKeys = {
   all: ["users"] as const,
   profile: () => [...userKeys.all, "profile"] as const,
