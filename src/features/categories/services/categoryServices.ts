@@ -3,6 +3,9 @@ import type {
   CategoryCreate,
   CategoryList,
   CategoryListPrivate,
+  CategoryNode,
+  CategoryParentUpdate,
+  CategoryPath,
   CategoryPrivate,
   CategoryPublic,
   CategoryUpdate,
@@ -29,12 +32,24 @@ export const categoryService = {
       offset = 0,
       limit = 20,
     ): Promise<CategoryList> => {
-      const response = await api.get<CategoryListPrivate>(
+      const response = await api.get<CategoryList>(
         `${PUBLIC_URL}/search`,
         {
           params: { query, offset, limit },
         },
       );
+      return response.data;
+    },
+
+    getPath: async (id: number): Promise<CategoryPath> => {
+      const response = await api.get<CategoryPath>(`${PUBLIC_URL}/${id}/path`);
+      return response.data;
+    },
+
+    getTree: async (depth = 2): Promise<CategoryNode[]> => {
+      const response = await api.get<CategoryNode[]>(`${PUBLIC_URL}/nodes/root`, {
+        params: { depth },
+      });
       return response.data;
     },
   },
@@ -54,6 +69,14 @@ export const categoryService = {
 
     create: async (data: CategoryCreate): Promise<CategoryPrivate> => {
       const response = await api.post<CategoryPrivate>(`${ADMIN_URL}`, data);
+      return response.data;
+    },
+
+    update_parent: async (category_id: number, data: CategoryParentUpdate) => {
+      const response = await api.patch<CategoryPrivate>(
+        `${ADMIN_URL}/${category_id}/parent`,
+        data,
+      );
       return response.data;
     },
 
