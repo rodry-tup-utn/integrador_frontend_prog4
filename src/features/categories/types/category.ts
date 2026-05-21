@@ -1,4 +1,6 @@
-import { all } from "axios";
+export interface CategoryPath {
+  path: string[];
+}
 
 export interface CategoryCreate {
   parent_id?: number | null;
@@ -30,10 +32,13 @@ export interface CategoryNode {
 }
 
 export interface CategoryUpdate {
-  parent_id?: number | null;
   name?: string | null;
   description?: string | null;
   image_url?: string | null;
+}
+
+export interface CategoryParentUpdate {
+  parent_id: number | null;
 }
 
 export interface CategoryList {
@@ -55,6 +60,8 @@ export const categoryKeys = {
     [...categoryKeys.publicLists(), filters] as const,
   publicDetails: () => [...categoryKeys.public(), "detail"] as const,
   publicDetail: (id: string) => [...categoryKeys.publicDetails(), id] as const,
+  publicPath: (id: number) => [...categoryKeys.public(), "path", id] as const,
+  publicTree: () => [...categoryKeys.public(), "tree"] as const,
 
   admin: () => [...categoryKeys.all, "admin"] as const,
   adminLists: () => [...categoryKeys.admin(), "list"] as const,
