@@ -1,9 +1,9 @@
-import { useIngredients } from "../hooks/useIngredients";
+import { useIngredientMutations } from "../hooks/useIngredientMutations";
 import { useState, useEffect } from "react";
 import type { IngredientPrivate } from "../types/ingredient";
 import { X, Calendar, Clock, AlertTriangle } from "lucide-react"; // Si usas lucide-react
 import { formatDate } from "../helpers/helpers";
-import { toast } from "sonner";
+import { notifications } from "@mantine/notifications";
 
 interface Props {
   isOpen: boolean;
@@ -21,7 +21,7 @@ export const IngredientModal = ({
   isDeleted,
 }: Props) => {
   const { createIngredient, updateIngredient, isCreating, isUpdating } =
-    useIngredients();
+    useIngredientMutations();
   const [formData, setFormData] = useState(initialState);
 
   useEffect(() => {
@@ -65,15 +65,20 @@ export const IngredientModal = ({
     try {
       const result = await actionConfig.submit();
 
-      toast.success(
-        `Ingrediente ${result.name} ${actionConfig.successMessage} exitosamente`,
-      );
+      notifications.show({
+        title: "Exito al guardar",
+        message: `Ingrediente ${result.name} ${actionConfig.successMessage} exitosamente`,
+        color: "green",
+      });
 
       onClose();
     } catch (error: any) {
-      toast.error(
-        error.response?.data?.detail || "Error al ejecutar la operación",
-      );
+      notifications.show({
+        title: "Error",
+        message:
+          error.response?.data?.detail || "Error al ejecutar la operación",
+        color: "red",
+      });
     }
   };
 

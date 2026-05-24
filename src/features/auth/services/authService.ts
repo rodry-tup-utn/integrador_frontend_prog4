@@ -1,19 +1,26 @@
 import api from "../../../shared/api/axiosConfig";
-import type { AuthResponse, UserPrivateResponse } from "../types/auth";
+import type { UserSessionRead } from "../../user/types/user";
+import type { MeResponse } from "../types/auth";
 
 export const authService = {
-  login: async (formData: FormData): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>("/auth/login", formData, {
+  login: async (formData: FormData): Promise<void> => {
+    await api.post("/auth/login", formData, {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
     });
+  },
 
+  getMe: async (): Promise<MeResponse> => {
+    const response = await api.get<MeResponse>("profile/me");
     return response.data;
   },
 
-  getMe: async () => {
-    const response = await api.get<UserPrivateResponse>("profile/me");
+  logout: async (): Promise<void> => {
+    await api.post("/auth/logout");
+  },
+  session: async (): Promise<UserSessionRead> => {
+    const response = await api.get<UserSessionRead>("profile/session");
     return response.data;
   },
 };

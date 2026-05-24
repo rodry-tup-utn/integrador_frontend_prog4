@@ -1,49 +1,25 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext } from "react";
 import type { ReactNode } from "react";
-import type { UserInfo, AuthContextType } from "../types/auth";
-
+import type { AuthContextType } from "../types/auth";
+import { useLogin } from "../hooks/useLogin";
 const AuthContext = createContext<AuthContextType | null>(null);
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<UserInfo | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    setIsLoading(true);
-    const token = localStorage.getItem("token");
-    if (token) {
-      const savedUser = localStorage.getItem("user_info");
-      if (savedUser) setUser(JSON.parse(savedUser));
-    }
-    setIsLoading(false);
-  }, []);
-  const login = (user: UserInfo, token: string) => {
-    localStorage.setItem("user_info", JSON.stringify(user));
-    localStorage.setItem("token", token);
-    setUser(user);
-  };
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user_info");
-    setUser(null);
-  };
+  const { executeLogin, logout, loading, user } = useLogin();
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        login,
+        executeLogin,
         logout,
         isAuthenticated: !!user,
-        isLoading,
+        isLoading: loading,
       }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
-
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {

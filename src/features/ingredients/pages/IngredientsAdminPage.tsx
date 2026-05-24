@@ -1,0 +1,157 @@
+import { useState } from "react";
+import {
+  Table,
+  TextInput,
+  Button,
+  Group,
+  Title,
+  Pagination,
+  Paper,
+  Text,
+} from "@mantine/core";
+import { IconSearch, IconPlus } from "@tabler/icons-react";
+import { useAdminIngredientsList } from "../hooks/useAdminIngredientsList";
+import { useIngredientMutations } from "../hooks/useIngredientMutations";
+import { IngredientModal } from "../components/IngredientModal";
+import { RowIngredient } from "../components/RowIngredient";
+import AllergenFilterButtons from "../components/AllergenFilterButtons";
+import { useAllergenFilter } from "../hooks/useAllergenFilter";
+import { notifications } from "@mantine/notifications";
+import type { IngredientPrivate } from "../types/ingredient";
+export const IngredientsAdminPage = () => {
+  const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedItem, setSelectedItem] = useState<IngredientPrivate | null>(
+    null,
+  );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const limit = 10;
+  const { data: ingredients, isLoading } = useAdminIngredientsList(
+    (page - 1) * limit,
+    limit,
+    searchTerm,
+  );
+  const { deleteIngredient, restoreIngredient, isRestoring, isDeleting } =
+    useIngredientMutations();
+  const { filterAllergen, filteredIngredients, setFilterAllergen } =
+    useAllergenFilter(ingredients?.data || []);
+  const totalPages = ingredients ? Math.ceil(ingredients.total / limit) : 0;
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteIngredient(id);
+      notifications.show({ color: "green", message: "Ingrediente eliminado" });
+    } catch (e: any) {
+      notifications.show({
+        color: "red",
+        message: e.response?.data?.detail || "Error",
+      });
+    }
+  };
+  const handleRestore = async (id: number) => {
+    try {
+      await restoreIngredient(id);
+      notifications.show({ color: "cyan", message: "Ingrediente restaurado" });
+    } catch (e: any) {
+      notifications.show({
+        color: "red",
+        message: e.response?.data?.detail || "Error",
+      });
+    }
+  };
+  return (
+    <>
+      <Group justify="space-between" mb="lg">
+        <Title order={2}>Ingredientes</Title>
+        <Button
+          leftSection={<IconPlus size={16} />}
+          onClick={() => {
+            setSelectedItem(null);
+            setIsModalOpen(true);
+          }}
+        >
+          Nuevo Ingrediente
+        </Button>
+      </Group>
+      <TextInput
+        placeholder="Buscar ingrediente..."
+        leftSection={<IconSearch size={16} />}
+        value={searchTerm}
+        onChange={(e) => {
+          setSearchTerm(e.currentTarget.value);
+          setPage(1);
+        }}
+        mb="md"
+        maw={400}
+      />
+      <AllergenFilterButtons
+        onChange={setFilterAllergen}
+        value={filterAllergen}
+      />
+      <Paper shadow="sm" withBorder radius="md" mb="md">
+        <Table striped highlightOnHover>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>ID</Table.Th>
+              <Table.Th>Nombre</Table.Th>
+              <Table.Th>Tipo</Table.Th>
+              <Table.Th>Estado</Table.Th>
+              <Table.Th style={{ textAlign: "center" }}>Acciones</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {isLoading ? (
+              <Table.Tr>
+                <Table.Td colSpan={5}>
+                  <Text ta="center" py="xl">
+                    Cargando...
+                  </Text>
+                </Table.Td>
+              </Table.Tr>
+            ) : filteredIngredients.length === 0 ? (
+              <Table.Tr>
+                <Table.Td colSpan={5}>
+                  <Text ta="center" py="xl">
+                    No hay ingredientes.
+                  </Text>
+                </Table.Td>
+              </Table.Tr>
+            ) : (
+              filteredIngredients.map((item) => (
+                <RowIngredient
+                  key={item.id}
+                  item={item}
+                  onEdit={(id) => {
+                    // find the ingredient from data and set it
+                    const found = ingredients?.data.find(
+                      (i) => i.id.toString() === id,
+                    );
+                    if (found) {
+                      setSelectedItem(found);
+                      setIsModalOpen(true);
+                    }
+                  }}
+                  onDelete={handleDelete}
+                  onRestore={handleRestore}
+                  isDeleting={isDeleting}
+                  isRestoring={isRestoring}
+                />
+              ))
+            )}
+          </Table.Tbody>
+        </Table>
+      </Paper>
+      <Group justify="space-between">
+        <Text size="sm" c="dimmed">
+          Total: {ingredients?.total || 0}
+        </Text>
+        <Pagination total={totalPages || 1} value={page} onChange={setPage} />
+      </Group>
+      <IngredientModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        ingredientData={selectedItem}
+        isDeleted={!!selectedItem?.deleted_at}
+      />
+    </>
+  );
+};

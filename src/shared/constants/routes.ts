@@ -1,4 +1,6 @@
 export const ROUTES = {
+  FORBIDDEN: "/forbidden",
+  LANDING: "/",
   HOME: "/dashboard",
   LOGIN: "/login",
   REGISTER: "/register",
@@ -7,5 +9,6 @@ export const ROUTES = {
   ADMIN_INGREDIENTS: "/admin/ingredients",
   PUBLIC_INGREDIENTS: "/ingredients",
   ADMIN_CATEGORIES: "/admin/categories",
-  PUBLIC_CATEGORIES: "/admin/categories",
+  PUBLIC_CATEGORIES: "/categories",
+  ADMIN_USERS: "/admin/users",
 } as const;

@@ -24,11 +24,11 @@ export const DashboardPage = () => {
           <div className="mt-4 p-4 bg-blue-50 rounded-lg flex justify-between items-center">
             <div>
               <p className="text-sm text-blue-700">
-                <strong>Rol actual:</strong> {user?.role}
+                <strong>Roles:</strong> {user?.roles.join(", ") ?? "—"}
               </p>
             </div>
 
-            {user?.role === "ADMIN" && (
+            {user?.roles.includes("ADMIN") && (
               <Link
                 to="/admin/ingredients"
                 className="text-sm bg-teal-600 hover:bg-teal-700 text-white font-medium px-4 py-2 rounded-lg transition-colors"

@@ -1,8 +1,8 @@
 import { RouterProvider } from "react-router-dom";
-import { Toaster } from "sonner";
 import { AuthProvider } from "./features/auth/context/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { router } from "./shared/components/router";
+import { Notifications } from "@mantine/notifications";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,7 +16,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Toaster position="top-right" richColors closeButton></Toaster>
+        <Notifications position="top-right"></Notifications>
         <RouterProvider router={router} />
       </AuthProvider>
     </QueryClientProvider>
