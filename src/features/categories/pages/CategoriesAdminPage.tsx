@@ -9,21 +9,20 @@ import {
   Paper,
   Text,
   Badge,
-  Modal,
-  ModalContent,
 } from "@mantine/core";
 import { IconSearch, IconPlus, IconEdit } from "@tabler/icons-react";
-import { notifications } from "@mantine/notifications";
 import { useAdminCategoryList } from "../hooks/useAdminCategoryList";
 import { useCategoryMutations } from "../hooks/useCategoryMutations";
 import type { CategoryPrivate } from "../types/category";
 import { useDebouncedValue } from "@mantine/hooks";
-import { CategoryModal } from "../components/CategoryModal";
-import { useDisclosure } from "@mantine/hooks";
+import { CategoryCreateModal } from "../components/CategoryCreateModal";
+import { CategoryEditModal } from "../components/CategoryEditModal";
+import { showConfirm } from "../../../shared/components/ShowConfirm";
 export default function CategoriesAdminPage() {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [editing, setEditing] = useState<CategoryPrivate | null>(null);
   const [debounsedSearch] = useDebouncedValue(searchTerm, 300);
   const limit = 10;
@@ -34,54 +33,29 @@ export default function CategoriesAdminPage() {
   );
   const { deleteCategory, restoreCategory } = useCategoryMutations();
   const totalPages = data ? Math.ceil(data.total / limit) : 0;
-  const [opened, { open, close }] = useDisclosure(false);
-  const handleDelete = async (id: number) => {
-    try {
-      await deleteCategory(id);
-      notifications.show({ color: "green", message: "Categoría eliminada" });
-    } catch (e: any) {
-      notifications.show({
-        color: "red",
-        message: e.response?.data?.detail || "Error",
-      });
-    }
+
+  const handleDelete = async (item: CategoryPrivate) => {
+    showConfirm({
+      title: "Eliminar categoria?",
+      color: "red",
+      confirmLabel: "Eliminar",
+      onConfirm: () => {
+        deleteCategory(item.id);
+      },
+      successMessage: `Categoría ${item.name} eliminada`,
+    });
   };
 
-  const onRestoreClick = async (id: number) => {
-    try {
-      await restoreCategory(id);
-      notifications.show({
-        title: "Exito",
-        message: "Categoria Restaurada",
-        color: "green",
-      });
-    } catch (error: any) {
-      notifications.show({
-        color: "red",
-        message: error.response?.data?.detail || "Error",
-      });
-    }
-  };
-
-  const handleRestore = async (id: number) => {
-    try {
-      notifications.show({
-        color: "cyan",
-        message: (
-          <Group justify="space-between" wrap="nowrap">
-            <Text size="md">¿Restaurar Categoria?</Text>
-            <Button onClick={() => onRestoreClick(id)}>
-              Restaurar Categoria
-            </Button>
-          </Group>
-        ),
-      });
-    } catch (e: any) {
-      notifications.show({
-        color: "red",
-        message: e.response?.data?.detail || "Error",
-      });
-    }
+  const handleRestore = async (item: CategoryPrivate) => {
+    showConfirm({
+      title: "¿Restaurar categoria?",
+      confirmLabel: "Restaurar",
+      color: "green",
+      onConfirm: () => {
+        restoreCategory(item.id);
+      },
+      successMessage: `Categoría ${item.name} retaurada`,
+    });
   };
   return (
     <>
@@ -89,10 +63,7 @@ export default function CategoriesAdminPage() {
         <Title order={2}>Categorías</Title>
         <Button
           leftSection={<IconPlus size={16} />}
-          onClick={() => {
-            setEditing(null);
-            setModalOpen(true);
-          }}
+          onClick={() => setCreateOpen(true)}
         >
           Nueva Categoría
         </Button>
@@ -176,7 +147,7 @@ export default function CategoriesAdminPage() {
                           color="blue"
                           onClick={() => {
                             setEditing(item);
-                            setModalOpen(true);
+                            setEditOpen(true);
                           }}
                         >
                           {<IconEdit></IconEdit>}
@@ -187,9 +158,7 @@ export default function CategoriesAdminPage() {
                           variant="light"
                           color={isDeleted ? "green" : "red"}
                           onClick={() =>
-                            isDeleted
-                              ? handleRestore(item.id)
-                              : handleDelete(item.id)
+                            isDeleted ? handleRestore(item) : handleDelete(item)
                           }
                         >
                           {isDeleted ? "Restaurar" : "Eliminar"}
@@ -209,16 +178,20 @@ export default function CategoriesAdminPage() {
         </Text>
         <Pagination total={totalPages || 1} value={page} onChange={setPage} />
       </Group>
-      <Button onClick={open}>Abrir Modal</Button>
-
-      <CategoryModal
-        opened={modalOpen}
-        onClose={() => {
-          setModalOpen(false);
-          setEditing(null);
-        }}
-        categoryData={editing}
+      <CategoryCreateModal
+        opened={createOpen}
+        onClose={() => setCreateOpen(false)}
       />
+      {editing && (
+        <CategoryEditModal
+          opened={editOpen}
+          onClose={() => {
+            setEditOpen(false);
+            setEditing(null);
+          }}
+          categoryData={editing}
+        />
+      )}
     </>
   );
 }
