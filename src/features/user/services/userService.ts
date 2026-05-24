@@ -10,7 +10,7 @@ import type {
   UserResponse,
   UserProfileRead,
   UserPaginatedRead,
-  UserDetailRead,
+  UserAdminRead,
 } from "../types/user";
 
 const ADMIN_URL = "/admin/user";
@@ -94,13 +94,21 @@ export const userService = {
       return response.data;
     },
 
-    getById: async (id: number): Promise<UserDetailRead> => {
-      const response = await api.get<UserDetailRead>(`${ADMIN_URL}/${id}`);
+    getById: async (id: number): Promise<UserAdminRead> => {
+      const response = await api.get<UserAdminRead>(`${ADMIN_URL}/${id}`);
       return response.data;
     },
 
     create: async (data: UserCreateByAdmin): Promise<UserResponse> => {
       const response = await api.post<UserResponse>(`${ADMIN_URL}`, data);
+      return response.data;
+    },
+
+    update: async (id: number, data: UserUpdate): Promise<UserAdminRead> => {
+      const response = await api.patch<UserAdminRead>(
+        `${ADMIN_URL}/update/${id}`,
+        data,
+      );
       return response.data;
     },
 
