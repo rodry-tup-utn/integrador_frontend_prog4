@@ -6,8 +6,10 @@ export interface UserCreate {
   password: string;
 }
 
+export type RoleCodes = "CLIENT" | "ADMIN" | "STOCK" | "ORDERS";
+
 export interface UserCreateByAdmin extends UserCreate {
-  role_code: string;
+  role_code: RoleCodes;
 }
 
 export interface UserResponse {
@@ -82,10 +84,6 @@ export interface UserAdminRead extends UserResponse {
   created_at: string;
   updated_at?: string | null;
   deleted_at?: string | null;
-  roles: UserRoleRead[];
-}
-
-export interface UserDetailRead extends UserResponse {
   roles: UserRoleRead[];
 }
 
