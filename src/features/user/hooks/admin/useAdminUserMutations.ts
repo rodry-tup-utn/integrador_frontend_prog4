@@ -1,7 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 
-import { userKeys, type UserCreateByAdmin } from "../../types/user";
+import {
+  userKeys,
+  type UserCreateByAdmin,
+  type UserUpdate,
+} from "../../types/user";
 import { userService } from "../../services/userService";
 
 export const useAdminUserMutations = () => {
@@ -13,25 +17,11 @@ export const useAdminUserMutations = () => {
     });
   };
 
-  const create = useMutation({
+  const createUser = useMutation({
     mutationFn: (data: UserCreateByAdmin) => userService.admin.create(data),
 
     onSuccess: async () => {
       await invalidateUsers();
-
-      notifications.show({
-        color: "green",
-        title: "Usuario creado",
-        message: "El usuario fue creado correctamente",
-      });
-    },
-
-    onError: () => {
-      notifications.show({
-        color: "red",
-        title: "Error",
-        message: "No se pudo crear el usuario",
-      });
     },
   });
 
@@ -40,42 +30,23 @@ export const useAdminUserMutations = () => {
 
     onSuccess: async () => {
       await invalidateUsers();
-
-      notifications.show({
-        color: "green",
-        title: "Usuario eliminado",
-        message: "El usuario fue eliminado correctamente",
-      });
-    },
-
-    onError: () => {
-      notifications.show({
-        color: "red",
-        title: "Error",
-        message: "No se pudo eliminar el usuario",
-      });
     },
   });
 
-  const restore = useMutation({
+  const restoreUser = useMutation({
     mutationFn: (id: number) => userService.admin.restore(id),
 
     onSuccess: async () => {
       await invalidateUsers();
-
-      notifications.show({
-        color: "green",
-        title: "Usuario restaurado",
-        message: "El usuario fue restaurado correctamente",
-      });
     },
+  });
 
-    onError: () => {
-      notifications.show({
-        color: "red",
-        title: "Error",
-        message: "No se pudo restaurar el usuario",
-      });
+  const updateUser = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: UserUpdate }) =>
+      userService.admin.update(id, data),
+
+    onSuccess: async () => {
+      await invalidateUsers();
     },
   });
 
@@ -85,20 +56,6 @@ export const useAdminUserMutations = () => {
 
     onSuccess: async () => {
       await invalidateUsers();
-
-      notifications.show({
-        color: "green",
-        title: "Rol asignado",
-        message: "El rol fue asignado correctamente",
-      });
-    },
-
-    onError: () => {
-      notifications.show({
-        color: "red",
-        title: "Error",
-        message: "No se pudo asignar el rol",
-      });
     },
   });
 
@@ -108,28 +65,22 @@ export const useAdminUserMutations = () => {
 
     onSuccess: async () => {
       await invalidateUsers();
-
-      notifications.show({
-        color: "green",
-        title: "Rol revocado",
-        message: "El rol fue revocado correctamente",
-      });
-    },
-
-    onError: () => {
-      notifications.show({
-        color: "red",
-        title: "Error",
-        message: "No se pudo revocar el rol",
-      });
     },
   });
 
   return {
-    create,
-    deleteUser,
-    restore,
-    assignRole,
-    revokeRole,
+    createUser: createUser.mutateAsync,
+    updateUser: updateUser.mutateAsync,
+    deleteUser: deleteUser.mutateAsync,
+    restoreUser: restoreUser.mutateAsync,
+    assignRole: assignRole.mutateAsync,
+    revokeRole: revokeRole.mutateAsync,
+    isLoading:
+      createUser.isPending ||
+      updateUser.isPending ||
+      deleteUser.isPending ||
+      restoreUser.isPending ||
+      assignRole.isPending ||
+      revokeRole.isPending,
   };
 };
