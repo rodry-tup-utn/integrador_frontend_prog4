@@ -8,36 +8,47 @@ import {
   Pagination,
   Paper,
   Text,
+  SegmentedControl,
 } from "@mantine/core";
 import { IconSearch, IconPlus } from "@tabler/icons-react";
 import { useAdminIngredientsList } from "../hooks/useAdminIngredientsList";
 import { useIngredientMutations } from "../hooks/useIngredientMutations";
 import { IngredientModal } from "../components/IngredientModal";
 import { RowIngredient } from "../components/RowIngredient";
-import AllergenFilterButtons from "../components/AllergenFilterButtons";
-import { useAllergenFilter } from "../hooks/useAllergenFilter";
 import { useAuth } from "../../auth/context/AuthContext";
 import { notifications } from "@mantine/notifications";
 import type { IngredientPrivate } from "../types/ingredient";
+import { useDebouncedValue } from "@mantine/hooks";
 export const IngredientsAdminPage = () => {
   const { user } = useAuth();
   const isAdmin = user?.roles?.includes("ADMIN") || false;
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const [allergenFilter, setAllergenFilter] = useState<string>("all");
   const [selectedItem, setSelectedItem] = useState<IngredientPrivate | null>(
     null,
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const limit = 10;
-  const { data: ingredients, isLoading } = useAdminIngredientsList(
-    (page - 1) * limit,
+  const [debounsedSearch] = useDebouncedValue(searchTerm, 300);
+
+  const filters = {
+    search: debounsedSearch || undefined,
+    is_allergen:
+      allergenFilter === "all"
+        ? undefined
+        : allergenFilter === "allergen"
+          ? true
+          : false,
+    offset: (page - 1) * limit,
     limit,
-    searchTerm,
-  );
+    sort_by: "name" as const,
+    order: "asc" as const,
+  };
+
+  const { data: ingredients, isLoading } = useAdminIngredientsList(filters);
   const { deleteIngredient, restoreIngredient, isRestoring, isDeleting } =
     useIngredientMutations();
-  const { filterAllergen, filteredIngredients, setFilterAllergen } =
-    useAllergenFilter(ingredients?.data || []);
   const totalPages = ingredients ? Math.ceil(ingredients.total / limit) : 0;
   const handleDelete = async (id: number) => {
     try {
@@ -86,9 +97,18 @@ export const IngredientsAdminPage = () => {
         mb="md"
         maw={400}
       />
-      <AllergenFilterButtons
-        onChange={setFilterAllergen}
-        value={filterAllergen}
+      <SegmentedControl
+        value={allergenFilter}
+        onChange={(v) => {
+          setAllergenFilter(v);
+          setPage(1);
+        }}
+        data={[
+          { label: "Todos", value: "all" },
+          { label: "Alérgenos", value: "allergen" },
+          { label: "Seguros", value: "safe" },
+        ]}
+        mb="md"
       />
       <Paper shadow="sm" withBorder radius="md" mb="md">
         <Table striped highlightOnHover>
@@ -110,7 +130,7 @@ export const IngredientsAdminPage = () => {
                   </Text>
                 </Table.Td>
               </Table.Tr>
-            ) : filteredIngredients.length === 0 ? (
+            ) : (ingredients?.data?.length ?? 0) === 0 ? (
               <Table.Tr>
                 <Table.Td colSpan={5}>
                   <Text ta="center" py="xl">
@@ -119,7 +139,7 @@ export const IngredientsAdminPage = () => {
                 </Table.Td>
               </Table.Tr>
             ) : (
-              filteredIngredients.map((item) => (
+              ingredients?.data.map((item) => (
                 <RowIngredient
                   key={item.id}
                   item={item}
