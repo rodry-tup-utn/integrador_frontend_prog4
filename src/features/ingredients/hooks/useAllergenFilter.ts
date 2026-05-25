@@ -31,7 +31,7 @@ export const useAllergenFilter = <T extends AllergenFilterable>(
 
   return {
     filterAllergen,
-    filteredIngredients: filteredIngredients,
+    filteredIngredients,
     setFilterAllergen,
   };
 };
