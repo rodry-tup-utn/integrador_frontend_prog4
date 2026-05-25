@@ -19,13 +19,7 @@ import { AdminUserEditModal } from "../components/AdminUserEditModal";
 import type { UserAdminRead, UserRoleRead } from "../types/user";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
 import { useAdminUserMutations } from "../hooks/admin/useAdminUserMutations";
-
-const roleConfig: Record<string, { label: string; color: string }> = {
-  CLIENT: { label: "Cliente", color: "blue" },
-  ADMIN: { label: "Admin", color: "red" },
-  STOCK: { label: "Stock", color: "yellow" },
-  ORDERS: { label: "Órdenes", color: "grape" },
-};
+import { roleConfig } from "../types/configs";
 
 const isRoleExpired = (role: UserRoleRead) =>
   !!role.expires_at && new Date(role.expires_at).getTime() < Date.now();

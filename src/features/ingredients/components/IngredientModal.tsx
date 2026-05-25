@@ -1,5 +1,5 @@
 import { useIngredientMutations } from "../hooks/useIngredientMutations";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { IngredientPrivate } from "../types/ingredient";
 import { X, Calendar, Clock, AlertTriangle } from "lucide-react"; // Si usas lucide-react
 import { formatDate } from "../helpers/helpers";
@@ -23,8 +23,10 @@ export const IngredientModal = ({
   const { createIngredient, updateIngredient, isCreating, isUpdating } =
     useIngredientMutations();
   const [formData, setFormData] = useState(initialState);
+  const focusRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
+    focusRef.current?.focus();
     if (ingredientData) {
       setFormData({
         name: ingredientData.name,
@@ -127,6 +129,7 @@ export const IngredientModal = ({
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
+                ref={focusRef}
               />
             </div>
 

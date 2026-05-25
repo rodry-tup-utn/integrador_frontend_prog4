@@ -11,6 +11,7 @@ import type {
   UserProfileRead,
   UserPaginatedRead,
   UserAdminRead,
+  UpdatePass,
 } from "../types/user";
 
 const ADMIN_URL = "/admin/user";
@@ -71,6 +72,11 @@ export const userService = {
         );
         return response.data;
       },
+    },
+
+    updatePass: async (data: UpdatePass): Promise<void> => {
+      const response = await api.patch(`${PROFILE_URL}/password`, data);
+      return response.data;
     },
   },
 

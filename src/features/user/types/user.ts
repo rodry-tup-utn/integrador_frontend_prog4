@@ -106,6 +106,12 @@ export interface UserPaginatedRead {
   data: UserAdminRead[];
   total: number;
 }
+
+export interface UpdatePass {
+  old_pass: string;
+  new_pass: string;
+}
+
 export const userKeys = {
   all: ["users"] as const,
   profile: () => [...userKeys.all, "profile"] as const,

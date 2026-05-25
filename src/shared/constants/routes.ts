@@ -11,4 +11,6 @@ export const ROUTES = {
   ADMIN_CATEGORIES: "/admin/categories",
   PUBLIC_CATEGORIES: "/categories",
   ADMIN_USERS: "/admin/users",
+  PROFILE: "/profile",
+  CHANGE_PASSWORD: "/change-password",
 } as const;
