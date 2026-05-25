@@ -55,12 +55,7 @@ export const sidebarSections: SidebarSection[] = [
         icon: IconShoppingBag,
         roles: ["CLIENT", "ADMIN"],
       },
-      {
-        to: "/addresses",
-        label: "Direcciones",
-        icon: IconMapPin,
-        roles: ["CLIENT", "ADMIN"],
-      },
+
       { to: "/change-password", label: "Contraseña", icon: IconLock },
     ],
   },
