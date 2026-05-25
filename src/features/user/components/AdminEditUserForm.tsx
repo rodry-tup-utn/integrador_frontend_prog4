@@ -1,18 +1,10 @@
 import { useState } from "react";
-import {
-  TextInput,
-  Button,
-  Group,
-  Stack,
-  Badge,
-  Text,
-  Paper,
-} from "@mantine/core";
+import { TextInput, Button, Group, Stack, Text, Paper } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconDeviceFloppy } from "@tabler/icons-react";
 import type { UserAdminRead, UserUpdate } from "../types/user";
 import { useAdminUserMutations } from "../hooks/admin/useAdminUserMutations";
-import { toDateString } from "../../../shared/helpers/helpers";
+import UserAdminInfo from "./UserAdminInfo";
 
 interface Props {
   user: UserAdminRead;
@@ -97,41 +89,7 @@ export const AdminEditUserForm = ({ user, onClose }: Props) => {
         </Stack>
       </Paper>
 
-      <Paper shadow="sm" p="md" radius="md" withBorder>
-        <Stack gap="xs">
-          <Text size="md" fw={700}>
-            Información del Usuario
-          </Text>
-          <Group gap="xs">
-            <Text size="sm" c="dimmed">
-              Creado:
-            </Text>
-            <Text size="sm">{toDateString(user.created_at)}</Text>
-          </Group>
-          <Group gap="xs">
-            <Text size="sm" c="dimmed">
-              Última actualización:
-            </Text>
-            <Text size="sm">
-              {user.updated_at
-                ? toDateString(user.updated_at)
-                : "Sin modificaciones"}
-            </Text>
-          </Group>
-          {user.deleted_at ? (
-            <Group gap="xs">
-              <Text size="sm" c="dimmed">
-                Inactivo desde:
-              </Text>
-              <Text size="sm">{toDateString(user.deleted_at)}</Text>
-            </Group>
-          ) : (
-            <Badge variant="dot" color="green" size="sm">
-              Activo
-            </Badge>
-          )}
-        </Stack>
-      </Paper>
+      <UserAdminInfo user={user} />
     </Stack>
   );
 };
