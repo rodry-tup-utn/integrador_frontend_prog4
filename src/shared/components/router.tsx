@@ -13,6 +13,8 @@ import { IngredientsPublicPage } from "../../features/ingredients/pages/Ingredie
 import CategoriesAdminPage from "../../features/categories/pages/CategoriesAdminPage";
 import { ForbiddenPage } from "../../pages/ForbiddenPage";
 import UserAdminPage from "../../features/user/pages/UserAdminPage";
+import { ProfilePage } from "../../features/user/pages/ProfilePage";
+import { ChangePasswordPage } from "../../features/user/pages/ChangePasswordPage";
 
 export const router = createBrowserRouter([
   {
@@ -45,6 +47,14 @@ export const router = createBrowserRouter([
           {
             path: ROUTES.HOME,
             element: <DashboardPage />,
+          },
+          {
+            path: ROUTES.PROFILE,
+            element: <ProfilePage />,
+          },
+          {
+            path: ROUTES.CHANGE_PASSWORD,
+            element: <ChangePasswordPage />,
           },
           { path: "/", element: <Navigate to={ROUTES.HOME} replace /> },
         ],
