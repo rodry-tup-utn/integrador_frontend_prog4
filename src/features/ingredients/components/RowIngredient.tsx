@@ -9,6 +9,7 @@ interface RowIngredientProps {
   onRestore: (id: number) => void;
   isDeleting?: boolean;
   isRestoring?: boolean;
+  isAdmin: boolean;
 }
 
 export const RowIngredient = ({
@@ -18,6 +19,7 @@ export const RowIngredient = ({
   onRestore,
   isDeleting,
   isRestoring,
+  isAdmin,
 }: RowIngredientProps) => {
   const isDeleted = !!item.deleted_at;
 
@@ -81,33 +83,34 @@ export const RowIngredient = ({
           </Badge>
         )}
       </Table.Td>
+      <Table.Td>
+        <Badge color={isDeleted ? "red" : "teal"} variant="dot" size="md">
+          {isDeleted ? "Eliminado" : "Activo"}
+        </Badge>
+      </Table.Td>
 
       <Table.Td>
         <Group gap="sm" justify="center">
           <Button
-            size="sm"
+            size="xs"
             variant="light"
             color={isDeleted ? "gray" : "blue"}
             onClick={() => onEdit(item.id.toString())}
           >
             {isDeleted ? "Detalle" : "Editar"}
           </Button>
-          <Button
-            size="sm"
-            variant="light"
-            color={isDeleted ? "green" : "red"}
-            loading={isDeleting || isRestoring}
-            onClick={handleAction}
-          >
-            {label}
-          </Button>
+          {isAdmin && (
+            <Button
+              size="xs"
+              variant="light"
+              color={isDeleted ? "green" : "red"}
+              loading={isDeleting || isRestoring}
+              onClick={handleAction}
+            >
+              {label}
+            </Button>
+          )}
         </Group>
-      </Table.Td>
-
-      <Table.Td>
-        <Badge color={isDeleted ? "red" : "teal"} variant="dot" size="md">
-          {isDeleted ? "Eliminado" : "Activo"}
-        </Badge>
       </Table.Td>
     </Table.Tr>
   );
