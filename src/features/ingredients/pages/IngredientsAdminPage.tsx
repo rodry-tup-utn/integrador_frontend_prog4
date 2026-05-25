@@ -16,9 +16,12 @@ import { IngredientModal } from "../components/IngredientModal";
 import { RowIngredient } from "../components/RowIngredient";
 import AllergenFilterButtons from "../components/AllergenFilterButtons";
 import { useAllergenFilter } from "../hooks/useAllergenFilter";
+import { useAuth } from "../../auth/context/AuthContext";
 import { notifications } from "@mantine/notifications";
 import type { IngredientPrivate } from "../types/ingredient";
 export const IngredientsAdminPage = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.roles?.includes("ADMIN") || false;
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItem, setSelectedItem] = useState<IngredientPrivate | null>(
@@ -95,7 +98,7 @@ export const IngredientsAdminPage = () => {
               <Table.Th>Nombre</Table.Th>
               <Table.Th>Tipo</Table.Th>
               <Table.Th>Estado</Table.Th>
-              <Table.Th style={{ textAlign: "center" }}>Acciones</Table.Th>
+              <Table.Th ta="center">Acciones</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -120,6 +123,7 @@ export const IngredientsAdminPage = () => {
                 <RowIngredient
                   key={item.id}
                   item={item}
+                  isAdmin={isAdmin}
                   onEdit={(id) => {
                     // find the ingredient from data and set it
                     const found = ingredients?.data.find(
