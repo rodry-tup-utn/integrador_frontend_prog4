@@ -1,6 +1,7 @@
 import api from "../../../shared/api/axiosConfig";
 import type {
   IngredientCreate,
+  IngredientFilters,
   IngredientList,
   IngredientPrivate,
   IngredientPublic,
@@ -10,13 +11,18 @@ import type {
 
 const ADMIN_URL = "/admin/ingredient";
 const PUBLIC_URL = "/ingredient";
-export const ingredientService = {
-  // -- Métodos Públicos ----------------------------------
 
+const buildParams = (filters: IngredientFilters) => ({
+  ...filters,
+  search: filters.search || undefined,
+  is_allergen: filters.is_allergen ?? undefined,
+});
+
+export const ingredientService = {
   public: {
-    getAll: async (offset = 0, limit = 20): Promise<IngredientList> => {
-      const response = await api.get<IngredientList>(`${PUBLIC_URL}`, {
-        params: { offset, limit },
+    list: async (filters: IngredientFilters = {}): Promise<IngredientList> => {
+      const response = await api.get<IngredientList>(PUBLIC_URL, {
+        params: buildParams(filters),
       });
       return response.data;
     },
@@ -25,25 +31,12 @@ export const ingredientService = {
       const response = await api.get<IngredientPublic>(`${PUBLIC_URL}/${id}`);
       return response.data;
     },
-
-    search: async (
-      query: string,
-      offset = 0,
-      limit = 20,
-    ): Promise<IngredientList> => {
-      const response = await api.get<IngredientList>(`${PUBLIC_URL}/search`, {
-        params: { query, offset, limit },
-      });
-      return response.data;
-    },
   },
 
-  // -- Métodos Administrativos ----------------------
-
   admin: {
-    getAll: async (offset = 0, limit = 20): Promise<IngredientsListFull> => {
-      const response = await api.get<IngredientsListFull>(`${ADMIN_URL}`, {
-        params: { offset, limit },
+    list: async (filters: IngredientFilters = {}): Promise<IngredientsListFull> => {
+      const response = await api.get<IngredientsListFull>(ADMIN_URL, {
+        params: buildParams(filters),
       });
       return response.data;
     },
@@ -54,7 +47,7 @@ export const ingredientService = {
     },
 
     create: async (data: IngredientCreate): Promise<IngredientPublic> => {
-      const response = await api.post<IngredientPublic>(`${ADMIN_URL}`, data);
+      const response = await api.post<IngredientPublic>(ADMIN_URL, data);
       return response.data;
     },
 
@@ -76,20 +69,6 @@ export const ingredientService = {
     restore: async (id: number): Promise<IngredientPrivate> => {
       const response = await api.patch<IngredientPrivate>(
         `${ADMIN_URL}/${id}/restore`,
-      );
-      return response.data;
-    },
-
-    search: async (
-      query: string,
-      offset = 0,
-      limit = 20,
-    ): Promise<IngredientsListFull> => {
-      const response = await api.get<IngredientsListFull>(
-        `${ADMIN_URL}/search`,
-        {
-          params: { query, offset, limit },
-        },
       );
       return response.data;
     },

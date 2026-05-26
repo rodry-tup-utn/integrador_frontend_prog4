@@ -9,21 +9,30 @@ import {
   Stack,
   Skeleton,
   Card,
+  SegmentedControl,
 } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
 import { IngredientPublicCard } from "../components/IngredientPublicCard";
 import { usePublicIngredientsList } from "../hooks/usePublicIngredientsList";
-import AllergenFilterButtons from "../components/AllergenFilterButtons";
-import { useAllergenFilter } from "../hooks/useAllergenFilter";
 export const IngredientsPublicPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const { data: ingredients, isLoading } = usePublicIngredientsList(
-    0,
-    50,
-    searchTerm,
-  );
-  const { filterAllergen, filteredIngredients, setFilterAllergen } =
-    useAllergenFilter(ingredients?.data || []);
+  const [allergenFilter, setAllergenFilter] = useState<string>("all");
+
+  const filters = {
+    search: searchTerm || undefined,
+    is_allergen:
+      allergenFilter === "all"
+        ? undefined
+        : allergenFilter === "allergen"
+          ? true
+          : false,
+    offset: 0,
+    limit: 50,
+    sort_by: "name" as const,
+    order: "asc" as const,
+  };
+
+  const { data: ingredients, isLoading } = usePublicIngredientsList(filters);
   return (
     <Container size="xl" py="xl">
       <Stack ta="center" mb="xl">
@@ -41,9 +50,15 @@ export const IngredientsPublicPage = () => {
           size="md"
         />
       </Stack>
-      <AllergenFilterButtons
-        onChange={setFilterAllergen}
-        value={filterAllergen}
+      <SegmentedControl
+        value={allergenFilter}
+        onChange={setAllergenFilter}
+        data={[
+          { label: "Todos", value: "all" },
+          { label: "Alérgenos", value: "allergen" },
+          { label: "Seguros", value: "safe" },
+        ]}
+        mb="md"
       />
       {isLoading ? (
         <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
@@ -55,12 +70,12 @@ export const IngredientsPublicPage = () => {
         </SimpleGrid>
       ) : (
         <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
-          {filteredIngredients?.map((item) => (
+          {ingredients?.data?.map((item) => (
             <IngredientPublicCard key={item.id} item={item} />
           ))}
         </SimpleGrid>
       )}
-      {!isLoading && filteredIngredients?.length === 0 && (
+      {!isLoading && (ingredients?.data?.length ?? 0) === 0 && (
         <Center py="xl">
           <Text c="dimmed" size="lg">
             No se encontraron ingredientes.

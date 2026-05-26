@@ -50,7 +50,7 @@ export const sidebarSections: SidebarSection[] = [
         roles: ["CLIENT", "ADMIN"],
       },
       {
-        to: "/orders",
+        to: "/user/orders",
         label: "Mis Pedidos",
         icon: IconShoppingBag,
         roles: ["CLIENT", "ADMIN"],
@@ -74,7 +74,7 @@ export const sidebarSections: SidebarSection[] = [
     roles: ["ADMIN", "ORDERS"],
     links: [
       {
-        to: "/orders/all",
+        to: "/orders",
         label: "Todos los Pedidos",
         icon: IconClipboardList,
       },

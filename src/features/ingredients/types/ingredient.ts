@@ -37,12 +37,21 @@ export interface IngredientCreate {
   is_allergen: boolean;
 }
 
+export interface IngredientFilters {
+  search?: string | null;
+  is_allergen?: boolean | null;
+  offset?: number;
+  limit?: number;
+  sort_by?: "name" | "created_at";
+  order?: "asc" | "desc";
+}
+
 // QueryFactory
 export const ingredientsKeys = {
   all: ["ingredients"] as const,
   public: () => [...ingredientsKeys.all, "public"] as const,
   publicLists: () => [...ingredientsKeys.public(), "list"] as const,
-  publicList: (filters: { offset: number; limit: number; search: string }) =>
+  publicList: (filters: IngredientFilters) =>
     [...ingredientsKeys.publicLists(), filters] as const,
   publicDetails: () => [...ingredientsKeys.public(), "detail"] as const,
   publicDetail: (id: string) =>
@@ -50,7 +59,7 @@ export const ingredientsKeys = {
 
   admin: () => [...ingredientsKeys.all, "admin"] as const,
   adminLists: () => [...ingredientsKeys.admin(), "list"] as const,
-  adminList: (filters: { offset: number; limit: number; search: string }) =>
+  adminList: (filters: IngredientFilters) =>
     [...ingredientsKeys.adminLists(), filters] as const,
   adminDetails: () => [...ingredientsKeys.admin(), "detail"],
   adminDetail: (id: string | null) =>

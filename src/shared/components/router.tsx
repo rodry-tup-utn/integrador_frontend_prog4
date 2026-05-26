@@ -5,7 +5,6 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import { LoginPage } from "../../features/auth/pages/LoginPage";
 import { DashboardPage } from "../../pages/DashboardPage";
 import { LandingPage } from "../../pages/LandingPage";
-import { AdminRoute } from "./AdminRoute";
 import { IngredientsAdminPage } from "../../features/ingredients/pages/IngredientsAdminPage";
 import ProductsPage from "../../pages/Products/ProductsPage";
 import RegisterPage from "../../pages/Register/RegisterPage";
@@ -15,6 +14,9 @@ import { ForbiddenPage } from "../../pages/ForbiddenPage";
 import UserAdminPage from "../../features/user/pages/UserAdminPage";
 import { ProfilePage } from "../../features/user/pages/ProfilePage";
 import { ChangePasswordPage } from "../../features/user/pages/ChangePasswordPage";
+import { MyOrdersPage } from "../../features/orders/pages/MyOrdersPage";
+import { AdminOrdersPage } from "../../features/orders/pages/AdminOrdersPage";
+import { RoleRoute } from "./RoleRoute";
 
 export const router = createBrowserRouter([
   {
@@ -56,11 +58,29 @@ export const router = createBrowserRouter([
             path: ROUTES.CHANGE_PASSWORD,
             element: <ChangePasswordPage />,
           },
+          {
+            path: ROUTES.MY_ORDERS,
+            element: <MyOrdersPage />,
+          },
           { path: "/", element: <Navigate to={ROUTES.HOME} replace /> },
         ],
       },
       {
-        element: <AdminRoute />,
+        element: <RoleRoute allowedRoles={["ADMIN", "STOCK"]} />,
+        children: [
+          {
+            path: ROUTES.STOCK_INGREDIENTS,
+            element: <IngredientsAdminPage />,
+          },
+        ],
+      },
+      {
+        element: (
+          <RoleRoute
+            allowedRoles={["ADMIN"]}
+            errorMessage="Debes ser Administrador para acceder a esta sección"
+          />
+        ),
         children: [
           {
             path: ROUTES.ADMIN_INGREDIENTS,
@@ -74,8 +94,13 @@ export const router = createBrowserRouter([
             path: ROUTES.ADMIN_CATEGORIES,
             element: <CategoriesAdminPage />,
           },
+
           { path: ROUTES.ADMIN_USERS, element: <UserAdminPage /> },
         ],
+      },
+      {
+        element: <RoleRoute allowedRoles={["ADMIN", "ORDERS"]} />,
+        children: [{ path: ROUTES.ORDERS_ADMIN, element: <AdminOrdersPage /> }],
       },
     ],
   },

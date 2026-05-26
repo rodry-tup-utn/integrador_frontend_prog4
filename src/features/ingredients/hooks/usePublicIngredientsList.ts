@@ -1,17 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { ingredientService } from "../services/ingredientService";
 import { ingredientsKeys } from "../types/ingredient";
+import type { IngredientFilters } from "../types/ingredient";
 
-export const usePublicIngredientsList = (
-  offset = 0,
-  limit = 20,
-  search = "",
-) => {
+export const usePublicIngredientsList = (filters: IngredientFilters = {}) => {
   return useQuery({
-    queryKey: ingredientsKeys.publicList({ offset, limit, search }),
-    queryFn: () =>
-      search
-        ? ingredientService.public.search(search, offset, limit)
-        : ingredientService.public.getAll(offset, limit),
+    queryKey: ingredientsKeys.publicList(filters),
+    queryFn: () => ingredientService.public.list(filters),
   });
 };
