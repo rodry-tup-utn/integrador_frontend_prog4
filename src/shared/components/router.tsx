@@ -18,6 +18,7 @@ import { AdminOrdersPage } from "../../features/orders/pages/AdminOrdersPage";
 import { RoleRoute } from "./RoleRoute";
 import ProductsAdminPage from "../../features/products/pages/ProductsAdminPage";
 import ProductsAdminDetail from "../../features/products/pages/ProductsAdminDetail";
+import ProductsPage from "../../pages/Products/ProductsPage";
 
 export const router = createBrowserRouter([
   {
@@ -39,7 +40,7 @@ export const router = createBrowserRouter([
         path: ROUTES.PUBLIC_INGREDIENTS,
         element: <IngredientsPublicPage />,
       },
-      { path: ROUTES.PUBLIC_PRODUCTS, element: <h1>Nuestros Productos </h1> },
+      { path: ROUTES.PUBLIC_PRODUCTS, element: <ProductsPage /> },
       {
         path: ROUTES.FORBIDDEN,
         element: <ForbiddenPage />,

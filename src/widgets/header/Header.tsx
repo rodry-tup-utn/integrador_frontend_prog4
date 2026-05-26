@@ -1,8 +1,11 @@
-import { Group, Button, Text, ThemeIcon, Burger } from "@mantine/core";
+import { Group, Button, Text, ThemeIcon, Burger, Indicator, ActionIcon } from "@mantine/core";
 import { Link } from "react-router-dom";
 import { ROUTES } from "../../shared/constants/routes";
 import { useAuth } from "../../features/auth/context/AuthContext";
-import { IconSoup } from "@tabler/icons-react";
+import { IconShoppingCart, IconSoup } from "@tabler/icons-react";
+import CartDrawer from "../../features/cart/components/CartDrawer";
+import { useDisclosure } from "@mantine/hooks";
+import { useCartStore } from "../../features/cart/store/cart.store";
 
 interface HeaderProps {
   toggle: () => void;
@@ -10,7 +13,12 @@ interface HeaderProps {
 }
 
 const Header = ({ toggle, mobileOpened }: HeaderProps) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const [cartOpened, { open: openCart, close: closeCart }] = useDisclosure(false);
+  const totalItems = useCartStore((state) => state.getTotalItems());
+
+  const isClient = user?.roles.includes("CLIENT")
+
   return (
     <Group h="100%" px="md" justify="space-between" wrap="nowrap">
       {/* Izquierda: Burger + Logo */}
@@ -42,6 +50,19 @@ const Header = ({ toggle, mobileOpened }: HeaderProps) => {
           </Button>
         </Group>
       )}
+      {
+        (isAuthenticated && isClient) && (
+          <>
+            <Indicator label={totalItems} size={16} color="teal" disabled={totalItems === 0}>
+              <ActionIcon variant="subtle" onClick={openCart} size="lg">
+                <IconShoppingCart size={22} />
+              </ActionIcon>
+            </Indicator>
+
+            <CartDrawer opened={cartOpened} onClose={closeCart} />
+          </>
+        )
+      }
     </Group>
   );
 };

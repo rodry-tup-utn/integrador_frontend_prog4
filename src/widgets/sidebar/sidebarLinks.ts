@@ -89,8 +89,8 @@ export const sidebarSections: SidebarSection[] = [
       { to: "/admin/categories", label: "Categorías", icon: IconCategory },
       { to: "/admin/ingredients", label: "Ingredientes", icon: IconEgg },
       { to: "/admin/products", label: "Productos", icon: IconPackage },
-      { to: "/admin/metrics", label: "Métricas", icon: IconChartBar },
-      { to: "/admin/config", label: "Configuración", icon: IconSettings },
+      // { to: "/admin/metrics", label: "Métricas", icon: IconChartBar },
+      // { to: "/admin/config", label: "Configuración", icon: IconSettings },
     ],
   },
 ];
