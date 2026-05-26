@@ -6,7 +6,6 @@ import { LoginPage } from "../../features/auth/pages/LoginPage";
 import { DashboardPage } from "../../pages/DashboardPage";
 import { LandingPage } from "../../pages/LandingPage";
 import { IngredientsAdminPage } from "../../features/ingredients/pages/IngredientsAdminPage";
-import ProductsPage from "../../pages/Products/ProductsPage";
 import RegisterPage from "../../pages/Register/RegisterPage";
 import { IngredientsPublicPage } from "../../features/ingredients/pages/IngredientsPublicPage";
 import CategoriesAdminPage from "../../features/categories/pages/CategoriesAdminPage";
@@ -17,6 +16,8 @@ import { ChangePasswordPage } from "../../features/user/pages/ChangePasswordPage
 import { MyOrdersPage } from "../../features/orders/pages/MyOrdersPage";
 import { AdminOrdersPage } from "../../features/orders/pages/AdminOrdersPage";
 import { RoleRoute } from "./RoleRoute";
+import ProductsAdminPage from "../../features/products/pages/ProductsAdminPage";
+import ProductsAdminDetail from "../../features/products/pages/ProductsAdminDetail";
 
 export const router = createBrowserRouter([
   {
@@ -88,13 +89,17 @@ export const router = createBrowserRouter([
           },
           {
             path: ROUTES.ADMIN_PRODUCTS,
-            element: <ProductsPage />,
+            element: <ProductsAdminPage />,
           },
           {
             path: ROUTES.ADMIN_CATEGORIES,
             element: <CategoriesAdminPage />,
           },
 
+          {
+            path: ROUTES.ADMIN_PRODUCTS_DETAIL,
+            element: <ProductsAdminDetail />
+          },
           { path: ROUTES.ADMIN_USERS, element: <UserAdminPage /> },
         ],
       },
