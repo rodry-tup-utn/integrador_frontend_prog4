@@ -1,8 +1,8 @@
 import { useState } from "react"
 import type { ProductCreate, ProductPrivate } from "../types/product"
-import { Button, Group, Select, Textarea, TextInput, Title } from "@mantine/core"
-import { useAdminCategoryList } from "../../categories/hooks/useAdminCategoryList"
+import { Button, Group, Text, Textarea, TextInput, Title } from "@mantine/core"
 import { validateAll, validateField } from "../helpers/productValidations"
+import { CategoryParentSelector } from "../../categories/components/CategoryParentSelector"
 
 interface ProductsFormProps {
     editing?: ProductPrivate | null,
@@ -12,8 +12,6 @@ interface ProductsFormProps {
 }
 
 const ProductsForm = ({ editing, isLoading, handleClose, onSubmit }: ProductsFormProps) => {
-
-    const { data } = useAdminCategoryList()
 
     const [formData, setFormData] = useState<ProductCreate>({
         name: editing?.name ?? "",
@@ -44,15 +42,11 @@ const ProductsForm = ({ editing, isLoading, handleClose, onSubmit }: ProductsFor
         setErrors(prev => ({ ...prev, [name]: validateField(name, newValue) }))
     }
 
-    const handleSelectChange = (value: string | null) => {
-        setFormData(prev => ({ ...prev, category_id: Number(value) }))
-        setErrors(prev => ({ ...prev, category_id: validateField("category_id", Number(value)) }))
+    const handleCategoryChange = (id: number | null) => {
+        const value = id ?? 0
+        setFormData(prev => ({ ...prev, category_id: value }))
+        setErrors(prev => ({ ...prev, category_id: validateField("category_id", value) }))
     }
-
-    const categories = data?.data.map((category) => ({
-        value: String(category.id),
-        label: category.name
-    }))
 
     const handleSubmit = () => {
         const newErrors = validateAll(formData)
@@ -127,16 +121,14 @@ const ProductsForm = ({ editing, isLoading, handleClose, onSubmit }: ProductsFor
                     />
                 </section>
                 <section className="col-span-1 md:col-span-2">
-                    <Select
-                        label="Categorías"
-                        name="category_id"
-                        withAsterisk
-                        placeholder="Seleccioná una categoría..."
-                        data={categories}
-                        value={String(formData.category_id)}
-                        onChange={handleSelectChange}
-                        error={errors.category_id}
+                    <CategoryParentSelector
+                        label="Categoría"
+                        value={formData.category_id || null}
+                        onChange={handleCategoryChange}
                     />
+                    {errors.category_id && (
+                        <Text size="xs" c="red" mt={4}>{errors.category_id}</Text>
+                    )}
                 </section>
                 <section className="col-span-1 md:col-span-2">
                     <Group justify="flex-end" className="mt-8">
