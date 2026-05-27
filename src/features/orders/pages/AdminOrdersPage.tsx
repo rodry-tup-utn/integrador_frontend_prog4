@@ -64,9 +64,8 @@ export const AdminOrdersPage = () => {
     showConfirm({
       title: `Avanzar orden #${order.id} a "${stateLabel(next)}"?`,
       confirmLabel: "Avanzar",
-      onConfirm: () => {
-        changeOrderState({ id: order.id, data: { state_code: next } });
-      },
+      onConfirm: () =>
+        changeOrderState({ id: order.id, data: { state_code: next } }),
       successMessage: `Orden #${order.id} avanzada a ${stateLabel(next)}`,
       color: "blue",
     });

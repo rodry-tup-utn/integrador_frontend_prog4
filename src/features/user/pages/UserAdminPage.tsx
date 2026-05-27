@@ -46,9 +46,7 @@ const UserAdminPage = () => {
       title: `¿Restaurar usuario ${user.name}?`,
       confirmLabel: "Restaurar",
       color: "green",
-      onConfirm: () => {
-        restoreUser(user.id);
-      },
+      onConfirm: () => restoreUser(user.id),
       successMessage: `Usuario ${user.name} restaurado!`,
     });
   };
@@ -58,9 +56,7 @@ const UserAdminPage = () => {
       title: `¿Eliminar usuario ${user.name}?`,
       confirmLabel: "Eliminar",
       color: "red",
-      onConfirm: () => {
-        deleteUser(user.id);
-      },
+      onConfirm: () => deleteUser(user.id),
       successMessage: `Usuario ${user.name} eliminado!`,
     });
   };
