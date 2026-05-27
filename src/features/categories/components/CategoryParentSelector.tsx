@@ -8,6 +8,7 @@ interface Props {
   value: number | null | undefined;
   onChange: (value: number | null) => void;
   excludeId?: number;
+  label?: string;
 }
 
 function flattenTree(
@@ -31,6 +32,7 @@ export const CategoryParentSelector = ({
   value,
   onChange,
   excludeId,
+  label = "Categoría padre",
 }: Props) => {
   const { data, isLoading } = useCategoryTree(4);
 
@@ -41,7 +43,7 @@ export const CategoryParentSelector = ({
 
   return (
     <Select
-      label="Categoría padre"
+      label={label}
       placeholder="Buscar categoría..."
       data={options}
       value={value ? String(value) : null}

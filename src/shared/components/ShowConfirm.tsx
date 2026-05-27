@@ -1,33 +1,41 @@
 import { notifications } from "@mantine/notifications";
 import { Button, Group, Stack, Text } from "@mantine/core";
+import { extractApiErrorMessage } from "../helpers/apiErrors";
+
 interface Props {
   title: string;
   confirmLabel: string;
   color?: string;
-  onConfirm: () => void | Promise<void>;
+  onConfirm: () => Promise<unknown>;
   successMessage: string;
 }
+
 export const showConfirm = ({
   title,
   confirmLabel,
   color = "cyan",
   onConfirm,
-  successMessage = "Operación exitosa",
+  successMessage = "La operación se realizó correctamente",
 }: Props) => {
   const onClick = async () => {
+    notifications.clean();
+
     try {
       await onConfirm();
-      notifications.clean();
       notifications.show({
         title: "Operación Exitosa",
         color: "green",
         message: successMessage,
+        autoClose: 4000,
       });
-    } catch (e: any) {
+    } catch (error: unknown) {
+      const errorMessage = extractApiErrorMessage(error);
+
       notifications.show({
-        title: "Error al procesar la operacion",
+        title: "Error al procesar la operación",
         color: "red",
-        message: e.response?.data?.detail || "Error",
+        message: errorMessage,
+        autoClose: 6000,
       });
     }
   };
@@ -40,14 +48,7 @@ export const showConfirm = ({
       <Stack gap="md">
         <Text size="md">{title}</Text>
         <Group justify="flex-end">
-          <Button
-            size="xs"
-            color={color}
-            onClick={() => {
-              onClick();
-              notifications.clean(); // cierra la notif
-            }}
-          >
+          <Button size="xs" color={color} onClick={onClick}>
             {confirmLabel}
           </Button>
           <Button

@@ -154,7 +154,7 @@ export const ProductIngredientsCard = ({ productId }: { productId: number }) => 
     const { data: productWithIngredients } = useProductWithIngredients(productId)
     const [search, setSearch] = useState("")
     const [debouncedSearch] = useDebouncedValue(search, 400)
-    const { data: allIngredients } = useAdminIngredientsList(0, 20, debouncedSearch)
+    const { data: allIngredients } = useAdminIngredientsList({ offset: 0, limit: 20, search: debouncedSearch })
     const [selected, setSelected] = useState<number | null>(null)
     const [isRemovable, setIsRemovable] = useState(false)
     const { addIngredient, updateProductIngredient, removeIngredient } = useProductMutation()

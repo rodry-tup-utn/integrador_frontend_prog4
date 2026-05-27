@@ -1,9 +1,10 @@
 import { Button, Group, Pagination, Text, TextInput, Title } from "@mantine/core"
 import { IconPlus, IconSearch } from "@tabler/icons-react";
 import { useState } from "react";
+import { useDebouncedValue } from "@mantine/hooks";
 import ProductsTable from "../components/ProductsTable";
 import { useAdminProducts } from "../hooks/product.queries.hooks";
-import { type ProductCreate, type ProductPrivate } from "../types/product";
+import { type ProductCreate, type ProductFilters, type ProductPrivate } from "../types/product";
 import ProductsModal from "../components/ProductsModal";
 import ProductsForm from "../components/ProductsForm";
 import { useProductMutation } from "../hooks/product.mutation.hooks";
@@ -16,15 +17,20 @@ const ProductsAdminPage = () => {
 
   const [page, setPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState("")
+  const [debouncedSearch] = useDebouncedValue(searchTerm, 300)
   const [editing, setEditing] = useState<ProductPrivate | null>(null)
   const [open, setOpen] = useState(false)
 
-  const offset = (page - 1) * LIMIT
+  const filters: ProductFilters = {
+    offset: (page - 1) * LIMIT,
+    limit: LIMIT,
+    search: debouncedSearch || undefined,
+  }
 
-  const { data, isLoading } = useAdminProducts(offset, LIMIT)
+  const { data, isLoading } = useAdminProducts(filters)
   const { createProduct, updateProduct, deleteProduct, restoreProduct } = useProductMutation()
 
-  const totalPages = data ? Math.ceil(data?.total / 20) : 0
+  const totalPages = data ? Math.ceil(data.total / (filters.limit ?? LIMIT)) : 0
 
   const handleEdit = (item: ProductPrivate) => {
     setEditing(item)

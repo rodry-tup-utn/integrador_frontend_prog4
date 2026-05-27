@@ -99,9 +99,7 @@ export const ProfilePage = () => {
       title: `¿Restaurar dirección "${addr.alias}"?`,
       confirmLabel: "Restaurar",
       color: "green",
-      onConfirm: () => {
-        restoreAddress(addr.id);
-      },
+      onConfirm: () => restoreAddress(addr.id),
       successMessage: `Dirección "${addr.alias}" restaurada`,
     });
   };

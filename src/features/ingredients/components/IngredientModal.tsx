@@ -1,8 +1,9 @@
 import { useIngredientMutations } from "../hooks/useIngredientMutations";
 import { useState, useEffect, useRef } from "react";
 import type { IngredientPrivate } from "../types/ingredient";
-import { X, Calendar, Clock, AlertTriangle } from "lucide-react"; // Si usas lucide-react
+import { X, Calendar, Clock, AlertTriangle } from "lucide-react";
 import { formatDate } from "../helpers/helpers";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 import { notifications } from "@mantine/notifications";
 
 interface Props {
@@ -74,11 +75,10 @@ export const IngredientModal = ({
       });
 
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       notifications.show({
         title: "Error",
-        message:
-          error.response?.data?.detail || "Error al ejecutar la operación",
+        message: extractApiErrorMessage(error),
         color: "red",
       });
     }

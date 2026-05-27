@@ -1,6 +1,6 @@
 import type { IngredientPrivate } from "../types/ingredient";
 import { Table, Badge, Button, Group, Text } from "@mantine/core";
-import { notifications } from "@mantine/notifications";
+import { showConfirm } from "../../../shared/components/ShowConfirm";
 
 interface RowIngredientProps {
   item: IngredientPrivate;
@@ -24,14 +24,14 @@ export const RowIngredient = ({
   const isDeleted = !!item.deleted_at;
 
   const restoreAction = {
-    text: `?Restaurar "${item.name}"?`,
+    text: `¿Restaurar "${item.name}"?`,
     label: "Restaurar",
     fn: () => onRestore(item.id),
     textLoading: "Restaurando...",
     color: "teal",
   };
   const deleteAction = {
-    text: `?Eliminar "${item.name}"?`,
+    text: `¿Eliminar "${item.name}"?`,
     label: "Eliminar",
     fn: () => onDelete(item.id),
     textLoading: "Eliminando...",
@@ -41,16 +41,11 @@ export const RowIngredient = ({
   const finalAction = isDeleted ? restoreAction : deleteAction;
 
   const handleAction = () => {
-    notifications.show({
-      title: finalAction.label,
-      message: (
-        <Group justify="space-between" wrap="nowrap" w="100%">
-          <Text size="md">{finalAction.text}</Text>
-          <Button size="sm" onClick={finalAction.fn} color={finalAction.color}>
-            {finalAction.label}
-          </Button>
-        </Group>
-      ),
+    showConfirm({
+      title: finalAction.text,
+      confirmLabel: finalAction.label,
+      onConfirm: async () => finalAction.fn(),
+      successMessage: "Operacion completada!",
       color: finalAction.color,
     });
   };

@@ -34,27 +34,23 @@ export default function CategoriesAdminPage() {
   const { deleteCategory, restoreCategory } = useCategoryMutations();
   const totalPages = data ? Math.ceil(data.total / limit) : 0;
 
-  const handleDelete = async (item: CategoryPrivate) => {
+  const handleDelete = (item: CategoryPrivate) => {
     showConfirm({
       title: "Eliminar categoria?",
       color: "red",
       confirmLabel: "Eliminar",
-      onConfirm: () => {
-        deleteCategory(item.id);
-      },
+      onConfirm: () => deleteCategory(item.id),
       successMessage: `Categoría ${item.name} eliminada`,
     });
   };
 
-  const handleRestore = async (item: CategoryPrivate) => {
+  const handleRestore = (item: CategoryPrivate) => {
     showConfirm({
       title: "¿Restaurar categoria?",
       confirmLabel: "Restaurar",
       color: "green",
-      onConfirm: () => {
-        restoreCategory(item.id);
-      },
-      successMessage: `Categoría ${item.name} retaurada`,
+      onConfirm: () => restoreCategory(item.id),
+      successMessage: `Categoría ${item.name} restaurada`,
     });
   };
   return (

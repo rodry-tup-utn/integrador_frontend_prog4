@@ -16,7 +16,6 @@ import { useIngredientMutations } from "../hooks/useIngredientMutations";
 import { IngredientModal } from "../components/IngredientModal";
 import { RowIngredient } from "../components/RowIngredient";
 import { useAuth } from "../../auth/context/AuthContext";
-import { notifications } from "@mantine/notifications";
 import type { IngredientPrivate } from "../types/ingredient";
 import { useDebouncedValue } from "@mantine/hooks";
 export const IngredientsAdminPage = () => {
@@ -50,28 +49,7 @@ export const IngredientsAdminPage = () => {
   const { deleteIngredient, restoreIngredient, isRestoring, isDeleting } =
     useIngredientMutations();
   const totalPages = ingredients ? Math.ceil(ingredients.total / limit) : 0;
-  const handleDelete = async (id: number) => {
-    try {
-      await deleteIngredient(id);
-      notifications.show({ color: "green", message: "Ingrediente eliminado" });
-    } catch (e: any) {
-      notifications.show({
-        color: "red",
-        message: e.response?.data?.detail || "Error",
-      });
-    }
-  };
-  const handleRestore = async (id: number) => {
-    try {
-      await restoreIngredient(id);
-      notifications.show({ color: "cyan", message: "Ingrediente restaurado" });
-    } catch (e: any) {
-      notifications.show({
-        color: "red",
-        message: e.response?.data?.detail || "Error",
-      });
-    }
-  };
+
   return (
     <>
       <Group justify="space-between" mb="lg">
@@ -154,8 +132,8 @@ export const IngredientsAdminPage = () => {
                       setIsModalOpen(true);
                     }
                   }}
-                  onDelete={handleDelete}
-                  onRestore={handleRestore}
+                  onDelete={deleteIngredient}
+                  onRestore={restoreIngredient}
                   isDeleting={isDeleting}
                   isRestoring={isRestoring}
                 />

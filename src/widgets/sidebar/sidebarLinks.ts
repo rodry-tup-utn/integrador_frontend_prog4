@@ -2,7 +2,6 @@ import {
   IconUser,
   IconShoppingCart,
   IconShoppingBag,
-  IconMapPin,
   IconLock,
   IconEgg,
   IconPackage,
