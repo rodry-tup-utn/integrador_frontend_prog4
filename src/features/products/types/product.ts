@@ -95,16 +95,25 @@ export interface ProductIngredientBatchCreate {
   ingredients: ProductIngredientBatchItem[];
 }
 
+export interface ProductFilters {
+  search?: string;
+  category_id?: number;
+  max_price?: number;
+  min_price?: number;
+  available?: boolean;
+  offset?: number;
+  limit?: number;
+  sort_by?: "name" | "base_price";
+  order?: "asc" | "desc";
+}
+
 export const productKeys = {
   all: ["product"] as const,
-  list: (offset: number, limit: number) => ["product", "list", offset, limit] as const,
-  search: (query: string, offset: number, limit: number) =>
-    ["product", "search", query, offset, limit] as const,
+  list: (filters: ProductFilters = {}) => ["product", "list", filters] as const,
   detail: (id: number) => ["product", "detail", id] as const,
-  getByCategory: (categoryId: number) => ["product", "category", categoryId] as const,
   // admin
-  adminAll: (offset: number, limit: number) =>
-    ["product", "admin", "list", offset, limit] as const,
+  adminAll: (filters: ProductFilters = {}) =>
+    ["product", "admin", "list", filters] as const,
   getWithCategory: (id: number) => ["product", "admin", "category", id] as const,
   // Product-Ingredient
   getWithIngredients: (product_id: number) =>

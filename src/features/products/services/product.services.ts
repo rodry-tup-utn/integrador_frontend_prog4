@@ -5,6 +5,7 @@ import type {
   ProductIngredient,
   ProductIngredientBatchCreate,
   ProductIngredientPublic,
+  ProductFilters,
   ProductList,
   ProductPrivateList,
   ProductPublic,
@@ -18,27 +19,15 @@ const STOCK_URL = "/stock";
 
 export const productService = {
   public: {
-    getAll: async (offset = 0, limit = 20): Promise<ProductList> => {
-      const response = await api.get<ProductList>(`${PUBLIC_URL}`, {
-        params: { offset, limit },
-      });
-      return response.data;
-    },
-
-    search: async (query: string, offset = 0, limit = 20): Promise<ProductList> => {
-      const response = await api.get<ProductList>(`${PUBLIC_URL}/search`, {
-        params: { query, offset, limit },
+    getAll: async (filters: ProductFilters = {}): Promise<ProductList> => {
+      const response = await api.get<ProductList>(PUBLIC_URL, {
+        params: filters,
       });
       return response.data;
     },
 
     getById: async (id: number): Promise<ProductPublic> => {
       const response = await api.get<ProductPublic>(`${PUBLIC_URL}/${id}`);
-      return response.data;
-    },
-
-    getByCategory: async (category_id: number): Promise<ProductList> => {
-      const response = await api.get<ProductList>(`${PUBLIC_URL}/category/${category_id}`);
       return response.data;
     },
   },
@@ -49,7 +38,10 @@ export const productService = {
     },
 
     update: async (id: number, data: ProductUpdate): Promise<ProductUpdate> => {
-      const response = await api.patch<ProductUpdate>(`${ADMIN_URL}/${id}`, data);
+      const response = await api.patch<ProductUpdate>(
+        `${ADMIN_URL}/${id}`,
+        data,
+      );
       return response.data;
     },
 
@@ -62,9 +54,11 @@ export const productService = {
       return response.data;
     },
 
-    getAllAdmin: async (offset = 0, limit = 20): Promise<ProductPrivateList> => {
-      const response = await api.get<ProductPrivateList>(`${ADMIN_URL}`, {
-        params: { offset, limit },
+    getAllAdmin: async (
+      filters: ProductFilters = {},
+    ): Promise<ProductPrivateList> => {
+      const response = await api.get<ProductPrivateList>(ADMIN_URL, {
+        params: filters,
       });
       return response.data;
     },
@@ -76,22 +70,32 @@ export const productService = {
   },
   stock: {
     updateStock: async (id: number, stock: number): Promise<ProductUpdate> => {
-      const response = await api.patch<ProductUpdate>(`${STOCK_URL}/${id}/update`, {
-        stock: stock,
-      });
+      const response = await api.patch<ProductUpdate>(
+        `${STOCK_URL}/${id}/update`,
+        {
+          stock: stock,
+        },
+      );
       return response.data;
     },
-    setAvailability: async (id: number, is_available: boolean): Promise<ProductPublic> => {
+    setAvailability: async (
+      id: number,
+      is_available: boolean,
+    ): Promise<ProductPublic> => {
       const response = await api.patch<ProductPublic>(
         `${STOCK_URL}/${id}/available`,
-        is_available,
+        { available: is_available },
       );
       return response.data;
     },
   },
   productIngredient: {
-    getProductWithIngredients: async (id: number): Promise<ProductWithIngredients> => {
-      const response = await api.get<ProductWithIngredients>(`/product/${id}/ingredient`);
+    getProductWithIngredients: async (
+      id: number,
+    ): Promise<ProductWithIngredients> => {
+      const response = await api.get<ProductWithIngredients>(
+        `/product/${id}/ingredient`,
+      );
       return response.data;
     },
 
@@ -130,7 +134,10 @@ export const productService = {
       return response.data;
     },
 
-    removeIngredient: async (product_id: number, ingredient_id: number): Promise<void> => {
+    removeIngredient: async (
+      product_id: number,
+      ingredient_id: number,
+    ): Promise<void> => {
       await api.delete(`/product/${product_id}/ingredient/${ingredient_id}`);
     },
   },
