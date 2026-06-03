@@ -7,6 +7,7 @@ import type {
   ProductIngredientPublic,
   ProductFilters,
   ProductList,
+  ProductPrivate,
   ProductPrivateList,
   ProductPublic,
   ProductUpdate,
@@ -15,7 +16,7 @@ import type {
 
 const ADMIN_URL = "/admin/product";
 const PUBLIC_URL = "/product";
-const STOCK_URL = "/stock";
+const STOCK_URL = "/stock/product";
 
 export const productService = {
   public: {
@@ -32,8 +33,8 @@ export const productService = {
     },
   },
   admin: {
-    create: async (data: ProductCreate): Promise<ProductCreate> => {
-      const response = await api.post<ProductCreate>(`${ADMIN_URL}`, data);
+    create: async (data: ProductCreate): Promise<ProductPrivate> => {
+      const response = await api.post<ProductPrivate>(`${ADMIN_URL}`, data);
       return response.data;
     },
 
@@ -53,22 +54,20 @@ export const productService = {
       const response = await api.patch(`${ADMIN_URL}/${id}/restore`);
       return response.data;
     },
-
-    getAllAdmin: async (
+  },
+  stock: {
+    getAllStock: async (
       filters: ProductFilters = {},
     ): Promise<ProductPrivateList> => {
-      const response = await api.get<ProductPrivateList>(ADMIN_URL, {
+      const response = await api.get<ProductPrivateList>(STOCK_URL, {
         params: filters,
       });
       return response.data;
     },
-
     getWithCategory: async (id: number): Promise<ProductDetail> => {
-      const response = await api.get<ProductDetail>(`${ADMIN_URL}/${id}`);
+      const response = await api.get<ProductDetail>(`${STOCK_URL}/${id}`);
       return response.data;
     },
-  },
-  stock: {
     updateStock: async (id: number, stock: number): Promise<ProductUpdate> => {
       const response = await api.patch<ProductUpdate>(
         `${STOCK_URL}/${id}/update`,
