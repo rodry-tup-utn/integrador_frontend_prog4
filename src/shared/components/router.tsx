@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter, Navigate, Routes } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import { ROUTES } from "../constants/routes";
 import { ProtectedRoute } from "./ProtectedRoute";
@@ -18,6 +18,7 @@ import { AdminOrdersPage } from "../../features/orders/pages/AdminOrdersPage";
 import { RoleRoute } from "./RoleRoute";
 import ProductsAdminPage from "../../features/products/pages/ProductsAdminPage";
 import ProductsAdminDetail from "../../features/products/pages/ProductsAdminDetail";
+import { UnderConstructionPage } from "../../pages/UndesConstructionPage";
 
 export const router = createBrowserRouter([
   {
@@ -73,6 +74,11 @@ export const router = createBrowserRouter([
             path: ROUTES.STOCK_INGREDIENTS,
             element: <IngredientsAdminPage />,
           },
+          { path: ROUTES.STOCK_PRODUCTS, element: <ProductsAdminPage /> },
+          {
+            path: ROUTES.STOCK_PRODUCTS_DETAIL,
+            element: <ProductsAdminDetail />,
+          },
         ],
       },
       {
@@ -96,11 +102,9 @@ export const router = createBrowserRouter([
             element: <CategoriesAdminPage />,
           },
 
-          {
-            path: ROUTES.ADMIN_PRODUCTS_DETAIL,
-            element: <ProductsAdminDetail />
-          },
           { path: ROUTES.ADMIN_USERS, element: <UserAdminPage /> },
+          { path: ROUTES.ADMIN_METRICS, element: <UnderConstructionPage /> },
+          { path: ROUTES.ADMIN_CONFIG, element: <UnderConstructionPage /> },
         ],
       },
       {
