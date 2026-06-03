@@ -94,8 +94,10 @@ export const IngredientsAdminPage = () => {
             <Table.Tr>
               <Table.Th>ID</Table.Th>
               <Table.Th>Nombre</Table.Th>
-              <Table.Th>Tipo</Table.Th>
-              <Table.Th>Estado</Table.Th>
+              <Table.Th ta="center">Stock</Table.Th>
+              <Table.Th ta="center">Unidad</Table.Th>
+              <Table.Th ta="center">Tipo</Table.Th>
+              <Table.Th ta="center">Estado</Table.Th>
               <Table.Th ta="center">Acciones</Table.Th>
             </Table.Tr>
           </Table.Thead>
@@ -149,7 +151,7 @@ export const IngredientsAdminPage = () => {
         <Pagination total={totalPages || 1} value={page} onChange={setPage} />
       </Group>
       <IngredientModal
-        isOpen={isModalOpen}
+        opened={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         ingredientData={selectedItem}
         isDeleted={!!selectedItem?.deleted_at}

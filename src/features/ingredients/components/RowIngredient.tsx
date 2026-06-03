@@ -1,4 +1,4 @@
-import type { IngredientPrivate } from "../types/ingredient";
+import type { IngredientPrivate, MeasurementUnit } from "../types/ingredient";
 import { Table, Badge, Button, Group, Text } from "@mantine/core";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
 
@@ -11,6 +11,21 @@ interface RowIngredientProps {
   isRestoring?: boolean;
   isAdmin: boolean;
 }
+
+const mapUnit = (unit: MeasurementUnit) => {
+  switch (unit) {
+    case "GRAMS":
+      return "Gramos";
+    case "KILOGRAMS":
+      return "Kilogramos";
+    case "LITER":
+      return "Litros";
+    case "MILILITER":
+      return "Mililitros";
+    default:
+      return "Unidades";
+  }
+};
 
 export const RowIngredient = ({
   item,
@@ -67,7 +82,13 @@ export const RowIngredient = ({
         </Text>
       </Table.Td>
 
-      <Table.Td>
+      <Table.Td ta="center">
+        <Text> {item.stock} </Text>
+      </Table.Td>
+      <Table.Td ta="center">
+        <Text>{mapUnit(item.measurement_unit)} </Text>
+      </Table.Td>
+      <Table.Td ta="center">
         {item.is_allergen ? (
           <Badge color="red" variant="light" size="lg">
             Alergeno
@@ -78,7 +99,7 @@ export const RowIngredient = ({
           </Badge>
         )}
       </Table.Td>
-      <Table.Td>
+      <Table.Td ta="center">
         <Badge color={isDeleted ? "red" : "teal"} variant="dot" size="md">
           {isDeleted ? "Eliminado" : "Activo"}
         </Badge>

@@ -1,15 +1,20 @@
+export type MeasurementUnit =
+  | "LITER"
+  | "MILILITER"
+  | "GRAMS"
+  | "KILOGRAMS"
+  | "UNIT";
+
 export interface IngredientPublic {
   id: number;
   name: string;
   is_allergen: boolean;
   description: string;
+  stock: number;
+  measurement_unit: MeasurementUnit;
 }
 
-export interface IngredientPrivate {
-  id: number;
-  name: string;
-  description: string;
-  is_allergen: boolean;
+export interface IngredientPrivate extends IngredientPublic {
   created_at: string;
   updated_at: string | null;
   deleted_at: string | null;
@@ -29,12 +34,16 @@ export interface IngredientUpdate {
   name?: string;
   description?: string;
   is_allergen?: boolean;
+  measurement_unit?: MeasurementUnit;
+  stock?: number;
 }
 
 export interface IngredientCreate {
   name: string;
   description: string;
   is_allergen: boolean;
+  measurement_unit: MeasurementUnit;
+  stock: number;
 }
 
 export interface IngredientFilters {
@@ -44,6 +53,10 @@ export interface IngredientFilters {
   limit?: number;
   sort_by?: "name" | "created_at";
   order?: "asc" | "desc";
+}
+
+export interface UpdateStockIngredient {
+  stock: number;
 }
 
 // QueryFactory
