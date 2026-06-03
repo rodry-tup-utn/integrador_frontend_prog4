@@ -7,6 +7,8 @@ import type {
 import { IconEdit } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/context/AuthContext";
+import { useProductMutation } from "../hooks/product.mutation.hooks";
+import { notifications } from "@mantine/notifications";
 
 interface ProductsTableProps {
   isLoading?: boolean;
@@ -36,6 +38,31 @@ const ProductsTable = ({
 
   const isAdmin = user?.roles.some((r) => r == "ADMIN");
   const navigate = useNavigate();
+  const { changeStockAvailable } = useProductMutation();
+
+  const handleAvailability = async (
+    product: ProductPrivate,
+    availability: boolean,
+  ) => {
+    try {
+      const state = product.available
+        ? { label: "No disponible", color: "orange" }
+        : { label: "Disponible", color: "blue" };
+      await changeStockAvailable({
+        id: product.id,
+        is_available: availability,
+      });
+      notifications.show({
+        message: `Producto ${product.name} cambiado a ${state.label}`,
+        color: state.color,
+      });
+    } catch (error) {
+      notifications.show({
+        message: "No se pudo cambiar la disponibilidad",
+        color: "red",
+      });
+    }
+  };
 
   return (
     <Table striped="odd" stripedColor="#fff" highlightOnHover>
@@ -54,7 +81,7 @@ const ProductsTable = ({
       <Table.Tbody>
         {isLoading ? (
           <Table.Tr>
-            <Table.Td colSpan={5}>
+            <Table.Td colSpan={8}>
               <Text ta="center" py="xl">
                 Cargando...
               </Text>
@@ -62,7 +89,7 @@ const ProductsTable = ({
           </Table.Tr>
         ) : !data?.data.length ? (
           <Table.Tr>
-            <Table.Td colSpan={5}>
+            <Table.Td colSpan={8}>
               <Text ta="center" py="xl">
                 No hay productos.
               </Text>
@@ -121,9 +148,7 @@ const ProductsTable = ({
                     size="compact-xs"
                     variant="outline"
                     color={item.available ? "green" : "red"}
-                    onClick={() =>
-                      navigate(`/admin/products/detail/${item.id}`)
-                    }
+                    onClick={() => handleAvailability(item, !item.available)}
                   >
                     {item.available ? "Disponible " : "No disponible"}
                   </Button>
