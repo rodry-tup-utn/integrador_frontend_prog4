@@ -104,7 +104,7 @@ export const IngredientsAdminPage = () => {
           <Table.Tbody>
             {isLoading ? (
               <Table.Tr>
-                <Table.Td colSpan={5}>
+                <Table.Td colSpan={7}>
                   <Text ta="center" py="xl">
                     Cargando...
                   </Text>
@@ -112,7 +112,7 @@ export const IngredientsAdminPage = () => {
               </Table.Tr>
             ) : (ingredients?.data?.length ?? 0) === 0 ? (
               <Table.Tr>
-                <Table.Td colSpan={5}>
+                <Table.Td colSpan={7}>
                   <Text ta="center" py="xl">
                     No hay ingredientes.
                   </Text>
