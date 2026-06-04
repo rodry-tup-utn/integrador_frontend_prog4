@@ -18,6 +18,7 @@ import { RowIngredient } from "../components/RowIngredient";
 import { useAuth } from "../../auth/context/AuthContext";
 import type { IngredientPrivate } from "../types/ingredient";
 import { useDebouncedValue } from "@mantine/hooks";
+import ActionButton from "../../../shared/components/ActionButton";
 export const IngredientsAdminPage = () => {
   const { user } = useAuth();
   const isAdmin = user?.roles?.includes("ADMIN") || false;
@@ -54,15 +55,17 @@ export const IngredientsAdminPage = () => {
     <>
       <Group justify="space-between" mb="lg">
         <Title order={2}>Ingredientes</Title>
-        <Button
-          leftSection={<IconPlus size={16} />}
+        <ActionButton
+          icon={IconPlus}
           onClick={() => {
             setSelectedItem(null);
             setIsModalOpen(true);
           }}
-        >
-          Nuevo Ingrediente
-        </Button>
+          label="Agregar Ingrediente"
+          text="Nuevo Ingrediente"
+          color="teal"
+          variant="filled"
+        />
       </Group>
       <TextInput
         placeholder="Buscar ingrediente..."
