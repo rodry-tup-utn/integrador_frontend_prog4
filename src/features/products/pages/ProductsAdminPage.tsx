@@ -1,11 +1,4 @@
-import {
-  Button,
-  Group,
-  Pagination,
-  Text,
-  TextInput,
-  Title,
-} from "@mantine/core";
+import { Pagination, Text, TextInput, Title } from "@mantine/core";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
 import { useState } from "react";
 import { useDebouncedValue } from "@mantine/hooks";
@@ -21,6 +14,8 @@ import ProductsForm from "../components/ProductsForm";
 import { useProductMutation } from "../hooks/product.mutation.hooks";
 import { notifications } from "@mantine/notifications";
 import type { AxiosError } from "axios";
+import ActionButton from "../../../shared/components/ActionButton";
+import { showConfirm } from "../../../shared/components/ShowConfirm";
 
 const ProductsAdminPage = () => {
   const LIMIT = 20;
@@ -50,53 +45,23 @@ const ProductsAdminPage = () => {
     setOpen(true);
   };
 
-  const handleDelete = (id: number) => {
-    notifications.show({
-      color: "cyan",
-      message: (
-        <Group justify="space-between" wrap="nowrap">
-          <Text size="md">{`¿Eliminar el producto #${id}?`}</Text>
-          <Button onClick={() => executeDelete(id)}>Eliminar</Button>
-        </Group>
-      ),
+  const handleDelete = (item: ProductPrivate) => {
+    showConfirm({
+      confirmLabel: "Eliminar",
+      onConfirm: () => deleteProduct(item.id),
+      title: `Eliminar el producto ${item.name}`,
+      color: "red",
+      successMessage: `Producto ${item.name} eliminado correctament`,
     });
   };
 
-  const executeDelete = (id: number) => {
-    deleteProduct(id, {
-      onSuccess: () => {
-        notifications.show({ color: "green", message: "Producto eliminado" });
-      },
-      onError: (error) => {
-        const axiosError = error as AxiosError<{ detail: string }>;
-        const msg = axiosError.response?.data?.detail || "Error al eliminar";
-        notifications.show({ color: "red", message: msg });
-      },
-    });
-  };
-
-  const handleRestore = (id: number) => {
-    notifications.show({
-      color: "cyan",
-      message: (
-        <Group justify="space-between" wrap="nowrap">
-          <Text size="md">{`¿Restaurar el producto #${id}?`}</Text>
-          <Button onClick={() => executeRestore(id)}>Restaurar</Button>
-        </Group>
-      ),
-    });
-  };
-
-  const executeRestore = (id: number) => {
-    restoreProduct(id, {
-      onSuccess: () => {
-        notifications.show({ color: "green", message: "Producto restaurado" });
-      },
-      onError: (error) => {
-        const axiosError = error as AxiosError<{ detail: string }>;
-        const msg = axiosError.response?.data?.detail || "Error al restaurar";
-        notifications.show({ color: "red", message: msg });
-      },
+  const handleRestore = (item: ProductPrivate) => {
+    showConfirm({
+      confirmLabel: "Restaurar",
+      onConfirm: () => restoreProduct(item.id),
+      title: `Restaurar el producto ${item.name}`,
+      color: "teal",
+      successMessage: `Producto ${item.name} restaurado correctament`,
     });
   };
 
@@ -166,15 +131,14 @@ const ProductsAdminPage = () => {
 
         <section className="cell py-2 px-4">
           <div className="flex items-center justify-center md:justify-end">
-            <Button
-              leftSection={<IconPlus size={16} />}
-              onClick={() => {
-                console.log("Nuevo producto");
-                setOpen(true);
-              }}
-            >
-              Nuevo Producto
-            </Button>
+            <ActionButton
+              icon={IconPlus}
+              label="Nuevo Producto"
+              text="Nuevo producto"
+              onClick={() => setOpen(true)}
+              color="teal"
+              variant="filled"
+            ></ActionButton>
           </div>
         </section>
 
