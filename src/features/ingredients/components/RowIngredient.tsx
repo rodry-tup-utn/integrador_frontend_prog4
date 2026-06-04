@@ -1,6 +1,8 @@
 import type { IngredientPrivate, MeasurementUnit } from "../types/ingredient";
 import { Table, Badge, Button, Group, Text } from "@mantine/core";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
+import ActionButton from "../../../shared/components/ActionButton";
+import { IconEdit, IconEye, IconRestore, IconTrash } from "@tabler/icons-react";
 
 interface RowIngredientProps {
   item: IngredientPrivate;
@@ -107,24 +109,20 @@ export const RowIngredient = ({
 
       <Table.Td>
         <Group gap="sm" justify="center">
-          <Button
-            size="xs"
-            variant="light"
+          <ActionButton
+            icon={isDeleted ? IconEye : IconEdit}
+            label={isDeleted ? "Ver detalle" : "Editar"}
             color={isDeleted ? "gray" : "blue"}
             onClick={() => onEdit(item.id.toString())}
-          >
-            {isDeleted ? "Detalle" : "Editar"}
-          </Button>
+          />
+
           {isAdmin && (
-            <Button
-              size="xs"
-              variant="light"
+            <ActionButton
+              icon={isDeleted ? IconRestore : IconTrash}
+              label={label}
               color={isDeleted ? "green" : "red"}
-              loading={isDeleting || isRestoring}
               onClick={handleAction}
-            >
-              {label}
-            </Button>
+            />
           )}
         </Group>
       </Table.Td>
