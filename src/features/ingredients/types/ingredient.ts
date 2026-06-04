@@ -10,11 +10,11 @@ export interface IngredientPublic {
   name: string;
   is_allergen: boolean;
   description: string;
-  stock: number;
-  measurement_unit: MeasurementUnit;
 }
 
 export interface IngredientPrivate extends IngredientPublic {
+  stock: number;
+  measurement_unit: MeasurementUnit;
   created_at: string;
   updated_at: string | null;
   deleted_at: string | null;
