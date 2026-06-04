@@ -4,17 +4,18 @@ import type {
   ProductPrivateList,
   TypeProduct,
 } from "../types/product";
-import { IconEdit } from "@tabler/icons-react";
+import { IconEdit, IconEye, IconRestore, IconTrash } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/context/AuthContext";
 import { useProductMutation } from "../hooks/product.mutation.hooks";
 import { notifications } from "@mantine/notifications";
+import ActionButton from "../../../shared/components/ActionButton";
 
 interface ProductsTableProps {
   isLoading?: boolean;
   data?: ProductPrivateList;
-  onRestore: (id: number) => void;
-  onDelete: (id: number) => void;
+  onRestore: (item: ProductPrivate) => void;
+  onDelete: (item: ProductPrivate) => void;
   onEdit: (item: ProductPrivate) => void;
   onModalOpen: (value: boolean) => void;
 }
@@ -155,40 +156,35 @@ const ProductsTable = ({
                 </Table.Td>
 
                 <Table.Td>
-                  <Group gap="xs" justify="center">
-                    <Button
-                      size="xs"
-                      variant="light"
-                      color="blue"
+                  <Group gap={4} justify="center">
+                    <ActionButton
+                      icon={IconEdit}
                       onClick={() => {
                         onEdit(item);
                         onModalOpen(true);
                       }}
-                    >
-                      {<IconEdit></IconEdit>}
-                      Editar
-                    </Button>
+                      label="Editar"
+                      color="blue"
+                    ></ActionButton>
+
                     {isAdmin && (
-                      <Button
-                        size="xs"
-                        variant="light"
-                        color={isDeleted ? "green" : "red"}
+                      <ActionButton
+                        icon={isDeleted ? IconRestore : IconTrash}
                         onClick={() =>
-                          isDeleted ? onRestore(item.id) : onDelete(item.id)
+                          isDeleted ? onRestore(item) : onDelete(item)
                         }
-                      >
-                        {isDeleted ? "Restaurar" : "Eliminar"}
-                      </Button>
+                        label={isDeleted ? "Restaurar" : "Eliminar"}
+                        color={isDeleted ? "green" : "red"}
+                      />
                     )}
-                    <Button
-                      size="xs"
-                      variant="light"
+                    <ActionButton
+                      icon={IconEye}
+                      label="Ver detalle"
+                      color="teal"
                       onClick={() =>
                         navigate(`/admin/products/detail/${item.id}`)
                       }
-                    >
-                      Ver detalle
-                    </Button>
+                    />
                   </Group>
                 </Table.Td>
               </Table.Tr>

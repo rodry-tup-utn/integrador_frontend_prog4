@@ -28,6 +28,7 @@ import placeholder from "../../../assets/placeholder.jpeg";
 import { useProductWithIngredients } from "../hooks/product.queries.hooks";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useAdminIngredientsList } from "../../ingredients/hooks/useAdminIngredientsList";
+import ActionButton from "../../../shared/components/ActionButton";
 
 export const ProductPriceCard = ({ product }: { product: ProductDetail }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -343,24 +344,30 @@ export const ProductIngredientsCard = ({
                     <Text size="sm">{formatUnit(ing.measurement_unit)}</Text>
                   </Table.Td>
                   <Table.Td ta="center">
-                    <NumberInput
-                      value={draftQty}
-                      min={0}
-                      w={80}
-                      onChange={(v) =>
-                        setDraftQuantities((prev) => ({
-                          ...prev,
-                          [ing.ingredient_id]: Number(v) || 0,
-                        }))
-                      }
-                    />
+                    <Group justify="center">
+                      <NumberInput
+                        value={draftQty}
+                        min={0}
+                        w={80}
+                        onChange={(v) =>
+                          setDraftQuantities((prev) => ({
+                            ...prev,
+                            [ing.ingredient_id]: Number(v) || 0,
+                          }))
+                        }
+                      />
+                    </Group>
                   </Table.Td>
                   <Table.Td ta="center">
-                    <Switch
-                      size="sm"
-                      checked={ing.is_removable}
-                      onChange={(e) => setIsRemovable(e.currentTarget.checked)}
-                    />
+                    <Group justify="center">
+                      <Switch
+                        size="sm"
+                        checked={ing.is_removable}
+                        onChange={(e) =>
+                          setIsRemovable(e.currentTarget.checked)
+                        }
+                      />
+                    </Group>
                   </Table.Td>
                   <Table.Td ta="center">
                     <Group gap="xs" justify="center">
@@ -378,18 +385,17 @@ export const ProductIngredientsCard = ({
                       >
                         Guardar
                       </Button>
-                      <ActionIcon
-                        color="red"
-                        variant="subtle"
+                      <ActionButton
                         onClick={() =>
                           removeIngredient({
                             productId: productId,
                             ingredientId: ing.ingredient_id,
                           })
                         }
-                      >
-                        <IconTrash size={16} />
-                      </ActionIcon>
+                        icon={IconTrash}
+                        label="Eliminar ingrediente"
+                        color="red"
+                      ></ActionButton>
                     </Group>
                   </Table.Td>
                 </Table.Tr>
