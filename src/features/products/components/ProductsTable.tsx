@@ -1,10 +1,16 @@
-import { Badge, Button, Group, Table, Text } from "@mantine/core";
+import { Badge, Button, Group, Table, Text, Tooltip } from "@mantine/core";
 import type {
   ProductPrivate,
   ProductPrivateList,
   TypeProduct,
 } from "../types/product";
-import { IconEdit, IconEye, IconRestore, IconTrash } from "@tabler/icons-react";
+import {
+  IconEdit,
+  IconEye,
+  IconInfoCircle,
+  IconRestore,
+  IconTrash,
+} from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/context/AuthContext";
 import { useProductMutation } from "../hooks/product.mutation.hooks";
@@ -74,7 +80,14 @@ const ProductsTable = ({
           <Table.Th>Precio</Table.Th>
           <Table.Th>Estado</Table.Th>
           <Table.Th ta="center">Tipo</Table.Th>
-          <Table.Th>Stock</Table.Th>
+          <Table.Th>
+            <Group gap={4}>
+              <Text>Stock</Text>
+              <Tooltip label="El stock de manufacturados es aproximado. Vea el detalle para el valor real.">
+                <IconInfoCircle size={16} style={{ cursor: "pointer" }} />
+              </Tooltip>
+            </Group>
+          </Table.Th>
           <Table.Th ta="center">Disponibilidad</Table.Th>
           <Table.Th style={{ textAlign: "center" }}>Acciones</Table.Th>
         </Table.Tr>
@@ -141,18 +154,29 @@ const ProductsTable = ({
                     c={item.stock > 0 ? "teal" : "red"}
                     lineClamp={1}
                   >
-                    {item.stock || "—"}
+                    {item.type === "MANUFACTURED"
+                      ? `~${item.stock ?? "—"}`
+                      : (item.stock ?? "—")}
                   </Text>
                 </Table.Td>
                 <Table.Td ta="center">
-                  <Button
-                    size="compact-xs"
-                    variant="outline"
-                    color={item.available ? "green" : "red"}
-                    onClick={() => handleAvailability(item, !item.available)}
+                  <Tooltip
+                    label={
+                      item.available
+                        ? "Marcar No disponible"
+                        : "Marcar Disponible"
+                    }
+                    color={item.available ? "orange" : "teal"}
                   >
-                    {item.available ? "Disponible " : "No disponible"}
-                  </Button>
+                    <Button
+                      size="compact-xs"
+                      variant="outline"
+                      color={item.available ? "green" : "red"}
+                      onClick={() => handleAvailability(item, !item.available)}
+                    >
+                      {item.available ? "Disponible " : "No disponible"}
+                    </Button>
+                  </Tooltip>
                 </Table.Td>
 
                 <Table.Td>
