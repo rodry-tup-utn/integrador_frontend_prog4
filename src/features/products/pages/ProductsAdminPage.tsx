@@ -113,6 +113,10 @@ const ProductsAdminPage = () => {
       <Title order={2} style={{ marginBottom: "8px" }}>
         Productos
       </Title>
+      <Text size="sm" c="dimmed" mb="md">
+        El stock de productos manufacturados es aproximado. Consulte el detalle
+        para ver el stock real.
+      </Text>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <section className="cell p-2">
           <div className="flex items-center justify-center md:justify-start">
