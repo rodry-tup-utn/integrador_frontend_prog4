@@ -18,6 +18,7 @@ import { RowIngredient } from "../components/RowIngredient";
 import { useAuth } from "../../auth/context/AuthContext";
 import type { IngredientPrivate } from "../types/ingredient";
 import { useDebouncedValue } from "@mantine/hooks";
+import ActionButton from "../../../shared/components/ActionButton";
 export const IngredientsAdminPage = () => {
   const { user } = useAuth();
   const isAdmin = user?.roles?.includes("ADMIN") || false;
@@ -54,15 +55,17 @@ export const IngredientsAdminPage = () => {
     <>
       <Group justify="space-between" mb="lg">
         <Title order={2}>Ingredientes</Title>
-        <Button
-          leftSection={<IconPlus size={16} />}
+        <ActionButton
+          icon={IconPlus}
           onClick={() => {
             setSelectedItem(null);
             setIsModalOpen(true);
           }}
-        >
-          Nuevo Ingrediente
-        </Button>
+          label="Agregar Ingrediente"
+          text="Nuevo Ingrediente"
+          color="teal"
+          variant="filled"
+        />
       </Group>
       <TextInput
         placeholder="Buscar ingrediente..."
@@ -94,15 +97,17 @@ export const IngredientsAdminPage = () => {
             <Table.Tr>
               <Table.Th>ID</Table.Th>
               <Table.Th>Nombre</Table.Th>
-              <Table.Th>Tipo</Table.Th>
-              <Table.Th>Estado</Table.Th>
+              <Table.Th ta="center">Stock</Table.Th>
+              <Table.Th ta="center">Unidad</Table.Th>
+              <Table.Th ta="center">Tipo</Table.Th>
+              <Table.Th ta="center">Estado</Table.Th>
               <Table.Th ta="center">Acciones</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
             {isLoading ? (
               <Table.Tr>
-                <Table.Td colSpan={5}>
+                <Table.Td colSpan={7}>
                   <Text ta="center" py="xl">
                     Cargando...
                   </Text>
@@ -110,7 +115,7 @@ export const IngredientsAdminPage = () => {
               </Table.Tr>
             ) : (ingredients?.data?.length ?? 0) === 0 ? (
               <Table.Tr>
-                <Table.Td colSpan={5}>
+                <Table.Td colSpan={7}>
                   <Text ta="center" py="xl">
                     No hay ingredientes.
                   </Text>
@@ -149,7 +154,7 @@ export const IngredientsAdminPage = () => {
         <Pagination total={totalPages || 1} value={page} onChange={setPage} />
       </Group>
       <IngredientModal
-        isOpen={isModalOpen}
+        opened={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         ingredientData={selectedItem}
         isDeleted={!!selectedItem?.deleted_at}

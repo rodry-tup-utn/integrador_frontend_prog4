@@ -19,20 +19,21 @@ export const usePublicProductDetail = (id: number) => {
 export const useAdminProducts = (filters: ProductFilters = {}) => {
   return useQuery({
     queryKey: productKeys.adminAll(filters),
-    queryFn: () => productService.admin.getAllAdmin(filters),
+    queryFn: () => productService.stock.getAllStock(filters),
   });
 };
 
 export const useAdminProductDetail = (id: number) => {
   return useQuery({
     queryKey: productKeys.getWithCategory(id),
-    queryFn: () => productService.admin.getWithCategory(id),
+    queryFn: () => productService.stock.getWithCategory(id),
   });
 };
 
 export const useProductWithIngredients = (id: number) => {
   return useQuery({
     queryKey: productKeys.getWithIngredients(id),
-    queryFn: () => productService.productIngredient.getProductWithIngredients(id),
+    queryFn: () =>
+      productService.productIngredient.getProductWithIngredients(id),
   });
 };

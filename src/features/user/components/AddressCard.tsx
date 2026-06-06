@@ -1,18 +1,13 @@
+import { Badge, Button, Card, Group, Stack, Text } from "@mantine/core";
 import {
-  Badge,
-  Button,
-  Card,
-  Group,
-  Stack,
-  Text,
-} from "@mantine/core";
-import {
+  IconEdit,
   IconMapPin,
-  IconRefresh,
+  IconRestore,
   IconTrash,
 } from "@tabler/icons-react";
 import type { AddressRead } from "../types/user";
 import { toDateString } from "../../../shared/helpers/helpers";
+import ActionButton from "../../../shared/components/ActionButton";
 
 interface Props {
   address: AddressRead;
@@ -41,11 +36,7 @@ const AddressCard = ({
       opacity={isDeleted ? 0.6 : undefined}
       padding="md"
     >
-      <Group
-        justify="space-between"
-        wrap="nowrap"
-        align="flex-start"
-      >
+      <Group justify="space-between" wrap="nowrap" align="flex-start">
         <Stack gap={4}>
           <Group gap="xs">
             <IconMapPin size={16} />
@@ -73,37 +64,22 @@ const AddressCard = ({
           </Text>
         </Stack>
         <Group gap="xs" wrap="nowrap">
-          <Button
-            size="xs"
-            variant="light"
-            color="blue"
+          <ActionButton
+            icon={IconEdit}
+            label="Editar"
             onClick={onEdit}
-          >
+            color="blue"
+          />
+          <Button size="xs" variant="light" color="blue" onClick={onEdit}>
             Editar
           </Button>
-          {isDeleted ? (
-            <Button
-              size="xs"
-              variant="light"
-              color="green"
-              leftSection={<IconRefresh size={14} />}
-              loading={isRestoring}
-              onClick={onRestore}
-            >
-              Restaurar
-            </Button>
-          ) : (
-            <Button
-              size="xs"
-              variant="light"
-              color="red"
-              leftSection={<IconTrash size={14} />}
-              loading={isDeleting}
-              onClick={onDelete}
-            >
-              Eliminar
-            </Button>
-          )}
+          <ActionButton
+            icon={isDeleted ? IconRestore : IconTrash}
+            label={isDeleted ? "Restaurar" : "Eliminar"}
+            onClick={isDeleted ? onRestore : onDelete}
+            color={isDeleted ? "green" : "red"}
+            disabled={isDeleted ? isDeleting : isRestoring}
+          />
         </Group>
       </Group>
     </Card>

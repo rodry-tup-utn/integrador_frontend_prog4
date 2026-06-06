@@ -1,4 +1,6 @@
 // bloque base compartido
+export type TypeProduct = "MANUFACTURED" | "FINAL";
+
 interface ProductBase {
   id: number;
   name: string;
@@ -7,6 +9,7 @@ interface ProductBase {
   stock: number;
   images_url: string | null;
   available: boolean;
+  type: TypeProduct;
 }
 
 // tipos de soporte reutilizables
@@ -38,7 +41,6 @@ export interface ProductPrivate extends ProductBase {
   deleted_at: string | null;
 }
 
-// create y update sin cambios
 export interface ProductCreate {
   name: string;
   description?: string;
@@ -46,6 +48,8 @@ export interface ProductCreate {
   stock: number;
   images_url?: string;
   category_id: number;
+  type: TypeProduct;
+  ingredients: ProductIngredientBatchItem[];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -62,7 +66,9 @@ export interface ProductPrivateList {
   total: number;
 }
 
-// ingredientes — sin cambios, estaban bien
+import type { MeasurementUnit } from "../../ingredients/types/ingredient";
+
+// ingredientes
 export interface ProductWithIngredients {
   product_id: number;
   name: string;
@@ -74,10 +80,13 @@ export interface IngredientInProduct {
   name: string;
   description: string | null;
   is_removable: boolean;
+  quantity_ingredient: number;
+  measurement_unit: MeasurementUnit;
 }
 
 export interface ProductIngredient {
   is_removable: boolean;
+  quantity_ingredient: number;
 }
 
 export interface ProductIngredientPublic {
@@ -89,6 +98,7 @@ export interface ProductIngredientPublic {
 export interface ProductIngredientBatchItem {
   ingredient_id: number;
   is_removable: boolean;
+  quantity_ingredient: number;
 }
 
 export interface ProductIngredientBatchCreate {
@@ -114,7 +124,8 @@ export const productKeys = {
   // admin
   adminAll: (filters: ProductFilters = {}) =>
     ["product", "admin", "list", filters] as const,
-  getWithCategory: (id: number) => ["product", "admin", "category", id] as const,
+  getWithCategory: (id: number) =>
+    ["product", "admin", "category", id] as const,
   // Product-Ingredient
   getWithIngredients: (product_id: number) =>
     ["product", "ingredient", "product_id", product_id] as const,

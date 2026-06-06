@@ -5,7 +5,7 @@ export const ROUTES = {
   LOGIN: "/login",
   REGISTER: "/register",
   ADMIN_PRODUCTS: "/admin/products",
-  ADMIN_PRODUCTS_DETAIL: "/admin/products/detail/:id",
+  STOCK_PRODUCTS_DETAIL: "/admin/products/detail/:id",
   PUBLIC_PRODUCTS: "/products",
   ADMIN_INGREDIENTS: "/admin/ingredients",
   PUBLIC_INGREDIENTS: "/ingredients",
@@ -17,4 +17,7 @@ export const ROUTES = {
   MY_ORDERS: "user/orders",
   ORDERS_ADMIN: "/orders",
   STOCK_INGREDIENTS: "/stock/ingredients",
+  STOCK_PRODUCTS: "/stock/products",
+  ADMIN_METRICS: "/admin/metrics",
+  ADMIN_CONFIG: "/admin/config",
 } as const;

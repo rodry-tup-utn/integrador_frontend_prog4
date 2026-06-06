@@ -13,13 +13,20 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import { IconEdit, IconPlus, IconSearch } from "@tabler/icons-react";
+import {
+  IconEdit,
+  IconPlus,
+  IconRestore,
+  IconSearch,
+  IconTrash,
+} from "@tabler/icons-react";
 import { AdminUserCreateModal } from "../components/AdminUserCreateModal";
 import { AdminUserEditModal } from "../components/AdminUserEditModal";
 import type { UserAdminRead, UserRoleRead } from "../types/user";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
 import { useAdminUserMutations } from "../hooks/admin/useAdminUserMutations";
 import { roleConfig } from "../types/configs";
+import ActionButton from "../../../shared/components/ActionButton";
 
 const isRoleExpired = (role: UserRoleRead) =>
   !!role.expires_at && new Date(role.expires_at).getTime() < Date.now();
@@ -65,14 +72,16 @@ const UserAdminPage = () => {
     <>
       <Group justify="space-between" mb="lg">
         <Title order={2}>Usuarios</Title>
-        <Button
-          leftSection={<IconPlus size={16} />}
+        <ActionButton
+          text="Nuevo Usuario"
+          icon={IconPlus}
           onClick={() => {
             setAdminModal(true);
           }}
-        >
-          Nuevo Usuario
-        </Button>
+          label="Agregar Usuario"
+          color="green"
+          variant="filled"
+        />
       </Group>
       <TextInput
         placeholder="Buscar usuarios..."
@@ -181,28 +190,25 @@ const UserAdminPage = () => {
                     </Table.Td>
                     <Table.Td>
                       <Group gap="xs" justify="center">
-                        <Button
-                          size="xs"
-                          variant="light"
+                        <ActionButton
+                          icon={IconEdit}
+                          label="Editar Usuario"
                           color="blue"
                           onClick={() => {
                             setEditing(item);
                             setEditModal(true);
                           }}
-                        >
-                          {<IconEdit></IconEdit>}
-                          Editar
-                        </Button>
-                        <Button
-                          size="xs"
-                          variant="light"
-                          color={isDeleted ? "green" : "red"}
-                          onClick={() =>
-                            isDeleted ? handleRestore(item) : handleDelete(item)
+                        />
+                        <ActionButton
+                          icon={isDeleted ? IconRestore : IconTrash}
+                          label={isDeleted ? "Restaurar" : "Eliminar"}
+                          onClick={
+                            isDeleted
+                              ? () => handleRestore(item)
+                              : () => handleDelete(item)
                           }
-                        >
-                          {isDeleted ? "Restaurar" : "Eliminar"}
-                        </Button>
+                          color={isDeleted ? "green" : "red"}
+                        />
                       </Group>
                     </Table.Td>
                   </Table.Tr>
