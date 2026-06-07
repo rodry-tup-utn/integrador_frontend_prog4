@@ -20,4 +20,5 @@ export const ROUTES = {
   STOCK_PRODUCTS: "/stock/products",
   ADMIN_METRICS: "/admin/metrics",
   ADMIN_CONFIG: "/admin/config",
+  KITCHEN_BOARD: "/kitchen",
 } as const;
