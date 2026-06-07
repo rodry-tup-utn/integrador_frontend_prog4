@@ -1,22 +1,24 @@
 import { RouterProvider } from "react-router-dom";
 import { AuthProvider } from "./features/auth/context/AuthContext";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./shared/api/queryClient";
 import { router } from "./shared/components/router";
 import { Notifications } from "@mantine/notifications";
+import { useAuth } from "./features/auth/context/AuthContext";
+import { useOrderWebSocket } from "./shared/hooks/useOrderWebSocket";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1, // Si falla la API, reintenta solo una vez
-      refetchOnWindowFocus: false, // Evita que se recargue la data cada vez que cambias de pestaña
-    },
-  },
-});
+function WsManager() {
+  const { isAuthenticated } = useAuth();
+  useOrderWebSocket(isAuthenticated);
+  return null;
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Notifications position="top-right"></Notifications>
+        <WsManager />
         <RouterProvider router={router} />
       </AuthProvider>
     </QueryClientProvider>
