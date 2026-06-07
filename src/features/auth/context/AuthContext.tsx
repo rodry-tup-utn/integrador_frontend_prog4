@@ -4,13 +4,13 @@ import type { AuthContextType } from "../types/auth";
 import { useLogin } from "../hooks/useLogin";
 const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const { executeLogin, logout, loading, user } = useLogin();
+  const { login, logout, loading, user } = useLogin();
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        executeLogin,
+        login,
         logout,
         isAuthenticated: !!user,
         isLoading: loading,

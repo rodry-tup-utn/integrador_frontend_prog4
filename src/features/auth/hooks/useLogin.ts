@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { notifications } from "@mantine/notifications";
 import type { UserSessionRead } from "../../user/types/user";
 import { authService } from "../services/authService";
 export const useLogin = () => {
@@ -28,27 +27,7 @@ export const useLogin = () => {
       setLoading(false);
     }
   };
-  const executeLogin = async (
-    e: React.FormEvent<HTMLFormElement>,
-  ): Promise<boolean> => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    try {
-      const userData = await login(formData);
-      notifications.show({
-        title: "Exito!",
-        message: `Bienvenido ${userData.name}!`,
-      });
-      return true;
-    } catch (err: any) {
-      notifications.show({
-        color: "red",
-        title: "Error",
-        message: err.response?.data?.detail || "Error al iniciar sesión",
-      });
-      return false;
-    }
-  };
+
   const logout = async () => {
     try {
       await authService.logout();
@@ -57,5 +36,5 @@ export const useLogin = () => {
     }
     setUser(null);
   };
-  return { executeLogin, login, logout, loading, user };
+  return { login, logout, loading, user };
 };
