@@ -1,14 +1,8 @@
-import {
-  Table,
-  Paper,
-  Group,
-  Pagination,
-  Text,
-  Badge,
-  Button,
-} from "@mantine/core";
+import { Table, Paper, Group, Pagination, Text, Badge } from "@mantine/core";
 import type { OrderPublic, OrderStateCode } from "../types/order";
 import { STATE_COLORS, STATE_LABELS } from "../types/configs";
+import ActionButton from "../../../shared/components/ActionButton";
+import { IconEye } from "@tabler/icons-react";
 
 interface Props {
   orders: OrderPublic[] | undefined;
@@ -103,13 +97,13 @@ export const OrdersTable = ({
                     </Table.Td>
                     <Table.Td>
                       <Group gap="md" justify="center">
-                        <Button
-                          size="xs"
-                          variant="outline"
+                        <ActionButton
+                          icon={IconEye}
+                          label="Ver detalle"
+                          color="teal"
+                          variant="light"
                           onClick={() => onViewDetail(order.id)}
-                        >
-                          Detalles
-                        </Button>
+                        ></ActionButton>
                         {renderActions(order)}
                       </Group>
                     </Table.Td>

@@ -1,3 +1,5 @@
+import type { UserSessionRead } from "../../user/types/user";
+
 export interface RoleInfo {
   role_code: string;
   role_user: {
@@ -29,8 +31,8 @@ export interface UserInfo {
 
 export interface AuthContextType {
   user: UserInfo | null;
-  executeLogin: (e: React.FormEvent<HTMLFormElement>) => Promise<boolean>;
   logout: () => void;
+  login: (data: FormData) => Promise<UserSessionRead>;
   isAuthenticated: boolean;
   isLoading: boolean;
 }

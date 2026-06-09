@@ -36,7 +36,7 @@ const AddressCard = ({
       opacity={isDeleted ? 0.6 : undefined}
       padding="md"
     >
-      <Group justify="space-between" wrap="nowrap" align="flex-start">
+      <Group justify="space-between" wrap="nowrap" align="center">
         <Stack gap={4}>
           <Group gap="xs">
             <IconMapPin size={16} />
@@ -70,15 +70,12 @@ const AddressCard = ({
             onClick={onEdit}
             color="blue"
           />
-          <Button size="xs" variant="light" color="blue" onClick={onEdit}>
-            Editar
-          </Button>
           <ActionButton
             icon={isDeleted ? IconRestore : IconTrash}
             label={isDeleted ? "Restaurar" : "Eliminar"}
             onClick={isDeleted ? onRestore : onDelete}
             color={isDeleted ? "green" : "red"}
-            disabled={isDeleted ? isDeleting : isRestoring}
+            disabled={isDeleted ? isRestoring : isDeleted}
           />
         </Group>
       </Group>

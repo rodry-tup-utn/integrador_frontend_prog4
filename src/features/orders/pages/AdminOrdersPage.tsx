@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Title, Button, Table, Stack } from "@mantine/core";
+import { Title, Table, Stack } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import type {
   OrderAdmin,
@@ -16,6 +16,9 @@ import { UserSearchFilters } from "../components/UserSearchFilters";
 import { OrderDetailModal } from "../components/OrderDetailModal";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
 import { nextState, stateLabel } from "../types/configs";
+import ActionButton from "../../../shared/components/ActionButton";
+import { IconArrowBigRightLines, IconXMark } from "@tabler/icons-react";
+import { isCancellable, isProgressable } from "../helpers/helpers";
 
 export const AdminOrdersPage = () => {
   const [page, setPage] = useState(1);
@@ -59,7 +62,6 @@ export const AdminOrdersPage = () => {
 
   const handleAdvance = (order: OrderPublic) => {
     const next = nextState(order.state_code as OrderStateCode);
-    console.log(next);
     if (!next) return;
     showConfirm({
       title: `Avanzar orden #${order.id} a "${stateLabel(next)}"?`,
@@ -129,28 +131,29 @@ export const AdminOrdersPage = () => {
             </>
           );
         }}
-        renderActions={(order) =>
-          order.state_code === "PENDING" ? (
-            <>
-              <Button
-                size="xs"
-                variant="outline"
+        renderActions={(order) => (
+          <>
+            {isCancellable(order.state_code) && (
+              <ActionButton
+                label="Cancelar Orden"
+                icon={IconXMark}
+                variant="light"
                 color="red"
                 onClick={() => handleCancel(order)}
-              >
-                Cancelar
-              </Button>
-              <Button
+              ></ActionButton>
+            )}
+
+            {isProgressable(order.state_code) && (
+              <ActionButton
                 color="violet"
-                variant="outline"
-                size="xs"
+                variant="light"
+                icon={IconArrowBigRightLines}
+                label={`Avanzar a ${stateLabel(nextState(order.state_code as OrderStateCode)!) || "Avanzar Estado"}`}
                 onClick={() => handleAdvance(order)}
-              >
-                Avanzar Estado
-              </Button>
-            </>
-          ) : null
-        }
+              ></ActionButton>
+            )}
+          </>
+        )}
       />
 
       <OrderDetailModal

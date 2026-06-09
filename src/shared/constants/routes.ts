@@ -14,10 +14,12 @@ export const ROUTES = {
   ADMIN_USERS: "/admin/users",
   PROFILE: "/profile",
   CHANGE_PASSWORD: "/change-password",
-  MY_ORDERS: "user/orders",
+  CART: "/cart",
+  MY_ORDERS: "/user/orders",
   ORDERS_ADMIN: "/orders",
   STOCK_INGREDIENTS: "/stock/ingredients",
   STOCK_PRODUCTS: "/stock/products",
   ADMIN_METRICS: "/admin/metrics",
   ADMIN_CONFIG: "/admin/config",
+  KITCHEN_BOARD: "/kitchen",
 } as const;
