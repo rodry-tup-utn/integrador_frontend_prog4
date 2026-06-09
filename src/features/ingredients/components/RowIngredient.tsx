@@ -1,6 +1,8 @@
-import type { IngredientPrivate } from "../types/ingredient";
+import type { IngredientPrivate, MeasurementUnit } from "../types/ingredient";
 import { Table, Badge, Button, Group, Text } from "@mantine/core";
-import { notifications } from "@mantine/notifications";
+import { showConfirm } from "../../../shared/components/ShowConfirm";
+import ActionButton from "../../../shared/components/ActionButton";
+import { IconEdit, IconEye, IconRestore, IconTrash } from "@tabler/icons-react";
 
 interface RowIngredientProps {
   item: IngredientPrivate;
@@ -11,6 +13,21 @@ interface RowIngredientProps {
   isRestoring?: boolean;
   isAdmin: boolean;
 }
+
+const mapUnit = (unit: MeasurementUnit) => {
+  switch (unit) {
+    case "GRAMS":
+      return "Gramos";
+    case "KILOGRAMS":
+      return "Kilogramos";
+    case "LITER":
+      return "Litros";
+    case "MILILITER":
+      return "Mililitros";
+    default:
+      return "Unidades";
+  }
+};
 
 export const RowIngredient = ({
   item,
@@ -24,14 +41,14 @@ export const RowIngredient = ({
   const isDeleted = !!item.deleted_at;
 
   const restoreAction = {
-    text: `?Restaurar "${item.name}"?`,
+    text: `¿Restaurar "${item.name}"?`,
     label: "Restaurar",
     fn: () => onRestore(item.id),
     textLoading: "Restaurando...",
     color: "teal",
   };
   const deleteAction = {
-    text: `?Eliminar "${item.name}"?`,
+    text: `¿Eliminar "${item.name}"?`,
     label: "Eliminar",
     fn: () => onDelete(item.id),
     textLoading: "Eliminando...",
@@ -41,16 +58,11 @@ export const RowIngredient = ({
   const finalAction = isDeleted ? restoreAction : deleteAction;
 
   const handleAction = () => {
-    notifications.show({
-      title: finalAction.label,
-      message: (
-        <Group justify="space-between" wrap="nowrap" w="100%">
-          <Text size="md">{finalAction.text}</Text>
-          <Button size="sm" onClick={finalAction.fn} color={finalAction.color}>
-            {finalAction.label}
-          </Button>
-        </Group>
-      ),
+    showConfirm({
+      title: finalAction.text,
+      confirmLabel: finalAction.label,
+      onConfirm: async () => finalAction.fn(),
+      successMessage: "Operacion completada!",
       color: finalAction.color,
     });
   };
@@ -72,7 +84,13 @@ export const RowIngredient = ({
         </Text>
       </Table.Td>
 
-      <Table.Td>
+      <Table.Td ta="center">
+        <Text> {item.stock} </Text>
+      </Table.Td>
+      <Table.Td ta="center">
+        <Text>{mapUnit(item.measurement_unit)} </Text>
+      </Table.Td>
+      <Table.Td ta="center">
         {item.is_allergen ? (
           <Badge color="red" variant="light" size="lg">
             Alergeno
@@ -83,7 +101,7 @@ export const RowIngredient = ({
           </Badge>
         )}
       </Table.Td>
-      <Table.Td>
+      <Table.Td ta="center">
         <Badge color={isDeleted ? "red" : "teal"} variant="dot" size="md">
           {isDeleted ? "Eliminado" : "Activo"}
         </Badge>
@@ -91,24 +109,20 @@ export const RowIngredient = ({
 
       <Table.Td>
         <Group gap="sm" justify="center">
-          <Button
-            size="xs"
-            variant="light"
+          <ActionButton
+            icon={isDeleted ? IconEye : IconEdit}
+            label={isDeleted ? "Ver detalle" : "Editar"}
             color={isDeleted ? "gray" : "blue"}
             onClick={() => onEdit(item.id.toString())}
-          >
-            {isDeleted ? "Detalle" : "Editar"}
-          </Button>
+          />
+
           {isAdmin && (
-            <Button
-              size="xs"
-              variant="light"
+            <ActionButton
+              icon={isDeleted ? IconRestore : IconTrash}
+              label={label}
               color={isDeleted ? "green" : "red"}
-              loading={isDeleting || isRestoring}
               onClick={handleAction}
-            >
-              {label}
-            </Button>
+            />
           )}
         </Group>
       </Table.Td>

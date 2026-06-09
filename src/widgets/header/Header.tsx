@@ -1,11 +1,13 @@
 import { Group, Button, Text, ThemeIcon, Burger, Indicator, ActionIcon } from "@mantine/core";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ROUTES } from "../../shared/constants/routes";
 import { useAuth } from "../../features/auth/context/AuthContext";
-import { IconShoppingCart, IconSoup } from "@tabler/icons-react";
+import { IconShoppingCart, IconSoup, IconHome, IconArrowLeft } from "@tabler/icons-react";
 import CartDrawer from "../../features/cart/components/CartDrawer";
 import { useDisclosure } from "@mantine/hooks";
 import { useCartStore } from "../../features/cart/store/cart.store";
+import ActionButton from "../../shared/components/ActionButton";
+
 
 interface HeaderProps {
   toggle: () => void;
@@ -16,12 +18,12 @@ const Header = ({ toggle, mobileOpened }: HeaderProps) => {
   const { isAuthenticated, user } = useAuth();
   const [cartOpened, { open: openCart, close: closeCart }] = useDisclosure(false);
   const totalItems = useCartStore((state) => state.getTotalItems());
-
   const isClient = user?.roles.includes("CLIENT")
+  const navigate = useNavigate();
 
   return (
     <Group h="100%" px="md" justify="space-between" wrap="nowrap">
-      {/* Izquierda: Burger + Logo */}
+      {/* Izquierda: Burger + Logo + Home */}
       <Group gap="xs" wrap="nowrap">
         {isAuthenticated && (
           <Burger opened={mobileOpened} onClick={toggle} hiddenFrom="sm" />
@@ -38,32 +40,52 @@ const Header = ({ toggle, mobileOpened }: HeaderProps) => {
         >
           Food Store
         </Text>
+        {isAuthenticated && (
+          <ActionButton
+            onClick={() => navigate(ROUTES.HOME)}
+            label="Dashboard"
+            icon={IconHome}
+            text="Home"
+            color="cyan"
+            variant="subtle"
+          />
+        )}
       </Group>
 
-      {!isAuthenticated && (
-        <Group gap="sm">
-          <Button component={Link} to={ROUTES.LOGIN} variant="light">
-            Iniciar sesión
-          </Button>
-          <Button component={Link} to={ROUTES.REGISTER}>
-            Registrarse
-          </Button>
-        </Group>
-      )}
-      {
-        (isAuthenticated && isClient) && (
+      <Group gap="sm">
+        <ActionButton
+          onClick={() => navigate(-1)}
+          label="Volver"
+          icon={IconArrowLeft}
+          variant="subtle"
+          color="cyan"
+          text="Volver"
+        />
+        {!isAuthenticated && (
           <>
-            <Indicator label={totalItems} size={16} color="teal" disabled={totalItems === 0}>
-              <ActionIcon variant="subtle" onClick={openCart} size="lg">
-                <IconShoppingCart size={22} />
-              </ActionIcon>
-            </Indicator>
-
-            <CartDrawer opened={cartOpened} onClose={closeCart} />
+            <Button component={Link} to={ROUTES.LOGIN} variant="light">
+              Iniciar sesión
+            </Button>
+            <Button component={Link} to={ROUTES.REGISTER}>
+              Registrarse
+            </Button>
           </>
-        )
-      }
-    </Group>
+        )}
+        {
+          (isAuthenticated && isClient) && (
+            <>
+              <Indicator label={totalItems} size={16} color="teal" disabled={totalItems === 0}>
+                <ActionIcon variant="subtle" onClick={openCart} size="lg">
+                  <IconShoppingCart size={22} />
+                </ActionIcon>
+              </Indicator>
+
+              <CartDrawer opened={cartOpened} onClose={closeCart} />
+            </>
+          )
+        }
+      </Group>
+    </Group >
   );
 };
 export default Header;

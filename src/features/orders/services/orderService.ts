@@ -66,7 +66,7 @@ export const orderService = {
       id: number,
       data: OrderCancelByStaff,
     ): Promise<void> => {
-      await api.post(`${ADMIN_URL}/${id}/cancel`, data);
+      await api.post(`${ORDER_URL}/${id}/cancel`, data);
     },
   },
   admin: {

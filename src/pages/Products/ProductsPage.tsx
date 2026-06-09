@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { usePublicProducts, usePublicSearchProducts } from "../../features/products/hooks/product.queries.hooks";
+import { usePublicProducts } from "../../features/products/hooks/product.queries.hooks";
 import { Text, TextInput } from "@mantine/core";
 import { IconSearch, IconShoppingCartOff } from "@tabler/icons-react";
 import ProductCardPublic from "../../shared/components/ProductCardPublic";
@@ -9,8 +9,8 @@ const ProductsPage = () => {
     const [search, setSearch] = useState("");
     const isSearching = search.trim().length > 0
 
-    const { data: productsList, isLoading: loadingAll } = usePublicProducts(0, 50)
-    const { data: searchResult, isLoading: loadingSearch } = usePublicSearchProducts(search.trim(), 0, 50)
+    const { data: productsList, isLoading: loadingAll } = usePublicProducts({ offset: 0, limit: 50 })
+    const { data: searchResult, isLoading: loadingSearch } = usePublicProducts({ search: search.trim(), offset: 0, limit: 50 })
 
     const products = isSearching
         ? searchResult?.data ?? []

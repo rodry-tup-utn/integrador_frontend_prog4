@@ -7,6 +7,7 @@ import type {
   IngredientPublic,
   IngredientsListFull,
   IngredientUpdate,
+  UpdateStockIngredient,
 } from "../types/ingredient";
 
 const ADMIN_URL = "/admin/ingredient";
@@ -34,7 +35,9 @@ export const ingredientService = {
   },
 
   admin: {
-    list: async (filters: IngredientFilters = {}): Promise<IngredientsListFull> => {
+    list: async (
+      filters: IngredientFilters = {},
+    ): Promise<IngredientsListFull> => {
       const response = await api.get<IngredientsListFull>(ADMIN_URL, {
         params: buildParams(filters),
       });
@@ -69,6 +72,14 @@ export const ingredientService = {
     restore: async (id: number): Promise<IngredientPrivate> => {
       const response = await api.patch<IngredientPrivate>(
         `${ADMIN_URL}/${id}/restore`,
+      );
+      return response.data;
+    },
+
+    updateStock: async (id: number, data: UpdateStockIngredient) => {
+      const response = await api.patch<IngredientPrivate>(
+        `${ADMIN_URL}/${id}/stock`,
+        data,
       );
       return response.data;
     },

@@ -7,7 +7,6 @@ import type {
   CategoryParentUpdate,
   CategoryPath,
   CategoryPrivate,
-  CategoryPublic,
   CategoryUpdate,
 } from "../types/category";
 
@@ -32,12 +31,9 @@ export const categoryService = {
       offset = 0,
       limit = 20,
     ): Promise<CategoryList> => {
-      const response = await api.get<CategoryList>(
-        `${PUBLIC_URL}/search`,
-        {
-          params: { query, offset, limit },
-        },
-      );
+      const response = await api.get<CategoryList>(`${PUBLIC_URL}/search`, {
+        params: { query, offset, limit },
+      });
       return response.data;
     },
 
@@ -47,9 +43,12 @@ export const categoryService = {
     },
 
     getTree: async (depth = 2): Promise<CategoryNode[]> => {
-      const response = await api.get<CategoryNode[]>(`${PUBLIC_URL}/nodes/root`, {
-        params: { depth },
-      });
+      const response = await api.get<CategoryNode[]>(
+        `${PUBLIC_URL}/nodes/root`,
+        {
+          params: { depth },
+        },
+      );
       return response.data;
     },
   },

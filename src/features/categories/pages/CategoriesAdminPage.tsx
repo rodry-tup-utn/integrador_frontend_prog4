@@ -10,7 +10,13 @@ import {
   Text,
   Badge,
 } from "@mantine/core";
-import { IconSearch, IconPlus, IconEdit } from "@tabler/icons-react";
+import {
+  IconSearch,
+  IconPlus,
+  IconEdit,
+  IconRestore,
+  IconTrash,
+} from "@tabler/icons-react";
 import { useAdminCategoryList } from "../hooks/useAdminCategoryList";
 import { useCategoryMutations } from "../hooks/useCategoryMutations";
 import type { CategoryPrivate } from "../types/category";
@@ -18,6 +24,7 @@ import { useDebouncedValue } from "@mantine/hooks";
 import { CategoryCreateModal } from "../components/CategoryCreateModal";
 import { CategoryEditModal } from "../components/CategoryEditModal";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
+import ActionButton from "../../../shared/components/ActionButton";
 export default function CategoriesAdminPage() {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -34,27 +41,23 @@ export default function CategoriesAdminPage() {
   const { deleteCategory, restoreCategory } = useCategoryMutations();
   const totalPages = data ? Math.ceil(data.total / limit) : 0;
 
-  const handleDelete = async (item: CategoryPrivate) => {
+  const handleDelete = (item: CategoryPrivate) => {
     showConfirm({
       title: "Eliminar categoria?",
       color: "red",
       confirmLabel: "Eliminar",
-      onConfirm: () => {
-        deleteCategory(item.id);
-      },
+      onConfirm: () => deleteCategory(item.id),
       successMessage: `Categoría ${item.name} eliminada`,
     });
   };
 
-  const handleRestore = async (item: CategoryPrivate) => {
+  const handleRestore = (item: CategoryPrivate) => {
     showConfirm({
       title: "¿Restaurar categoria?",
       confirmLabel: "Restaurar",
       color: "green",
-      onConfirm: () => {
-        restoreCategory(item.id);
-      },
-      successMessage: `Categoría ${item.name} retaurada`,
+      onConfirm: () => restoreCategory(item.id),
+      successMessage: `Categoría ${item.name} restaurada`,
     });
   };
   return (
@@ -134,35 +137,31 @@ export default function CategoriesAdminPage() {
                       <Badge
                         color={isDeleted ? "red" : "teal"}
                         variant="dot"
-                        size="sm"
+                        size="md"
                       >
                         {isDeleted ? "Eliminado" : "Activo"}
                       </Badge>
                     </Table.Td>
                     <Table.Td>
                       <Group gap="xs" justify="center">
-                        <Button
-                          size="xs"
-                          variant="light"
-                          color="blue"
+                        <ActionButton
+                          icon={IconEdit}
+                          label="Editar"
                           onClick={() => {
                             setEditing(item);
                             setEditOpen(true);
                           }}
-                        >
-                          {<IconEdit></IconEdit>}
-                          Editar
-                        </Button>
-                        <Button
-                          size="xs"
-                          variant="light"
-                          color={isDeleted ? "green" : "red"}
+                          color="blue"
+                        />
+
+                        <ActionButton
+                          icon={isDeleted ? IconRestore : IconTrash}
                           onClick={() =>
                             isDeleted ? handleRestore(item) : handleDelete(item)
                           }
-                        >
-                          {isDeleted ? "Restaurar" : "Eliminar"}
-                        </Button>
+                          label={isDeleted ? "Restaurar" : "Eliminar"}
+                          color={isDeleted ? "green" : "red"}
+                        />
                       </Group>
                     </Table.Td>
                   </Table.Tr>

@@ -6,7 +6,6 @@ import { LoginPage } from "../../features/auth/pages/LoginPage";
 import { DashboardPage } from "../../pages/DashboardPage";
 import { LandingPage } from "../../pages/LandingPage";
 import { IngredientsAdminPage } from "../../features/ingredients/pages/IngredientsAdminPage";
-import RegisterPage from "../../pages/Register/RegisterPage";
 import { IngredientsPublicPage } from "../../features/ingredients/pages/IngredientsPublicPage";
 import CategoriesAdminPage from "../../features/categories/pages/CategoriesAdminPage";
 import { ForbiddenPage } from "../../pages/ForbiddenPage";
@@ -15,10 +14,13 @@ import { ProfilePage } from "../../features/user/pages/ProfilePage";
 import { ChangePasswordPage } from "../../features/user/pages/ChangePasswordPage";
 import { MyOrdersPage } from "../../features/orders/pages/MyOrdersPage";
 import { AdminOrdersPage } from "../../features/orders/pages/AdminOrdersPage";
+import { KitchenPage } from "../../features/orders/pages/KitchenPage";
 import { RoleRoute } from "./RoleRoute";
 import ProductsAdminPage from "../../features/products/pages/ProductsAdminPage";
 import ProductsAdminDetail from "../../features/products/pages/ProductsAdminDetail";
 import ProductsPage from "../../pages/Products/ProductsPage";
+import { UnderConstructionPage } from "../../pages/UnderConstructionPage";
+import RegisterPage from "../../features/auth/pages/RegisterPage";
 
 export const router = createBrowserRouter([
   {
@@ -74,6 +76,11 @@ export const router = createBrowserRouter([
             path: ROUTES.STOCK_INGREDIENTS,
             element: <IngredientsAdminPage />,
           },
+          { path: ROUTES.STOCK_PRODUCTS, element: <ProductsAdminPage /> },
+          {
+            path: ROUTES.STOCK_PRODUCTS_DETAIL,
+            element: <ProductsAdminDetail />,
+          },
         ],
       },
       {
@@ -97,16 +104,17 @@ export const router = createBrowserRouter([
             element: <CategoriesAdminPage />,
           },
 
-          {
-            path: ROUTES.ADMIN_PRODUCTS_DETAIL,
-            element: <ProductsAdminDetail />
-          },
           { path: ROUTES.ADMIN_USERS, element: <UserAdminPage /> },
+          { path: ROUTES.ADMIN_METRICS, element: <UnderConstructionPage /> },
+          { path: ROUTES.ADMIN_CONFIG, element: <UnderConstructionPage /> },
         ],
       },
       {
         element: <RoleRoute allowedRoles={["ADMIN", "ORDERS"]} />,
-        children: [{ path: ROUTES.ORDERS_ADMIN, element: <AdminOrdersPage /> }],
+        children: [
+          { path: ROUTES.ORDERS_ADMIN, element: <AdminOrdersPage /> },
+          { path: ROUTES.KITCHEN_BOARD, element: <KitchenPage /> },
+        ],
       },
     ],
   },

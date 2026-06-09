@@ -2,11 +2,11 @@ import {
   IconUser,
   IconShoppingCart,
   IconShoppingBag,
-  IconMapPin,
   IconLock,
   IconEgg,
   IconPackage,
   IconClipboardList,
+  IconChefHat,
   IconUsers,
   IconCategory,
   IconChartBar,
@@ -15,6 +15,7 @@ import {
   IconMeat,
 } from "@tabler/icons-react";
 import type { Icon } from "@tabler/icons-react";
+import { ROUTES } from "../../shared/constants/routes";
 export interface SidebarLink {
   to: string;
   label: string;
@@ -34,29 +35,37 @@ export const sidebarSections: SidebarSection[] = [
     icon: IconShoppingCart,
     opened: true,
     links: [
-      { to: "/products", label: "Nuestros Productos", icon: IconBurger },
-      { to: "/ingredients", label: "Nuestros Ingredientes", icon: IconMeat },
+      {
+        to: ROUTES.PUBLIC_PRODUCTS,
+        label: "Nuestros Productos",
+        icon: IconBurger,
+      },
+      {
+        to: ROUTES.PUBLIC_INGREDIENTS,
+        label: "Nuestros Ingredientes",
+        icon: IconMeat,
+      },
     ],
   },
   {
     title: "Usuario",
     icon: IconUser,
     links: [
-      { to: "/profile", label: "Perfil", icon: IconUser },
+      { to: ROUTES.PROFILE, label: "Perfil", icon: IconUser },
       {
-        to: "/cart",
+        to: ROUTES.CART,
         label: "Carrito",
         icon: IconShoppingCart,
         roles: ["CLIENT", "ADMIN"],
       },
       {
-        to: "/user/orders",
+        to: ROUTES.MY_ORDERS,
         label: "Mis Pedidos",
         icon: IconShoppingBag,
         roles: ["CLIENT", "ADMIN"],
       },
 
-      { to: "/change-password", label: "Contraseña", icon: IconLock },
+      { to: ROUTES.CHANGE_PASSWORD, label: "Contraseña", icon: IconLock },
     ],
   },
   {
@@ -64,8 +73,8 @@ export const sidebarSections: SidebarSection[] = [
     icon: IconPackage,
     roles: ["ADMIN", "STOCK"],
     links: [
-      { to: "/stock/ingredients", label: "Ingredientes", icon: IconEgg },
-      { to: "/stock/products", label: "Productos", icon: IconPackage },
+      { to: ROUTES.STOCK_INGREDIENTS, label: "Ingredientes", icon: IconEgg },
+      { to: ROUTES.STOCK_PRODUCTS, label: "Productos", icon: IconPackage },
     ],
   },
   {
@@ -74,7 +83,12 @@ export const sidebarSections: SidebarSection[] = [
     roles: ["ADMIN", "ORDERS"],
     links: [
       {
-        to: "/orders",
+        to: ROUTES.KITCHEN_BOARD,
+        label: "Cocina",
+        icon: IconChefHat,
+      },
+      {
+        to: ROUTES.ORDERS_ADMIN,
         label: "Todos los Pedidos",
         icon: IconClipboardList,
       },
@@ -85,10 +99,11 @@ export const sidebarSections: SidebarSection[] = [
     icon: IconSettings,
     roles: ["ADMIN"],
     links: [
-      { to: "/admin/users", label: "Usuarios", icon: IconUsers },
-      { to: "/admin/categories", label: "Categorías", icon: IconCategory },
-      { to: "/admin/ingredients", label: "Ingredientes", icon: IconEgg },
-      { to: "/admin/products", label: "Productos", icon: IconPackage },
+      { to: ROUTES.ADMIN_USERS, label: "Usuarios", icon: IconUsers },
+      { to: ROUTES.ADMIN_CATEGORIES, label: "Categorías", icon: IconCategory },
+      { to: ROUTES.ADMIN_INGREDIENTS, label: "Ingredientes", icon: IconEgg },
+      { to: ROUTES.ADMIN_METRICS, label: "Métricas", icon: IconChartBar },
+      { to: ROUTES.ADMIN_CONFIG, label: "Configuración", icon: IconSettings },
       // { to: "/admin/metrics", label: "Métricas", icon: IconChartBar },
       // { to: "/admin/config", label: "Configuración", icon: IconSettings },
     ],
