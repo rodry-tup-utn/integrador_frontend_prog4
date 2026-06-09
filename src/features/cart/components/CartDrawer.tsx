@@ -69,7 +69,7 @@ const CartDrawer = ({ opened, onClose }: CartDrawerProps) => {
                                             onChange={(val) =>
                                                 updateQuantity(product.id, Number(val))
                                             }
-                                            min={1}
+                                            min={0}
                                             max={product.stock}
                                             w={80}
                                             size="xs"

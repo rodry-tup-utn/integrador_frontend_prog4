@@ -8,33 +8,54 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
 
-      addItem: (product: ProductPublic) => {
+      addItem: (product: ProductPublic): boolean => {
+        const itemInCart = get().items.find((item) => item.product.id === product.id);
 
-        const existing = get().items.find((item) => item.product.id === product.id);
-
-        if (existing) {
-          set((state) => ({
-            items: state.items.map((item) =>
-              item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item,
-            ),
-          }));
+        if (itemInCart) {
+          if (itemInCart.quantity < itemInCart.product.stock) {
+            set((state) => ({
+              items: state.items.map((item) =>
+                item.product.id === product.id
+                  ? { ...item, quantity: item.quantity + 1 }
+                  : item,
+              ),
+            }));
+            return true;
+          } else {
+            return false;
+          }
         } else {
           set((state) => ({ items: [...state.items, { product, quantity: 1 }] }));
+          return true;
         }
       },
 
       removeItem: (productId: number) => {
-        set((state) => ({ items: state.items.filter((item) => item.product.id !== productId) }));
+        set((state) => ({
+          items: state.items.filter((item) => item.product.id !== productId),
+        }));
       },
 
-      updateQuantity: (productId: number, quantity: number) => {
+      updateQuantity: (productId: number, quantity: number): boolean => {
         if (quantity <= 0) {
           get().removeItem(productId);
-          return;
+          return false;
         }
-        set((state) => ({
-          items: state.items.map((item) => (item.product.id === productId ? { ...item, quantity } : item)),
-        }));
+
+        const itemInCart = get().items.find((item) => item.product.id === productId);
+
+        if (itemInCart) {
+          if (quantity <= itemInCart.product.stock) {
+            set((state) => ({
+              items: state.items.map((item) =>
+                item.product.id === productId ? { ...item, quantity } : item,
+              ),
+            }));
+            return true;
+          }
+          return false;
+        }
+        return false;
       },
 
       clearCart: () => set({ items: [] }),

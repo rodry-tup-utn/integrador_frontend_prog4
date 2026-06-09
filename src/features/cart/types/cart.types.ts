@@ -7,9 +7,9 @@ export interface CartItem {
 
 export interface CartState {
   items: CartItem[];
-  addItem: (product: ProductPublic) => void;
+  addItem: (product: ProductPublic) => boolean;
   removeItem: (productId: number) => void;
-  updateQuantity: (productId: number, quantity: number) => void;
+  updateQuantity: (productId: number, quantity: number) => boolean;
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
