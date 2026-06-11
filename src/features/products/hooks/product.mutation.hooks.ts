@@ -22,7 +22,7 @@ export const useProductMutation = () => {
 
   const mutationUpdate = useMutation({
     mutationFn: ({ id, data }: { id: number; data: ProductUpdate }) =>
-      productService.admin.update(id, data),
+      productService.stock.update(id, data),
     onSuccess: invalidate,
   });
 
@@ -49,8 +49,13 @@ export const useProductMutation = () => {
   });
 
   const mutationAddIngredientBatch = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: ProductIngredientBatchCreate }) =>
-      productService.productIngredient.addIngredientBatch(id, data),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: number;
+      data: ProductIngredientBatchCreate;
+    }) => productService.productIngredient.addIngredientBatch(id, data),
     onSuccess: invalidate,
   });
 
@@ -63,7 +68,12 @@ export const useProductMutation = () => {
       productId: number;
       ingredientId: number;
       data: ProductIngredient;
-    }) => productService.productIngredient.addIngredient(productId, ingredientId, data),
+    }) =>
+      productService.productIngredient.addIngredient(
+        productId,
+        ingredientId,
+        data,
+      ),
     onSuccess: invalidate,
   });
 
@@ -76,13 +86,27 @@ export const useProductMutation = () => {
       productId: number;
       ingredientId: number;
       data: ProductIngredient;
-    }) => productService.productIngredient.updateIngredient(productId, ingredientId, data),
+    }) =>
+      productService.productIngredient.updateIngredient(
+        productId,
+        ingredientId,
+        data,
+      ),
     onSuccess: invalidate,
   });
 
   const mutationDeleteIngredient = useMutation({
-    mutationFn: ({ productId, ingredientId }: { productId: number; ingredientId: number }) =>
-      productService.productIngredient.removeIngredient(productId, ingredientId),
+    mutationFn: ({
+      productId,
+      ingredientId,
+    }: {
+      productId: number;
+      ingredientId: number;
+    }) =>
+      productService.productIngredient.removeIngredient(
+        productId,
+        ingredientId,
+      ),
     onSuccess: invalidate,
   });
 
