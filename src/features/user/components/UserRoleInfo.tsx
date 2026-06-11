@@ -1,7 +1,7 @@
 import { Badge, Group, Paper, Stack, Text } from "@mantine/core";
 import type { UserRoleRead } from "../types/user";
 import { roleConfig } from "../types/configs";
-import { isRoleExpired } from "./AdminEditUserRoles";
+import { isRoleExpired } from "./admin/AdminEditUserRoles";
 import { toDateString } from "../../../shared/helpers/helpers";
 interface Props {
   roles: UserRoleRead[];
