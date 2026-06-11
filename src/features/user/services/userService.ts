@@ -118,6 +118,11 @@ export const userService = {
       return response.data;
     },
 
+    restorePass: async (id: number) => {
+      const response = await api.patch(`${ADMIN_URL}/${id}/password`);
+      return response.data;
+    },
+
     assignRole: async (
       id: number,
       roleCode: string,
