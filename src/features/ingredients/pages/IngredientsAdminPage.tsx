@@ -30,10 +30,10 @@ export const IngredientsAdminPage = () => {
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const limit = 10;
-  const [debounsedSearch] = useDebouncedValue(searchTerm, 300);
+  const [debouncedSearch] = useDebouncedValue(searchTerm, 300);
 
   const filters = {
-    search: debounsedSearch || undefined,
+    search: debouncedSearch || undefined,
     is_allergen:
       allergenFilter === "all"
         ? undefined
