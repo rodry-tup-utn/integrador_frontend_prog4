@@ -67,6 +67,11 @@ export const useAdminUserMutations = () => {
     },
   });
 
+  const restorePass = useMutation({
+    mutationFn: (id: number) => userService.admin.restorePass(id),
+    onSuccess: async () => await invalidateUsers(),
+  });
+
   return {
     createUser: createUser.mutateAsync,
     updateUser: updateUser.mutateAsync,
@@ -74,12 +79,14 @@ export const useAdminUserMutations = () => {
     restoreUser: restoreUser.mutateAsync,
     assignRole: assignRole.mutateAsync,
     revokeRole: revokeRole.mutateAsync,
+    restorePass: restorePass.mutateAsync,
     isLoading:
       createUser.isPending ||
       updateUser.isPending ||
       deleteUser.isPending ||
       restoreUser.isPending ||
       assignRole.isPending ||
+      restorePass.isPending ||
       revokeRole.isPending,
   };
 };
