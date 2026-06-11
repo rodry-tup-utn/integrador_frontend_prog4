@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Button, Group, Stack, Checkbox } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconDeviceFloppy } from "@tabler/icons-react";
-import type { UserAdminRead, UserRoleRead } from "../types/user";
-import { useAdminUserMutations } from "../hooks/admin/useAdminUserMutations";
-import { roleConfig } from "../types/configs";
-import UserRoleInfo from "./UserRoleInfo";
+import type { UserAdminRead, UserRoleRead } from "../../types/user";
+import { useAdminUserMutations } from "../../hooks/admin/useAdminUserMutations";
+import { roleConfig } from "../../types/configs";
+import UserRoleInfo from "../UserRoleInfo";
 
 interface Props {
   user: UserAdminRead;

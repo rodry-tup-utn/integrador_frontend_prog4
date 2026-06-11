@@ -1,5 +1,5 @@
 import { Modal, Tabs } from "@mantine/core";
-import type { UserAdminRead } from "../types/user";
+import type { UserAdminRead } from "../../types/user";
 import { AdminEditUserForm } from "./AdminEditUserForm";
 import { AdminEditUserRoles } from "./AdminEditUserRoles";
 
