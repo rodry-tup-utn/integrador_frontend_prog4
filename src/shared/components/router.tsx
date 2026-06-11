@@ -21,6 +21,7 @@ import ProductsAdminDetail from "../../features/products/pages/ProductsAdminDeta
 import ProductsPage from "../../pages/Products/ProductsPage";
 import { UnderConstructionPage } from "../../pages/UnderConstructionPage";
 import RegisterPage from "../../features/auth/pages/RegisterPage";
+import CheckoutPage from "../../features/cart/pages/CheckoutPage";
 
 export const router = createBrowserRouter([
   {
@@ -67,6 +68,17 @@ export const router = createBrowserRouter([
             element: <MyOrdersPage />,
           },
           { path: "/", element: <Navigate to={ROUTES.HOME} replace /> },
+        ],
+      },
+      {
+        element: (
+          <RoleRoute
+            allowedRoles={["CLIENT"]}
+            errorMessage="Debes ser cliente para realizar pedidos"
+          />
+        ),
+        children: [
+          { path: ROUTES.CHECKOUT, element: <CheckoutPage /> },
         ],
       },
       {

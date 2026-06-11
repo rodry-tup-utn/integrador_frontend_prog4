@@ -14,7 +14,6 @@ export const ROUTES = {
   ADMIN_USERS: "/admin/users",
   PROFILE: "/profile",
   CHANGE_PASSWORD: "/change-password",
-  CART: "/cart",
   MY_ORDERS: "/user/orders",
   ORDERS_ADMIN: "/orders",
   STOCK_INGREDIENTS: "/stock/ingredients",
@@ -22,4 +21,5 @@ export const ROUTES = {
   ADMIN_METRICS: "/admin/metrics",
   ADMIN_CONFIG: "/admin/config",
   KITCHEN_BOARD: "/kitchen",
+  CHECKOUT: "/checkout",
 } as const;
