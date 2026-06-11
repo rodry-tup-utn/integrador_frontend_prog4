@@ -53,12 +53,6 @@ export const sidebarSections: SidebarSection[] = [
     links: [
       { to: ROUTES.PROFILE, label: "Perfil", icon: IconUser },
       {
-        to: ROUTES.CART,
-        label: "Carrito",
-        icon: IconShoppingCart,
-        roles: ["CLIENT", "ADMIN"],
-      },
-      {
         to: ROUTES.MY_ORDERS,
         label: "Mis Pedidos",
         icon: IconShoppingBag,
