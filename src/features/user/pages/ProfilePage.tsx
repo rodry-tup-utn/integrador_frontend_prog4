@@ -6,6 +6,7 @@ import { useProfileMutations } from "../hooks/profile/useProfileMutations";
 import { useProfileAddresses } from "../hooks/profile/userProfileAddresses";
 import { useProfileAddressMutations } from "../hooks/profile/useProfileAddressMutations";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 import type { AddressCreate, AddressRead, UserUpdate } from "../types/user";
 import AddressModal from "./AddressModal";
 import ProfileInfoCard from "../components/ProfileInfoCard";
@@ -56,8 +57,7 @@ export const ProfilePage = () => {
       setNewModalOpen(false);
     } catch (error: any) {
       notifications.show({
-        message:
-          error.response?.data?.detail || "No se pudo crear la direccion",
+        message: extractApiErrorMessage(error, "No se pudo crear la direccion"),
       });
     }
   };
@@ -78,8 +78,7 @@ export const ProfilePage = () => {
       setEditModalOpen(false);
     } catch (error: any) {
       notifications.show({
-        message:
-          error.response?.data?.detail || "No se pudo crear la direccion",
+        message: extractApiErrorMessage(error, "No se pudo actualizar la direccion"),
       });
     }
   };

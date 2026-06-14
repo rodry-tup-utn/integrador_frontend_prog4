@@ -13,6 +13,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { IconAt, IconPassword } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 export const LoginPage = () => {
   const navigate = useNavigate();
   const { login, isLoading, isAuthenticated } = useAuth();
@@ -31,7 +32,7 @@ export const LoginPage = () => {
       notifications.show({
         color: "red",
         title: "Error",
-        message: err.response?.data?.detail || "Error al iniciar sesión",
+        message: extractApiErrorMessage(err, "Error al iniciar sesión"),
       });
     }
   };

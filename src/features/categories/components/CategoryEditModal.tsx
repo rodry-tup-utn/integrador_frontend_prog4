@@ -18,6 +18,7 @@ import { CategoryParentSelector } from "./CategoryParentSelector";
 import { useCategoryMutations } from "../hooks/useCategoryMutations";
 import { useCategoryPath } from "../hooks/useCategoryPath";
 import { toDateString } from "../../../shared/helpers/helpers";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 
 interface Props {
   opened: boolean;
@@ -75,7 +76,7 @@ export const CategoryEditModal = ({
       notifications.show({
         title: "Error",
         message:
-          error.response?.data?.detail || "Error al actualizar la categoría",
+          extractApiErrorMessage(error, "Error al actualizar la categoría"),
         color: "red",
       });
     }

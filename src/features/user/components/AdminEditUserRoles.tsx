@@ -6,6 +6,7 @@ import type { UserAdminRead, UserRoleRead } from "../types/user";
 import { useAdminUserMutations } from "../hooks/admin/useAdminUserMutations";
 import { roleConfig } from "../types/configs";
 import UserRoleInfo from "./UserRoleInfo";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 
 interface Props {
   user: UserAdminRead;
@@ -54,10 +55,14 @@ export const AdminEditUserRoles = ({ user, onClose }: Props) => {
         color: "green",
       });
       onClose();
-    } catch {
+    } catch (error: any) {
+      const msg = extractApiErrorMessage(
+        error,
+        "Error al actualizar los roles",
+      );
       notifications.show({
         title: "Error",
-        message: "No se pudieron actualizar los roles",
+        message: msg,
         color: "red",
       });
     }

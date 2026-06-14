@@ -15,6 +15,7 @@ import {
 import { notifications } from "@mantine/notifications";
 import type { CategoryCreate } from "../types/category";
 import { CategoryParentSelector } from "./CategoryParentSelector";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 import { useCategoryMutations } from "../hooks/useCategoryMutations";
 import { useCategoryPath } from "../hooks/useCategoryPath";
 
@@ -53,7 +54,7 @@ export const CategoryCreateModal = ({ opened, onClose }: Props) => {
       notifications.show({
         title: "Error",
         message:
-          error.response?.data?.detail || "Error al crear la categoría",
+          extractApiErrorMessage(error, "Error al crear la categoría"),
         color: "red",
       });
     }

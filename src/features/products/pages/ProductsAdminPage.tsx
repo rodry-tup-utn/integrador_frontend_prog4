@@ -13,9 +13,9 @@ import ProductsModal from "../components/ProductsModal";
 import ProductsForm from "../components/ProductsForm";
 import { useProductMutation } from "../hooks/product.mutation.hooks";
 import { notifications } from "@mantine/notifications";
-import type { AxiosError } from "axios";
 import ActionButton from "../../../shared/components/ActionButton";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 
 const ProductsAdminPage = () => {
   const LIMIT = 20;
@@ -84,10 +84,10 @@ const ProductsAdminPage = () => {
             });
           },
           onError: (error) => {
-            const axiosError = error as AxiosError<{ detail: string }>;
-            const msg =
-              axiosError.response?.data?.detail || "Error al actualizar";
-            notifications.show({ color: "red", message: msg });
+            notifications.show({
+              color: "red",
+              message: extractApiErrorMessage(error, "Error al actualizar"),
+            });
           },
         },
       );
@@ -99,10 +99,13 @@ const ProductsAdminPage = () => {
           notifications.show({ color: "green", message: "Producto creado" });
         },
         onError: (error) => {
-          const axiosError = error as AxiosError<{ detail: string }>;
-          const msg =
-            axiosError.response?.data?.detail || "Error al crear el producto";
-          notifications.show({ color: "red", message: msg });
+          notifications.show({
+            color: "red",
+            message: extractApiErrorMessage(
+              error,
+              "Error al crear el producto",
+            ),
+          });
         },
       });
     }
