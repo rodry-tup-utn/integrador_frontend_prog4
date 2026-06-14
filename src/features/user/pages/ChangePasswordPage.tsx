@@ -49,7 +49,7 @@ export const ChangePasswordPage = () => {
       setNewPass("");
       setConfirmPass("");
       navigate("/profile");
-    } catch (error: any) {
+    } catch (error: unknown) {
       notifications.show({
         message:
           extractApiErrorMessage(error, "Error al cambiar la contraseña"),

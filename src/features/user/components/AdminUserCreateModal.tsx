@@ -50,7 +50,7 @@ export const AdminUserCreateModal = ({ opened, onClose }: Props) => {
         color: "green",
       });
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       notifications.show({
         title: "Error",
         message:

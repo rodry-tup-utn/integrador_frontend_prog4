@@ -25,8 +25,7 @@ export const ProfilePage = () => {
     restoreAddress,
     isCreating,
     isUpdating,
-    isDeleting,
-    isRestoring,
+      isRestoring,
   } = useProfileAddressMutations();
 
   const [editing, setEditing] = useState(false);
@@ -55,7 +54,7 @@ export const ProfilePage = () => {
         color: "green",
       });
       setNewModalOpen(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       notifications.show({
         message: extractApiErrorMessage(error, "No se pudo crear la direccion"),
       });
@@ -76,7 +75,7 @@ export const ProfilePage = () => {
         color: "green",
       });
       setEditModalOpen(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       notifications.show({
         message: extractApiErrorMessage(error, "No se pudo actualizar la direccion"),
       });
@@ -160,7 +159,6 @@ export const ProfilePage = () => {
               <AddressCard
                 key={addr.id}
                 address={addr}
-                isDeleting={isDeleting}
                 isRestoring={isRestoring}
                 onEdit={() => handleOpenEdit(addr)}
                 onDelete={() => handleDeleteAddress(addr)}
