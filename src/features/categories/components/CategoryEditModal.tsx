@@ -41,6 +41,7 @@ export const CategoryEditModal = ({
   const { data: categoryPath } = useCategoryPath(formData.parent_id);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFormData({
       name: categoryData.name,
       description: categoryData.description,
@@ -72,7 +73,7 @@ export const CategoryEditModal = ({
         color: "green",
       });
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       notifications.show({
         title: "Error",
         message:

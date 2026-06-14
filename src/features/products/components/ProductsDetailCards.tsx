@@ -107,6 +107,7 @@ export const ProductStockCard = ({ product }: { product: ProductDetail }) => {
 
   useEffect(() => {
     if (!isEditing) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setValue(product.stock);
     }
   }, [product.stock, isEditing]);

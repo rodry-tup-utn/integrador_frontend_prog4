@@ -53,6 +53,7 @@ export const IngredientModal = ({
 
   useEffect(() => {
     if (ingredientData) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         name: ingredientData.name,
         description: ingredientData.description || "",

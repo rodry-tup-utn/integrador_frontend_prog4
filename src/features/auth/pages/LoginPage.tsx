@@ -28,7 +28,7 @@ export const LoginPage = () => {
       const data = await login(formData);
       notifications.show({ message: `Bienvenido ${data.name}` });
       navigate("/dashboard", { replace: true });
-    } catch (err: any) {
+    } catch (err: unknown) {
       notifications.show({
         color: "red",
         title: "Error",

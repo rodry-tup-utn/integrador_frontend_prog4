@@ -1,5 +1,5 @@
 import type { IngredientPrivate, MeasurementUnit } from "../types/ingredient";
-import { Table, Badge, Button, Group, Text } from "@mantine/core";
+import { Table, Badge, Group, Text } from "@mantine/core";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
 import ActionButton from "../../../shared/components/ActionButton";
 import { IconEdit, IconEye, IconRestore, IconTrash } from "@tabler/icons-react";
