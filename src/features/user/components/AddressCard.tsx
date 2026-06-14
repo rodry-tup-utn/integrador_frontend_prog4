@@ -1,4 +1,4 @@
-import { Badge, Button, Card, Group, Stack, Text } from "@mantine/core";
+import { Badge, Card, Group, Stack, Text } from "@mantine/core";
 import {
   IconEdit,
   IconMapPin,
@@ -11,7 +11,6 @@ import ActionButton from "../../../shared/components/ActionButton";
 
 interface Props {
   address: AddressRead;
-  isDeleting: boolean;
   isRestoring: boolean;
   onEdit: () => void;
   onDelete: () => void;
@@ -20,7 +19,6 @@ interface Props {
 
 const AddressCard = ({
   address,
-  isDeleting,
   isRestoring,
   onEdit,
   onDelete,
