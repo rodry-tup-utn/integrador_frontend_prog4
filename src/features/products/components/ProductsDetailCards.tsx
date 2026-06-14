@@ -2,14 +2,18 @@ import {
   ActionIcon,
   Badge,
   Button,
+  Center,
   Divider,
   Group,
   NumberInput,
+  Paper,
   Select,
+  Stack,
   Switch,
   Table,
   Text,
   TextInput,
+  Image,
 } from "@mantine/core";
 import {
   IconCheck,
@@ -23,12 +27,12 @@ import { useEffect, useState } from "react";
 import type { ProductDetail } from "../types/product";
 import { useProductMutation } from "../hooks/product.mutation.hooks";
 import { notifications } from "@mantine/notifications";
-import type { AxiosError } from "axios";
 import placeholder from "../../../assets/placeholder.jpeg";
 import { useProductWithIngredients } from "../hooks/product.queries.hooks";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useAdminIngredientsList } from "../../ingredients/hooks/useAdminIngredientsList";
 import ActionButton from "../../../shared/components/ActionButton";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 
 export const ProductPriceCard = ({ product }: { product: ProductDetail }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -47,20 +51,24 @@ export const ProductPriceCard = ({ product }: { product: ProductDetail }) => {
           });
         },
         onError: (error) => {
-          const axiosError = error as AxiosError<{ detail: string }>;
-          const msg =
-            axiosError.response?.data?.detail || "Error al actualizar";
-          notifications.show({ color: "red", message: msg });
+          notifications.show({
+            color: "red",
+            message: extractApiErrorMessage(error, "Error al actualizar"),
+          });
         },
       },
     );
   };
 
   return (
-    <div className="metric-card flex flex-col gap-2 p-4 border border-solid border-zinc-500 rounded-2xl bg-slate-100">
+    <Paper
+      p="md"
+      withBorder
+      className="bg-slate-100 rounded-2xl border-zinc-500"
+    >
       <Text size="sm">Precio Base</Text>
       {isEditing ? (
-        <div className="flex items-center gap-2">
+        <Group gap="sm">
           <TextInput
             type="number"
             value={value}
@@ -77,18 +85,18 @@ export const ProductPriceCard = ({ product }: { product: ProductDetail }) => {
           >
             <IconX size={20} />
           </ActionIcon>
-        </div>
+        </Group>
       ) : (
-        <div className="flex items-center justify-between">
-          <p className="text-2xl font-medium">
+        <Group justify="space-between" align="center">
+          <Text size="xl" fw={500}>
             ${Number(value).toLocaleString("es-AR")}
-          </p>
+          </Text>
           <ActionIcon variant="subtle" onClick={() => setIsEditing(true)}>
             <IconEdit size={20} />
           </ActionIcon>
-        </div>
+        </Group>
       )}
-    </div>
+    </Paper>
   );
 };
 
@@ -99,6 +107,7 @@ export const ProductStockCard = ({ product }: { product: ProductDetail }) => {
 
   useEffect(() => {
     if (!isEditing) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setValue(product.stock);
     }
   }, [product.stock, isEditing]);
@@ -115,20 +124,24 @@ export const ProductStockCard = ({ product }: { product: ProductDetail }) => {
           });
         },
         onError: (error) => {
-          const axiosError = error as AxiosError<{ detail: string }>;
-          const msg =
-            axiosError.response?.data?.detail || "Error al actualizar";
-          notifications.show({ color: "red", message: msg });
+          notifications.show({
+            color: "red",
+            message: extractApiErrorMessage(error, "Error al actualizar"),
+          });
         },
       },
     );
   };
 
   return (
-    <div className="metric-card flex flex-col gap-2 p-4 border border-solid border-zinc-500 rounded-2xl bg-slate-100">
+    <Paper
+      p="md"
+      withBorder
+      className="bg-slate-100 rounded-2xl border-zinc-500"
+    >
       <Text size="sm">Stock</Text>
       {isEditing ? (
-        <div className="flex items-center gap-2">
+        <Group gap="sm">
           <TextInput
             type="number"
             value={value}
@@ -145,30 +158,61 @@ export const ProductStockCard = ({ product }: { product: ProductDetail }) => {
           >
             <IconX size={20} />
           </ActionIcon>
-        </div>
+        </Group>
       ) : (
-        <div className="flex items-center justify-between">
-          <p className="text-2xl font-medium">{value} u.</p>
+        <Group justify="space-between" align="center">
+          <Text size="xl" fw={500}>
+            {value} u.
+          </Text>
           {product.type == "FINAL" && (
             <ActionIcon variant="subtle" onClick={() => setIsEditing(true)}>
               <IconEdit size={20} />
             </ActionIcon>
           )}
-        </div>
+        </Group>
       )}
-    </div>
+    </Paper>
   );
 };
 
 export const ProductImageCard = ({ product }: { product: ProductDetail }) => {
   return (
-    <div className="metric-card flex flex-col gap-2 p-4 border border-solid border-zinc-500 rounded-2xl bg-slate-100">
-      <IconImageInPicture size={20} />
-      <Text size="sm">{`URL: ${product.images_url}`}</Text>
-      <div className="flex items-center justify-center">
-        <img src={placeholder} />
-      </div>
-    </div>
+    <Paper
+      p="md"
+      pos="relative"
+      className="bg-slate-100 rounded-2xl border-zinc-500"
+    >
+      <Group>
+        <IconImageInPicture size={20} />
+        <Text>Imagen</Text>
+      </Group>
+
+      <Center>
+        <Image src={placeholder} h={280} fit="contain" />
+      </Center>
+      <Text
+        size="sm"
+        c="gray.8"
+        ta="center"
+      >{`URL: ${product.images_url || "Producto sin imagen"}`}</Text>
+    </Paper>
+  );
+};
+
+export const ProductTypeCard = ({ product }: { product: ProductDetail }) => {
+  const typeLabel = product.type === "MANUFACTURED" ? "Manufacturado" : "Final";
+
+  return (
+    <Paper
+      p="md"
+      withBorder
+      className="bg-slate-100 rounded-2xl border-zinc-500"
+    >
+      <Text size="md">Tipo de producto</Text>
+      <Badge variant="filled" color="violet" size="lg">
+        {typeLabel}
+      </Badge>
+    </Paper>
   );
 };
 
@@ -178,32 +222,36 @@ export const ProductCategoriesCard = ({
   product: ProductDetail;
 }) => {
   return (
-    <div className="metric-card flex flex-col gap-2 p-4 border border-solid border-zinc-500 rounded-2xl bg-slate-100">
-      <div className="flex items-center gap-2 mb-4">
+    <Paper
+      p="md"
+      withBorder
+      className="bg-slate-100 rounded-2xl border-zinc-500"
+    >
+      <Group gap="sm" mb="md">
         <IconFolder size={20} />
         <Text size="md">Categorías</Text>
-      </div>
+      </Group>
       <Divider />
-      <div className="flex items-center justify-between py-4">
+      <Group justify="space-between" py="md">
         <Text size="md">Categoría principal</Text>
         <Badge variant="filled" color="dark" size="lg">
           {product?.primary_category?.name}
         </Badge>
-      </div>
+      </Group>
       <Divider />
-      <div className="flex flex-col py-4">
+      <Stack py="md">
         <Text size="md" mb={5}>
           Todas las categorías:{" "}
         </Text>
-        <div className="flex flex-wrap gap-2 mt-4">
+        <Group gap="xs">
           {product.categories.map((cat) => (
             <Badge variant="filled" color="cyan" key={cat.id} size="md">
               {cat.name}
             </Badge>
           ))}
-        </div>
-      </div>
-    </div>
+        </Group>
+      </Stack>
+    </Paper>
   );
 };
 
@@ -271,10 +319,10 @@ export const ProductIngredientsCard = ({
           });
         },
         onError: (error) => {
-          const axiosError = error as AxiosError<{ detail: string }>;
-          const msg =
-            axiosError.response?.data?.detail || "Error al actualizar";
-          notifications.show({ color: "red", message: msg });
+          notifications.show({
+            color: "red",
+            message: extractApiErrorMessage(error, "Error al actualizar"),
+          });
         },
       },
     );
@@ -303,9 +351,7 @@ export const ProductIngredientsCard = ({
           });
         },
         onError: (error) => {
-          const axiosError = error as AxiosError<{ detail: string }>;
-          const msg =
-            axiosError.response?.data?.detail || "Error al actualizar";
+          const msg = extractApiErrorMessage(error);
           notifications.show({ color: "red", message: msg });
         },
       },
@@ -313,11 +359,19 @@ export const ProductIngredientsCard = ({
   };
 
   return (
-    <div className="flex flex-col gap-3 metric-card p-4 border border-solid border-zinc-500 rounded-2xl bg-slate-100">
-      <p className="text-xs font-medium text-gray-400">Ingredientes</p>
+    <Paper
+      p="md"
+      withBorder
+      className="bg-slate-100 rounded-2xl border-zinc-500"
+    >
+      <Text size="xs" fw={500} c="dimmed">
+        Ingredientes
+      </Text>
 
       {currentIngredients.length === 0 ? (
-        <p className="text-sm text-gray-400">Sin ingredientes cargados</p>
+        <Text size="sm" c="dimmed">
+          Sin ingredientes cargados
+        </Text>
       ) : (
         <Table striped highlightOnHover>
           <Table.Thead>
@@ -349,6 +403,7 @@ export const ProductIngredientsCard = ({
                         value={draftQty}
                         min={0}
                         w={80}
+                        step={ing.measurement_unit == "UNIT" ? 1 : 0.25}
                         onChange={(v) =>
                           setDraftQuantities((prev) => ({
                             ...prev,
@@ -405,7 +460,7 @@ export const ProductIngredientsCard = ({
         </Table>
       )}
 
-      <div className="flex items-center gap-2 mt-2">
+      <Group gap="sm" mt="xs">
         <Select
           placeholder="Agregar ingrediente..."
           searchable
@@ -430,7 +485,7 @@ export const ProductIngredientsCard = ({
         <Button onClick={handleAdd} disabled={!selected}>
           Agregar
         </Button>
-      </div>
-    </div>
+      </Group>
+    </Paper>
   );
 };

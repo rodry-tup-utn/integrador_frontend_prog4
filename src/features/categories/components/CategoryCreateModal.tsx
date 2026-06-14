@@ -15,6 +15,7 @@ import {
 import { notifications } from "@mantine/notifications";
 import type { CategoryCreate } from "../types/category";
 import { CategoryParentSelector } from "./CategoryParentSelector";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 import { useCategoryMutations } from "../hooks/useCategoryMutations";
 import { useCategoryPath } from "../hooks/useCategoryPath";
 
@@ -35,25 +36,28 @@ export const CategoryCreateModal = ({ opened, onClose }: Props) => {
   const { data: categoryPath } = useCategoryPath(formData.parent_id);
 
   useEffect(() => {
-    if (opened) setFormData(initialState);
+    if (opened) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFormData(initialState);
+    }
   }, [opened]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const result = await createCategory(formData);
-      const categoryName = (result as any)?.name ?? formData.name;
+      const categoryName = result?.name ?? formData.name;
       notifications.show({
         title: "Éxito",
         message: `Categoría "${categoryName}" creada exitosamente`,
         color: "green",
       });
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       notifications.show({
         title: "Error",
         message:
-          error.response?.data?.detail || "Error al crear la categoría",
+          extractApiErrorMessage(error, "Error al crear la categoría"),
         color: "red",
       });
     }

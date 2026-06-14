@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 import { notifications } from "@mantine/notifications";
 import {
   Modal,
@@ -49,12 +50,11 @@ export const AdminUserCreateModal = ({ opened, onClose }: Props) => {
         color: "green",
       });
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       notifications.show({
         title: "Error",
         message:
-          error.response?.data?.detail ||
-          "Error al crear el usuario la operación",
+          extractApiErrorMessage(error, "Error al crear el usuario"),
         color: "red",
       });
     }

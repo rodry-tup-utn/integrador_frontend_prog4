@@ -23,9 +23,6 @@ const RegisterPage = () => {
   const { isLoading: isSessionLoading, isAuthenticated } = useAuth();
   const { isLoading, createPublicUser } = usePublicUserCreate();
   const navigate = useNavigate();
-
-  if (isSessionLoading) return null;
-  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
   const initialData: UserCreate = {
     name: "",
     lastname: "",
@@ -36,6 +33,9 @@ const RegisterPage = () => {
 
   const form = useForm(initialData);
   const [verifyPass, setVerifyPass] = useState("");
+
+  if (isSessionLoading) return null;
+  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -53,7 +53,7 @@ const RegisterPage = () => {
         color: "teal",
       });
       navigate("/login");
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = extractApiErrorMessage(error);
       notifications.show({
         message: message || "Erro al crear el usuario",

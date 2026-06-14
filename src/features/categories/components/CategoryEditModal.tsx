@@ -18,6 +18,7 @@ import { CategoryParentSelector } from "./CategoryParentSelector";
 import { useCategoryMutations } from "../hooks/useCategoryMutations";
 import { useCategoryPath } from "../hooks/useCategoryPath";
 import { toDateString } from "../../../shared/helpers/helpers";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 
 interface Props {
   opened: boolean;
@@ -40,6 +41,7 @@ export const CategoryEditModal = ({
   const { data: categoryPath } = useCategoryPath(formData.parent_id);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFormData({
       name: categoryData.name,
       description: categoryData.description,
@@ -71,11 +73,11 @@ export const CategoryEditModal = ({
         color: "green",
       });
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       notifications.show({
         title: "Error",
         message:
-          error.response?.data?.detail || "Error al actualizar la categoría",
+          extractApiErrorMessage(error, "Error al actualizar la categoría"),
         color: "red",
       });
     }

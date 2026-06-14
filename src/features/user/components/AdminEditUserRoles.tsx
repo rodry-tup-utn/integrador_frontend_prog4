@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Button, Group, Stack, Checkbox } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconDeviceFloppy } from "@tabler/icons-react";
-import type { UserAdminRead, UserRoleRead } from "../types/user";
+import type { UserAdminRead } from "../types/user";
 import { useAdminUserMutations } from "../hooks/admin/useAdminUserMutations";
 import { roleConfig } from "../types/configs";
+import { isRoleExpired } from "../utils/roleUtils";
 import UserRoleInfo from "./UserRoleInfo";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 
 interface Props {
   user: UserAdminRead;
@@ -13,9 +15,6 @@ interface Props {
 }
 
 const allRoleCodes = Object.keys(roleConfig);
-
-export const isRoleExpired = (role: UserRoleRead) =>
-  !!role.expires_at && new Date(role.expires_at).getTime() < Date.now();
 
 export const AdminEditUserRoles = ({ user, onClose }: Props) => {
   const { assignRole, revokeRole, isLoading } = useAdminUserMutations();
@@ -54,10 +53,14 @@ export const AdminEditUserRoles = ({ user, onClose }: Props) => {
         color: "green",
       });
       onClose();
-    } catch {
+    } catch (error: unknown) {
+      const msg = extractApiErrorMessage(
+        error,
+        "Error al actualizar los roles",
+      );
       notifications.show({
         title: "Error",
-        message: "No se pudieron actualizar los roles",
+        message: msg,
         color: "red",
       });
     }

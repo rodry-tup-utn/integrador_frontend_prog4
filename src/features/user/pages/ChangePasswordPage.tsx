@@ -11,6 +11,7 @@ import {
 import { notifications } from "@mantine/notifications";
 import { useProfileMutations } from "../hooks/profile/useProfileMutations";
 import { useNavigate } from "react-router-dom";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 
 export const ChangePasswordPage = () => {
   const [oldPass, setOldPass] = useState("");
@@ -48,10 +49,10 @@ export const ChangePasswordPage = () => {
       setNewPass("");
       setConfirmPass("");
       navigate("/profile");
-    } catch (error: any) {
+    } catch (error: unknown) {
       notifications.show({
         message:
-          error.response?.data?.detail || "Error al cambiar la contraseña",
+          extractApiErrorMessage(error, "Error al cambiar la contraseña"),
         color: "red",
       });
     }

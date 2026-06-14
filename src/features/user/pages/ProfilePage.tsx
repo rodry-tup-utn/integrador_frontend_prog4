@@ -6,6 +6,7 @@ import { useProfileMutations } from "../hooks/profile/useProfileMutations";
 import { useProfileAddresses } from "../hooks/profile/userProfileAddresses";
 import { useProfileAddressMutations } from "../hooks/profile/useProfileAddressMutations";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 import type { AddressCreate, AddressRead, UserUpdate } from "../types/user";
 import AddressModal from "./AddressModal";
 import ProfileInfoCard from "../components/ProfileInfoCard";
@@ -24,8 +25,7 @@ export const ProfilePage = () => {
     restoreAddress,
     isCreating,
     isUpdating,
-    isDeleting,
-    isRestoring,
+      isRestoring,
   } = useProfileAddressMutations();
 
   const [editing, setEditing] = useState(false);
@@ -54,10 +54,9 @@ export const ProfilePage = () => {
         color: "green",
       });
       setNewModalOpen(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       notifications.show({
-        message:
-          error.response?.data?.detail || "No se pudo crear la direccion",
+        message: extractApiErrorMessage(error, "No se pudo crear la direccion"),
       });
     }
   };
@@ -76,10 +75,9 @@ export const ProfilePage = () => {
         color: "green",
       });
       setEditModalOpen(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       notifications.show({
-        message:
-          error.response?.data?.detail || "No se pudo crear la direccion",
+        message: extractApiErrorMessage(error, "No se pudo actualizar la direccion"),
       });
     }
   };
@@ -161,7 +159,6 @@ export const ProfilePage = () => {
               <AddressCard
                 key={addr.id}
                 address={addr}
-                isDeleting={isDeleting}
                 isRestoring={isRestoring}
                 onEdit={() => handleOpenEdit(addr)}
                 onDelete={() => handleDeleteAddress(addr)}
