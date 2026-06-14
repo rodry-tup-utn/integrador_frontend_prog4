@@ -16,6 +16,7 @@ import { useAuth } from "../../auth/context/AuthContext";
 import { useProductMutation } from "../hooks/product.mutation.hooks";
 import { notifications } from "@mantine/notifications";
 import ActionButton from "../../../shared/components/ActionButton";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 
 interface ProductsTableProps {
   isLoading?: boolean;
@@ -64,8 +65,12 @@ const ProductsTable = ({
         color: state.color,
       });
     } catch (error) {
+      const message = extractApiErrorMessage(
+        error,
+        "No se pudo cambiar la disponibilidad",
+      );
       notifications.show({
-        message: "No se pudo cambiar la disponibilidad",
+        message: message,
         color: "red",
       });
     }
