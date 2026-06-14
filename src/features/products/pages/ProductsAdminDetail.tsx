@@ -1,17 +1,28 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useAdminProductDetail } from "../hooks/product.queries.hooks";
-import { Badge, Button, Divider, Text, Title } from "@mantine/core";
+import {
+  Badge,
+  Button,
+  Divider,
+  Grid,
+  Group,
+  Paper,
+  Text,
+  Title,
+  Stack,
+} from "@mantine/core";
 import {
   ProductCategoriesCard,
   ProductImageCard,
   ProductPriceCard,
   ProductStockCard,
+  ProductTypeCard,
   ProductIngredientsCard,
 } from "../components/ProductsDetailCards";
 import { useProductMutation } from "../hooks/product.mutation.hooks";
 import { notifications } from "@mantine/notifications";
-import type { AxiosError } from "axios";
 import { CircleArrowLeftIcon } from "lucide-react";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 
 const ProductsAdminDetail = () => {
   const { id } = useParams();
@@ -38,10 +49,9 @@ const ProductsAdminDetail = () => {
           });
         },
         onError: (error) => {
-          const axiosError = error as AxiosError<{ detail: string }>;
-          const msg =
-            axiosError.response?.data?.detail || "Error al actualizar";
-          notifications.show({ color: "red", message: msg });
+          const message = extractApiErrorMessage(error);
+
+          notifications.show({ color: "red", message: message });
         },
       },
     );
@@ -49,7 +59,7 @@ const ProductsAdminDetail = () => {
 
   return (
     <>
-      <div className="w-full flex justify-start items-center px-4">
+      <Group px="md">
         <Button
           onClick={() => navigate("/stock/products")}
           size="lg"
@@ -59,74 +69,115 @@ const ProductsAdminDetail = () => {
         >
           Volver
         </Button>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
-        <section className="col-span-1 md:col-span-2 card flex items-center justify-between border border-solid border-zinc-500 rounded-2xl bg-slate-100 p-4">
-          <div className="">
-            <Text size="md">#{product.id}</Text>
-            <Title order={2} style={{ marginBottom: "8px" }}>
-              {product.name}
-            </Title>
-            <Text size="md">{product.description}</Text>
-          </div>
-          <button onClick={() => handleAvailability(!product.available)}>
-            <Badge
-              color={product.available ? "teal" : "red"}
-              variant="dot"
-              size="lg"
-              style={{ cursor: "pointer" }}
-            >
-              {product.available ? "Disponible" : "No disponible"}
-            </Badge>
-          </button>
-        </section>
+      </Group>
 
-        <section className="col-span-1 md:col-span-2 grid grid-cols-3 gap-4">
-          <ProductPriceCard product={product} />
-          <ProductStockCard product={product} />
-          <div className="metric-card flex flex-col gap-2 p-4 border border-solid border-zinc-500 rounded-2xl bg-slate-100">
-            <Text size="md">Categorías</Text>
-            <p className="text-2xl font-medium">
-              {product.categories?.length ?? 0}
-            </p>
-          </div>
-        </section>
+      <Grid gap="lg" p="md">
+        <Grid.Col span={12}>
+          <Paper
+            p="md"
+            withBorder
+            className="bg-slate-100 rounded-2xl border-zinc-500"
+          >
+            <Group justify="space-between" align="center">
+              <div>
+                <Text size="md">#{product.id}</Text>
+                <Title order={2} mb="xs">
+                  {product.name}
+                </Title>
+                <Text size="md">{product.description}</Text>
+              </div>
+              <Badge
+                color={product.available ? "teal" : "red"}
+                variant="dot"
+                size="lg"
+                style={{ cursor: "pointer" }}
+                onClick={() => handleAvailability(!product.available)}
+              >
+                {product.available ? "Disponible" : "No disponible"}
+              </Badge>
+            </Group>
+          </Paper>
+        </Grid.Col>
 
-        <section className="card">
-          <ProductImageCard product={product} />
-        </section>
+        <Grid.Col span={12}>
+          <Grid gap="md">
+            <Grid.Col span={{ base: 12, sm: 4 }}>
+              <ProductPriceCard product={product} />
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, sm: 4 }}>
+              <ProductStockCard product={product} />
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, sm: 4 }}>
+              <Paper
+                p="md"
+                withBorder
+                className="bg-slate-100 rounded-2xl border-zinc-500"
+              >
+                <Text size="md">Categorías</Text>
+                <Text size="xl" fw={500}>
+                  {product.categories?.length ?? 0}
+                </Text>
+              </Paper>
+            </Grid.Col>
+          </Grid>
+        </Grid.Col>
 
-        <section className="card">
-          <ProductCategoriesCard product={product} />
-        </section>
+        <Grid.Col span={{ base: 12, md: 6 }}>
+          <Paper
+            p="md"
+            withBorder
+            className="bg-slate-100 rounded-2xl border-zinc-500"
+          >
+            <ProductImageCard product={product} />
+          </Paper>
+        </Grid.Col>
+
+        <Grid.Col span={{ base: 12, md: 6 }}>
+          <Stack gap={5}>
+            <ProductTypeCard product={product} />
+            <ProductCategoriesCard product={product} />
+          </Stack>
+        </Grid.Col>
 
         {product.type == "MANUFACTURED" && (
-          <section className="col-span-1 md:col-span-2 card">
-            <ProductIngredientsCard productId={product.id} />
-          </section>
+          <Grid.Col span={12}>
+            <Paper
+              p="md"
+              withBorder
+              className="bg-slate-100 rounded-2xl border-zinc-500"
+            >
+              <ProductIngredientsCard productId={product.id} />
+            </Paper>
+          </Grid.Col>
         )}
 
-        <section className="col-span-1 md:col-span-2 card">
-          <div className="metric-card flex flex-col gap-2 p-4 border border-solid border-zinc-500 rounded-2xl bg-slate-100">
-            <Text size="md">Auditoría</Text>
-            <Divider className="mx-2" />
-            <div className="flex justify-between text-sm">
+        <Grid.Col span={12}>
+          <Paper
+            p="md"
+            withBorder
+            className="bg-slate-100 rounded-2xl border-zinc-500"
+          >
+            <Text size="md" fw={800}>
+              Auditoría
+            </Text>
+            <Divider mx="sm" />
+            <Group justify="space-between">
               <Text>Creado</Text>
               <span>
                 {new Date(product.created_at).toLocaleString("es-AR")}
               </span>
-            </div>
-            <Divider className="mx-2" />
-            <div className="flex justify-between text-sm">
+            </Group>
+            <Divider mx="sm" />
+            <Group justify="space-between">
               <Text>Actualizado</Text>
               <span>
                 {product.updated_at
                   ? new Date(product.updated_at).toLocaleString("es-AR")
                   : "—"}
               </span>
-            </div>
-            <Divider className="mx-2" />
-            <div className="flex justify-between text-sm">
+            </Group>
+            <Divider mx="sm" />
+            <Group justify="space-between">
               <Text>Eliminado</Text>
               <Badge
                 color={product.deleted_at ? "red" : "teal"}
@@ -137,10 +188,10 @@ const ProductsAdminDetail = () => {
                   ? new Date(product.deleted_at).toLocaleString("es-AR")
                   : "No"}
               </Badge>
-            </div>
-          </div>
-        </section>
-      </div>
+            </Group>
+          </Paper>
+        </Grid.Col>
+      </Grid>
     </>
   );
 };
