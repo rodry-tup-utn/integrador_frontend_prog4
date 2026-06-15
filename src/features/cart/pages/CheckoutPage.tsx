@@ -103,7 +103,7 @@ const CheckoutPage = () => {
       confirmLabel: "Confirmar",
       color: "teal",
       onConfirm: async () => {
-        await createOrder({
+        const newOrder = await createOrder({
           address_id: selectedAddressId,
           payment_method_code: paymentMethod,
           notes: notes || null,
@@ -116,7 +116,7 @@ const CheckoutPage = () => {
           })),
         });
         clearCart();
-        navigate(ROUTES.MY_ORDERS);
+        navigate(`/checkout/payment/${newOrder.id}`);
       },
       successMessage: "Pedido realizado con éxito",
     });
@@ -196,54 +196,54 @@ const CheckoutPage = () => {
                 {ingredientQueries[index]?.data?.ingredients.some(
                   (ing) => ing.is_removable,
                 ) && (
-                  <Paper bg="gray.1" p="xs" withBorder>
-                    <Stack gap={4} pl="md">
-                      <Text
-                        fw={500}
-                        style={{ letterSpacing: "-0.05em" }}
-                        mb="md"
-                        size="sm"
-                        td="underline"
-                      >
-                        Personalizá tu orden:
-                      </Text>
-                      {ingredientQueries[index]
-                        .data!.ingredients.filter((ing) => ing.is_removable)
-                        .map((ing) => (
-                          <Checkbox
-                            key={ing.ingredient_id}
-                            size="xs"
-                            color="red"
-                            label={
-                              <Text size="xs">
-                                Sin <b>{ing.name}</b>
-                              </Text>
-                            }
-                            checked={
-                              personalization?.includes(ing.ingredient_id) ??
-                              false
-                            }
-                            onChange={() => {
-                              const current = personalization ?? [];
-                              if (current.includes(ing.ingredient_id)) {
-                                setItemPersonalization(
-                                  product.id,
-                                  current.filter(
-                                    (id) => id !== ing.ingredient_id,
-                                  ),
-                                );
-                              } else {
-                                setItemPersonalization(product.id, [
-                                  ...current,
-                                  ing.ingredient_id,
-                                ]);
+                    <Paper bg="gray.1" p="xs" withBorder>
+                      <Stack gap={4} pl="md">
+                        <Text
+                          fw={500}
+                          style={{ letterSpacing: "-0.05em" }}
+                          mb="md"
+                          size="sm"
+                          td="underline"
+                        >
+                          Personalizá tu orden:
+                        </Text>
+                        {ingredientQueries[index]
+                          .data!.ingredients.filter((ing) => ing.is_removable)
+                          .map((ing) => (
+                            <Checkbox
+                              key={ing.ingredient_id}
+                              size="xs"
+                              color="red"
+                              label={
+                                <Text size="xs">
+                                  Sin <b>{ing.name}</b>
+                                </Text>
                               }
-                            }}
-                          />
-                        ))}
-                    </Stack>
-                  </Paper>
-                )}
+                              checked={
+                                personalization?.includes(ing.ingredient_id) ??
+                                false
+                              }
+                              onChange={() => {
+                                const current = personalization ?? [];
+                                if (current.includes(ing.ingredient_id)) {
+                                  setItemPersonalization(
+                                    product.id,
+                                    current.filter(
+                                      (id) => id !== ing.ingredient_id,
+                                    ),
+                                  );
+                                } else {
+                                  setItemPersonalization(product.id, [
+                                    ...current,
+                                    ing.ingredient_id,
+                                  ]);
+                                }
+                              }}
+                            />
+                          ))}
+                      </Stack>
+                    </Paper>
+                  )}
               </Stack>
             </Paper>
           ))}

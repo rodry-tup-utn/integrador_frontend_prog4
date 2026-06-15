@@ -22,6 +22,10 @@ import ProductsPage from "../../pages/Products/ProductsPage";
 import { UnderConstructionPage } from "../../pages/UnderConstructionPage";
 import RegisterPage from "../../features/auth/pages/RegisterPage";
 import CheckoutPage from "../../features/cart/pages/CheckoutPage";
+import PaymentCheckout from "../../features/payment/pages/PaymentCheckout";
+import PaymentSuccess from "../../features/payment/pages/PaymentSuccess";
+import PaymentFailure from "../../features/payment/pages/PaymentFailure";
+import PaymentPending from "../../features/payment/pages/PaymentPending";
 
 export const router = createBrowserRouter([
   {
@@ -79,6 +83,10 @@ export const router = createBrowserRouter([
         ),
         children: [
           { path: ROUTES.CHECKOUT, element: <CheckoutPage /> },
+          { path: ROUTES.CHECKOUT_PAYMENT, element: <PaymentCheckout /> },
+          { path: ROUTES.CHECKOUT_SUCCESS, element: <PaymentSuccess /> },
+          { path: ROUTES.CHECKOUT_FAILURE, element: <PaymentFailure /> },
+          { path: ROUTES.CHECKOUT_PENDING, element: <PaymentPending /> }
         ],
       },
       {

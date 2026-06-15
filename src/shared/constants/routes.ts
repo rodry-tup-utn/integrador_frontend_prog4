@@ -22,4 +22,8 @@ export const ROUTES = {
   ADMIN_CONFIG: "/admin/config",
   KITCHEN_BOARD: "/kitchen",
   CHECKOUT: "/checkout",
+  CHECKOUT_PAYMENT: "/checkout/payment/:order_id",
+  CHECKOUT_SUCCESS: "/success",
+  CHECKOUT_FAILURE: "/failure",
+  CHECKOUT_PENDING: "/pending",
 } as const;
