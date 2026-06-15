@@ -23,6 +23,7 @@ import { useProductMutation } from "../hooks/product.mutation.hooks";
 import { notifications } from "@mantine/notifications";
 import { CircleArrowLeftIcon } from "lucide-react";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
+import NotFoundState from "../../../shared/components/NotFoundState";
 
 const ProductsAdminDetail = () => {
   const { id } = useParams();
@@ -34,9 +35,9 @@ const ProductsAdminDetail = () => {
 
   const { changeStockAvailable } = useProductMutation();
 
+  if (!id || isNaN(prodId)) return <NotFoundState message="Producto no encontrado" />;
   if (isLoading) return <>Cargando...</>;
-  if (!id) return <div>Producto no encontrado</div>;
-  if (!product) return <div>Producto no encontrado</div>;
+  if (!product) return <NotFoundState message="Producto no encontrado" />;
 
   const handleAvailability = (availability: boolean) => {
     changeStockAvailable(

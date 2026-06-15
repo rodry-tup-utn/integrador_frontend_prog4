@@ -38,14 +38,6 @@ export const productService = {
       return response.data;
     },
 
-    update: async (id: number, data: ProductUpdate): Promise<ProductUpdate> => {
-      const response = await api.patch<ProductUpdate>(
-        `${ADMIN_URL}/${id}`,
-        data,
-      );
-      return response.data;
-    },
-
     delete: async (id: number): Promise<void> => {
       await api.delete(`${ADMIN_URL}/${id}`);
     },
@@ -68,6 +60,14 @@ export const productService = {
       const response = await api.get<ProductDetail>(`${STOCK_URL}/${id}`);
       return response.data;
     },
+    update: async (id: number, data: ProductUpdate): Promise<ProductUpdate> => {
+      const response = await api.patch<ProductUpdate>(
+        `${STOCK_URL}/${id}`,
+        data,
+      );
+      return response.data;
+    },
+
     updateStock: async (id: number, stock: number): Promise<ProductUpdate> => {
       const response = await api.patch<ProductUpdate>(
         `${STOCK_URL}/${id}/update`,

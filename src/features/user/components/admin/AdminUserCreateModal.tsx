@@ -10,8 +10,8 @@ import {
   PasswordInput,
   Select,
 } from "@mantine/core";
-import { type UserCreateByAdmin, type RoleCodes } from "../types/user";
-import { useAdminUserMutations } from "../hooks/admin/useAdminUserMutations";
+import { type UserCreateByAdmin, type RoleCodes } from "../../types/user";
+import { useAdminUserMutations } from "../../hooks/admin/useAdminUserMutations";
 import { IconPlus } from "@tabler/icons-react";
 
 interface Props {

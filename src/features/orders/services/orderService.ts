@@ -51,21 +51,12 @@ export const orderService = {
       return response.data;
     },
 
-    changeState: async (
-      id: number,
-      data: OrderStateChange,
-    ): Promise<OrderDetailPublic> => {
-      const response = await api.patch<OrderDetailPublic>(
-        `${ORDER_URL}/${id}/state`,
-        data,
-      );
+    changeState: async (id: number, data: OrderStateChange): Promise<OrderDetailPublic> => {
+      const response = await api.patch<OrderDetailPublic>(`${ORDER_URL}/${id}/state`, data);
       return response.data;
     },
 
-    cancelByStaff: async (
-      id: number,
-      data: OrderCancelByStaff,
-    ): Promise<void> => {
+    cancelByStaff: async (id: number, data: OrderCancelByStaff): Promise<void> => {
       await api.post(`${ORDER_URL}/${id}/cancel`, data);
     },
   },

@@ -27,6 +27,7 @@ interface OrderCardProps {
   order: OrderAdmin;
   onAdvance: (order: OrderAdmin) => void;
   onCancel: (order: OrderAdmin) => void;
+  borderColor?: string;
 }
 
 function relativeTime(dateStr: string): string {
@@ -39,7 +40,12 @@ function relativeTime(dateStr: string): string {
   return `hace ${Math.floor(hrs / 24)}d`;
 }
 
-export function OrderCard({ order, onAdvance, onCancel }: OrderCardProps) {
+export function OrderCard({
+  order,
+  onAdvance,
+  onCancel,
+  borderColor = "green",
+}: OrderCardProps) {
   const [opened, setOpened] = useState(false);
   const { data: detail, isLoading } = useAdminOrderDetail(
     opened ? order.id : null,
@@ -48,7 +54,14 @@ export function OrderCard({ order, onAdvance, onCancel }: OrderCardProps) {
   const next = nextState(code);
 
   return (
-    <Card withBorder padding="md" radius="md">
+    <Card
+      style={{
+        borderColor,
+        borderWidth: "2px",
+      }}
+      padding="md"
+      radius="md"
+    >
       <Stack gap="xs">
         <Group justify="space-between" wrap="nowrap">
           <Group gap="xs" wrap="nowrap">

@@ -2,33 +2,21 @@ import { useState } from "react";
 import { useAdminUserList } from "../hooks/admin/useAdminUserList";
 import { useDebouncedValue } from "@mantine/hooks";
 import {
-  Badge,
   Group,
   Pagination,
   Paper,
-  Stack,
   Table,
   Text,
   TextInput,
   Title,
 } from "@mantine/core";
-import {
-  IconEdit,
-  IconPlus,
-  IconRestore,
-  IconSearch,
-  IconTrash,
-} from "@tabler/icons-react";
-import { AdminUserCreateModal } from "../components/AdminUserCreateModal";
-import { AdminUserEditModal } from "../components/AdminUserEditModal";
-import type { UserAdminRead, UserRoleRead } from "../types/user";
-import { showConfirm } from "../../../shared/components/ShowConfirm";
-import { useAdminUserMutations } from "../hooks/admin/useAdminUserMutations";
-import { roleConfig } from "../types/configs";
+import { IconPlus, IconSearch } from "@tabler/icons-react";
+import { AdminUserCreateModal } from "../components/admin/AdminUserCreateModal";
+import { AdminUserEditModal } from "../components/admin/AdminUserEditModal";
+import type { UserAdminRead } from "../types/user";
 import ActionButton from "../../../shared/components/ActionButton";
-
-const isRoleExpired = (role: UserRoleRead) =>
-  !!role.expires_at && new Date(role.expires_at).getTime() < Date.now();
+import { useAuth } from "../../auth/context/AuthContext";
+import UserAdminRow from "../components/admin/UserAdminRow";
 
 const UserAdminPage = () => {
   const [page, setPage] = useState(1);
@@ -44,28 +32,9 @@ const UserAdminPage = () => {
     debounsedSearch,
   );
 
-  const { restoreUser, deleteUser } = useAdminUserMutations();
+  const { user } = useAuth();
+
   const totalPages = data ? Math.ceil(data.total / limit) : 0;
-
-  const handleRestore = (user: UserAdminRead) => {
-    showConfirm({
-      title: `¿Restaurar usuario ${user.name}?`,
-      confirmLabel: "Restaurar",
-      color: "green",
-      onConfirm: () => restoreUser(user.id),
-      successMessage: `Usuario ${user.name} restaurado!`,
-    });
-  };
-
-  const handleDelete = (user: UserAdminRead) => {
-    showConfirm({
-      title: `¿Eliminar usuario ${user.name}?`,
-      confirmLabel: "Eliminar",
-      color: "red",
-      onConfirm: () => deleteUser(user.id),
-      successMessage: `Usuario ${user.name} eliminado!`,
-    });
-  };
 
   return (
     <>
@@ -123,96 +92,18 @@ const UserAdminPage = () => {
                 </Table.Td>
               </Table.Tr>
             ) : (
-              data.data.map((item) => {
-                const isDeleted = !!item.deleted_at;
-                return (
-                  <Table.Tr key={item.id} opacity={isDeleted ? 0.6 : undefined}>
-                    <Table.Td>
-                      <Text size="sm" c="dimmed">
-                        #{item.id}
-                      </Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Text
-                        td={isDeleted ? "line-through" : undefined}
-                        fw={500}
-                      >
-                        {item.lastname}, {item.name}
-                      </Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Text fw={500}>{item.email}</Text>
-                    </Table.Td>
-                    <Table.Td>
-                      {item.roles.length > 0 ? (
-                        <Stack justify="center" align="center" gap="xs">
-                          {item.roles.map((role) => {
-                            const revoked = isRoleExpired(role);
-                            return (
-                              <Badge
-                                key={role.role_user.code}
-                                color={
-                                  roleConfig[role.role_user.code]?.color ??
-                                  "gray"
-                                }
-                                variant={revoked ? "dot" : "light"}
-                                size="sm"
-                                style={
-                                  revoked
-                                    ? {
-                                        textDecoration: "line-through",
-                                        opacity: 0.5,
-                                      }
-                                    : undefined
-                                }
-                              >
-                                {roleConfig[role.role_user.code]?.label ??
-                                  role.role_user.code}
-                              </Badge>
-                            );
-                          })}
-                        </Stack>
-                      ) : (
-                        <Text size="sm" c="dimmed">
-                          Sin roles
-                        </Text>
-                      )}
-                    </Table.Td>
-                    <Table.Td>
-                      <Badge
-                        color={isDeleted ? "red" : "teal"}
-                        variant="dot"
-                        size="sm"
-                      >
-                        {isDeleted ? "Eliminado" : "Activo"}
-                      </Badge>
-                    </Table.Td>
-                    <Table.Td>
-                      <Group gap="xs" justify="center">
-                        <ActionButton
-                          icon={IconEdit}
-                          label="Editar Usuario"
-                          color="blue"
-                          onClick={() => {
-                            setEditing(item);
-                            setEditModal(true);
-                          }}
-                        />
-                        <ActionButton
-                          icon={isDeleted ? IconRestore : IconTrash}
-                          label={isDeleted ? "Restaurar" : "Eliminar"}
-                          onClick={
-                            isDeleted
-                              ? () => handleRestore(item)
-                              : () => handleDelete(item)
-                          }
-                          color={isDeleted ? "green" : "red"}
-                        />
-                      </Group>
-                    </Table.Td>
-                  </Table.Tr>
-                );
-              })
+              data.data
+                .filter((u) => u.id !== user?.id)
+                .map((item) => (
+                  <UserAdminRow
+                    key={item.id}
+                    user={item}
+                    handleEdit={() => {
+                      setEditing(item);
+                      setEditModal(true);
+                    }}
+                  />
+                ))
             )}
           </Table.Tbody>
         </Table>

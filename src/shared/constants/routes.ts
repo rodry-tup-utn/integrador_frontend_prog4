@@ -14,7 +14,6 @@ export const ROUTES = {
   ADMIN_USERS: "/admin/users",
   PROFILE: "/profile",
   CHANGE_PASSWORD: "/change-password",
-  CART: "/cart",
   MY_ORDERS: "/user/orders",
   ORDERS_ADMIN: "/orders",
   STOCK_INGREDIENTS: "/stock/ingredients",
@@ -22,4 +21,9 @@ export const ROUTES = {
   ADMIN_METRICS: "/admin/metrics",
   ADMIN_CONFIG: "/admin/config",
   KITCHEN_BOARD: "/kitchen",
+  CHECKOUT: "/checkout",
+  CHECKOUT_PAYMENT: "/checkout/payment/:order_id",
+  CHECKOUT_SUCCESS: "/success",
+  CHECKOUT_FAILURE: "/failure",
+  CHECKOUT_PENDING: "/pending",
 } as const;

@@ -274,6 +274,9 @@ export const ProductIngredientsCard = ({
   const [draftQuantities, setDraftQuantities] = useState<
     Record<number, number>
   >({});
+  const [draftRemovable, setDraftRemovable] = useState<
+    Record<number, boolean>
+  >({});
   const { addIngredient, updateProductIngredient, removeIngredient } =
     useProductMutation();
 
@@ -345,6 +348,11 @@ export const ProductIngredientsCard = ({
             delete next[ingredientId];
             return next;
           });
+          setDraftRemovable((prev) => {
+            const next = { ...prev };
+            delete next[ingredientId];
+            return next;
+          });
           notifications.show({
             color: "green",
             message: "Regla de personalización actualizada",
@@ -387,6 +395,8 @@ export const ProductIngredientsCard = ({
             {currentIngredients.map((ing) => {
               const draftQty =
                 draftQuantities[ing.ingredient_id] ?? ing.quantity_ingredient;
+              const draftRemovableValue =
+                draftRemovable[ing.ingredient_id] ?? ing.is_removable;
               return (
                 <Table.Tr key={ing.ingredient_id}>
                   <Table.Td>
@@ -417,10 +427,14 @@ export const ProductIngredientsCard = ({
                     <Group justify="center">
                       <Switch
                         size="sm"
-                        checked={ing.is_removable}
-                        onChange={(e) =>
-                          setIsRemovable(e.currentTarget.checked)
-                        }
+                        checked={draftRemovableValue}
+                        onChange={(e) => {
+                          const checked = e.currentTarget.checked;
+                          setDraftRemovable((prev) => ({
+                            ...prev,
+                            [ing.ingredient_id]: checked,
+                          }));
+                        }}
                       />
                     </Group>
                   </Table.Td>
@@ -434,7 +448,7 @@ export const ProductIngredientsCard = ({
                           handleUpdate(
                             ing.ingredient_id,
                             draftQty,
-                            ing.is_removable,
+                            draftRemovableValue,
                           )
                         }
                       >
@@ -480,7 +494,10 @@ export const ProductIngredientsCard = ({
           size="sm"
           label="Removible"
           checked={isRemovable}
-          onChange={(e) => setIsRemovable(e.currentTarget.checked)}
+          onChange={(e) => {
+            const checked = e.currentTarget.checked;
+            setIsRemovable(checked);
+          }}
         />
         <Button onClick={handleAdd} disabled={!selected}>
           Agregar

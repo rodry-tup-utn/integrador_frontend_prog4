@@ -2,12 +2,12 @@ import { useState } from "react";
 import { Button, Group, Stack, Checkbox } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconDeviceFloppy } from "@tabler/icons-react";
-import type { UserAdminRead } from "../types/user";
-import { useAdminUserMutations } from "../hooks/admin/useAdminUserMutations";
-import { roleConfig } from "../types/configs";
-import { isRoleExpired } from "../utils/roleUtils";
-import UserRoleInfo from "./UserRoleInfo";
-import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
+import type { UserAdminRead } from "../../types/user";
+import { roleConfig } from "../../types/configs";
+import { useAdminUserMutations } from "../../hooks/admin/useAdminUserMutations";
+import { isRoleExpired } from "../../utils/roleUtils";
+import { extractApiErrorMessage } from "../../../../shared/helpers/apiErrors";
+import UserRoleInfo from "../UserRoleInfo";
 
 interface Props {
   user: UserAdminRead;
