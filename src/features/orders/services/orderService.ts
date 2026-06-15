@@ -12,7 +12,7 @@ import type {
 
 const CLIENT_URL = "/order";
 const ADMIN_URL = "/admin/order";
-const ORDER_URL = "orders/order";
+const ORDER_URL = "/orders/order";
 
 export const orderService = {
   client: {
@@ -51,12 +51,21 @@ export const orderService = {
       return response.data;
     },
 
-    changeState: async (id: number, data: OrderStateChange): Promise<OrderDetailPublic> => {
-      const response = await api.patch<OrderDetailPublic>(`${ORDER_URL}/${id}/state`, data);
+    changeState: async (
+      id: number,
+      data: OrderStateChange,
+    ): Promise<OrderDetailPublic> => {
+      const response = await api.patch<OrderDetailPublic>(
+        `${ORDER_URL}/${id}/state`,
+        data,
+      );
       return response.data;
     },
 
-    cancelByStaff: async (id: number, data: OrderCancelByStaff): Promise<void> => {
+    cancelByStaff: async (
+      id: number,
+      data: OrderCancelByStaff,
+    ): Promise<void> => {
       await api.post(`${ORDER_URL}/${id}/cancel`, data);
     },
   },
