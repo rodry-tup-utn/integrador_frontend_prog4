@@ -6,9 +6,12 @@ import {
   Badge,
   Table,
   Divider,
+  Button,
 } from "@mantine/core";
 import type { OrderDetailPublic, OrderStateCode } from "../types/order";
 import { STATE_COLORS, STATE_LABELS } from "../types/configs";
+import { IconZoomMoney } from "@tabler/icons-react";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   order: OrderDetailPublic | null;
@@ -23,6 +26,7 @@ export const OrderDetailModal = ({
   opened,
   onClose,
 }: Props) => {
+  const navigate = useNavigate();
   return (
     <Modal
       opened={opened}
@@ -161,6 +165,16 @@ export const OrderDetailModal = ({
           )}
         </Stack>
       )}
+      <Group mt="md" justify="center">
+        <Button
+          color="blue"
+          variant="outline"
+          onClick={() => navigate(`/checkout/payment/${order?.id}`)}
+        >
+          <IconZoomMoney />
+          Consultar Pago
+        </Button>
+      </Group>
     </Modal>
   );
 };
