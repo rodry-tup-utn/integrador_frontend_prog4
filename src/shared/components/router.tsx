@@ -19,6 +19,7 @@ import { RoleRoute } from "./RoleRoute";
 import ProductsAdminPage from "../../features/products/pages/ProductsAdminPage";
 import ProductsAdminDetail from "../../features/products/pages/ProductsAdminDetail";
 import ProductsPage from "../../pages/Products/ProductsPage";
+import { MetricsPage } from "../../features/estadisticas/pages/MetricsPage";
 import { UnderConstructionPage } from "../../pages/UnderConstructionPage";
 import RegisterPage from "../../features/auth/pages/RegisterPage";
 import CheckoutPage from "../../features/cart/pages/CheckoutPage";
@@ -125,7 +126,7 @@ export const router = createBrowserRouter([
           },
 
           { path: ROUTES.ADMIN_USERS, element: <UserAdminPage /> },
-          { path: ROUTES.ADMIN_METRICS, element: <UnderConstructionPage /> },
+          { path: ROUTES.ADMIN_METRICS, element: <MetricsPage /> },
           { path: ROUTES.ADMIN_CONFIG, element: <UnderConstructionPage /> },
         ],
       },
