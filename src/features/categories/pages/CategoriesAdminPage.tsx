@@ -16,6 +16,7 @@ import {
   IconEdit,
   IconRestore,
   IconTrash,
+  IconPolaroid,
 } from "@tabler/icons-react";
 import { useAdminCategoryList } from "../hooks/useAdminCategoryList";
 import { useCategoryMutations } from "../hooks/useCategoryMutations";
@@ -25,12 +26,15 @@ import { CategoryCreateModal } from "../components/CategoryCreateModal";
 import { CategoryEditModal } from "../components/CategoryEditModal";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
 import ActionButton from "../../../shared/components/ActionButton";
+import UploadFile from "../../../widgets/uploadFile/UploadFile";
 export default function CategoriesAdminPage() {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editing, setEditing] = useState<CategoryPrivate | null>(null);
+  const [uploadCategory, setUploadCategory] = useState<CategoryPrivate | null>(null);
+  const [openUpload, setOpenUpload] = useState(false)
   const [debounsedSearch] = useDebouncedValue(searchTerm, 300);
   const limit = 10;
   const { data, isLoading } = useAdminCategoryList(
@@ -60,6 +64,11 @@ export default function CategoriesAdminPage() {
       successMessage: `Categoría ${item.name} restaurada`,
     });
   };
+
+  const handleUpload = (category: CategoryPrivate) => {
+      setUploadCategory(category)
+      setOpenUpload(true)
+    }
   return (
     <>
       <Group justify="space-between" mb="lg">
@@ -155,6 +164,13 @@ export default function CategoriesAdminPage() {
                         />
 
                         <ActionButton
+                          icon={IconPolaroid}
+                          label="Subir imagen"
+                          color="yellow"
+                          onClick={() => handleUpload(item)}
+                        />
+
+                        <ActionButton
                           icon={isDeleted ? IconRestore : IconTrash}
                           onClick={() =>
                             isDeleted ? handleRestore(item) : handleDelete(item)
@@ -191,6 +207,15 @@ export default function CategoriesAdminPage() {
           categoryData={editing}
         />
       )}
+      <UploadFile
+        open={openUpload}
+        type="category"
+        handleClose={() => {
+          setOpenUpload(false)
+          setUploadCategory(null)
+        }}
+        id={uploadCategory?.id ?? 0}
+        currentImageUrl={uploadCategory?.image_url} />
     </>
   );
 }

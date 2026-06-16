@@ -10,6 +10,7 @@ import {
   IconInfoCircle,
   IconRestore,
   IconTrash,
+  IconPolaroid
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/context/AuthContext";
@@ -25,6 +26,7 @@ interface ProductsTableProps {
   onDelete: (item: ProductPrivate) => void;
   onEdit: (item: ProductPrivate) => void;
   onModalOpen: (value: boolean) => void;
+  onUpload: (item: ProductPrivate) => void;
 }
 
 const mapType = (type: TypeProduct) => {
@@ -41,6 +43,7 @@ const ProductsTable = ({
   onDelete,
   onEdit,
   onModalOpen,
+  onUpload
 }: ProductsTableProps) => {
   const { user } = useAuth();
 
@@ -206,6 +209,12 @@ const ProductsTable = ({
                         color={isDeleted ? "green" : "red"}
                       />
                     )}
+                    <ActionButton
+                      icon={IconPolaroid}
+                      label="Subir imagen"
+                      color="yellow"
+                      onClick={() => onUpload(item)}
+                    />
                     <ActionButton
                       icon={IconEye}
                       label="Ver detalle"
