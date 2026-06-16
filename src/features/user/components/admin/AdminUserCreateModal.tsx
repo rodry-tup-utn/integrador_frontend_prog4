@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 import { notifications } from "@mantine/notifications";
 import {
   Modal,
@@ -10,9 +9,10 @@ import {
   PasswordInput,
   Select,
 } from "@mantine/core";
-import { type UserCreateByAdmin, type RoleCodes } from "../types/user";
-import { useAdminUserMutations } from "../hooks/admin/useAdminUserMutations";
+import { type UserCreateByAdmin, type RoleCodes } from "../../types/user";
+import { useAdminUserMutations } from "../../hooks/admin/useAdminUserMutations";
 import { IconPlus } from "@tabler/icons-react";
+import { extractApiErrorMessage } from "../../../../shared/helpers/apiErrors";
 
 interface Props {
   opened: boolean;

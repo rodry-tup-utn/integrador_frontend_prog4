@@ -47,6 +47,7 @@ export function KitchenColumn({
                 order={order}
                 onAdvance={onAdvance}
                 onCancel={onCancel}
+                borderColor={STATE_COLORS[order.state_code as OrderStateCode]}
               />
             ))}
           </Stack>

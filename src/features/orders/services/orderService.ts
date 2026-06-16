@@ -12,7 +12,7 @@ import type {
 
 const CLIENT_URL = "/order";
 const ADMIN_URL = "/admin/order";
-const ORDER_URL = "orders/order";
+const ORDER_URL = "/orders/order";
 
 export const orderService = {
   client: {

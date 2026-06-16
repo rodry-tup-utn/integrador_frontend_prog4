@@ -8,8 +8,13 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
 
-      addItem: (product: ProductPublic): boolean => {
-        const itemInCart = get().items.find((item) => item.product.id === product.id);
+      addItem: (
+        product: ProductPublic,
+        personalization: number[] = [],
+      ): boolean => {
+        const itemInCart = get().items.find(
+          (item) => item.product.id === product.id,
+        );
 
         if (itemInCart) {
           if (itemInCart.quantity < itemInCart.product.stock) {
@@ -25,7 +30,9 @@ export const useCartStore = create<CartState>()(
             return false;
           }
         } else {
-          set((state) => ({ items: [...state.items, { product, quantity: 1 }] }));
+          set((state) => ({
+            items: [...state.items, { product, quantity: 1, personalization }],
+          }));
           return true;
         }
       },
@@ -42,7 +49,9 @@ export const useCartStore = create<CartState>()(
           return false;
         }
 
-        const itemInCart = get().items.find((item) => item.product.id === productId);
+        const itemInCart = get().items.find(
+          (item) => item.product.id === productId,
+        );
 
         if (itemInCart) {
           if (quantity <= itemInCart.product.stock) {
@@ -58,13 +67,43 @@ export const useCartStore = create<CartState>()(
         return false;
       },
 
+      setItemPersonalization: (
+        productId: number,
+        personalization: number[],
+      ) => {
+        set((state) => ({
+          items: state.items.map((item) =>
+            item.product.id === productId ? { ...item, personalization } : item,
+          ),
+        }));
+      },
+
       clearCart: () => set({ items: [] }),
 
-      getTotalItems: () => get().items.reduce((acc, item) => acc + item.quantity, 0),
+      getTotalItems: () =>
+        get().items.reduce((acc, item) => acc + item.quantity, 0),
 
       getTotalPrice: () =>
-        get().items.reduce((acc, item) => acc + item.product.base_price * item.quantity, 0),
+        get().items.reduce(
+          (acc, item) => acc + item.product.base_price * item.quantity,
+          0,
+        ),
     }),
-    { name: "cart-storage" },
+    {
+      name: "cart-storage",
+      version: 1,
+      migrate: (persistedState: unknown, version: number) => {
+        const state = persistedState as {
+          items: Array<Record<string, unknown>>;
+        };
+        if (version === 0) {
+          state.items = (state.items ?? []).map((item) => ({
+            ...item,
+            personalization: item.personalization ?? [],
+          }));
+        }
+        return state as unknown as CartState;
+      },
+    },
   ),
 );

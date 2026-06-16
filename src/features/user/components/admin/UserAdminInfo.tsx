@@ -1,6 +1,6 @@
 import { Badge, Group, Paper, Stack, Text } from "@mantine/core";
-import { toDateString } from "../../../shared/helpers/helpers";
-import type { UserAdminRead } from "../types/user";
+import { toDateString } from "../../../../shared/helpers/helpers";
+import type { UserAdminRead } from "../../types/user";
 
 interface Props {
   user: UserAdminRead;
