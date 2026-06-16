@@ -7,6 +7,7 @@ import { MantineProvider } from "@mantine/core";
 import { theme } from "./shared/theme/theme.ts";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
+import "@mantine/dates/styles.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
