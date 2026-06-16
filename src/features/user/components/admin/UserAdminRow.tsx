@@ -5,6 +5,7 @@ import ActionButton from "../../../../shared/components/ActionButton";
 import { IconEdit, IconRestore, IconTrash } from "@tabler/icons-react";
 import { showConfirm } from "../../../../shared/components/ShowConfirm";
 import { useAdminUserMutations } from "../../hooks/admin/useAdminUserMutations";
+import { useState } from "react";
 
 interface Props {
   user: UserAdminRead;
@@ -13,8 +14,9 @@ interface Props {
 
 const UserAdminRow = ({ user, handleEdit: onEdit }: Props) => {
   const isDeleted = !!user.deleted_at;
+  const [now] = useState(() => Date.now());
   const isRoleExpired = (role: UserRoleRead) =>
-    !!role.expires_at && new Date(role.expires_at).getTime() < Date.now();
+    !!role.expires_at && new Date(role.expires_at).getTime() < now;
 
   const { restoreUser, deleteUser, isLoading, restorePass } =
     useAdminUserMutations();
