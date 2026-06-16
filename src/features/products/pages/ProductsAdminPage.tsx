@@ -16,6 +16,7 @@ import { notifications } from "@mantine/notifications";
 import ActionButton from "../../../shared/components/ActionButton";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
+import UploadFile from "../../../widgets/uploadFile/UploadFile";
 
 const ProductsAdminPage = () => {
   const LIMIT = 20;
@@ -25,6 +26,8 @@ const ProductsAdminPage = () => {
   const [debouncedSearch] = useDebouncedValue(searchTerm, 300);
   const [editing, setEditing] = useState<ProductPrivate | null>(null);
   const [open, setOpen] = useState(false);
+  const [uploadProduct, setUploadProduct] = useState<ProductPrivate | null>(null);
+  const [openUpload, setOpenUpload] = useState(false)
 
   const filters: ProductFilters = {
     offset: (page - 1) * LIMIT,
@@ -69,6 +72,11 @@ const ProductsAdminPage = () => {
     setEditing(null);
     setOpen(false);
   };
+
+  const handleUpload = (product: ProductPrivate) => {
+    setUploadProduct(product)
+    setOpenUpload(true)
+  }
 
   const handleSubmit = (data: ProductCreate) => {
     if (editing) {
@@ -158,6 +166,7 @@ const ProductsAdminPage = () => {
               onModalOpen={setOpen}
               onDelete={handleDelete}
               onRestore={handleRestore}
+              onUpload={handleUpload}
             />
           </div>
         </section>
@@ -188,6 +197,15 @@ const ProductsAdminPage = () => {
           onSubmit={handleSubmit}
         />
       </ProductsModal>
+      <UploadFile
+        open={openUpload}
+        type="product"
+        handleClose={() => {
+          setOpenUpload(false)
+          setUploadProduct(null)
+        }}
+        id={uploadProduct?.id ?? 0}
+        currentImageUrl={uploadProduct?.images_url} />
     </div>
   );
 };
