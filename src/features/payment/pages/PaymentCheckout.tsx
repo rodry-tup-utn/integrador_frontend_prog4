@@ -1,9 +1,11 @@
 import { useParams } from "react-router-dom";
 import { useClientOrderDetail } from "../../orders/hooks/client/useClientOrderDetail";
 import usePaymentMutation from "../hooks/payment.mutations.hooks";
-import { Button } from "@mantine/core";
+import { Button, Badge } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
+import type { OrderStateCode } from "../../orders/types/order";
+import { STATE_COLORS } from "../../orders/types/configs";
 
 const PaymentCheckout = () => {
   const { order_id } = useParams<{ order_id: string }>();
@@ -37,7 +39,9 @@ const PaymentCheckout = () => {
     // No se encuentra la orden
   }
 
-  const payWithMP = order?.payment_method_code === "MERCADOPAGO";
+  const canPay =
+    order?.payment_method_code === "MERCADOPAGO" &&
+    order.state_code == "PENDING";
   const hasDiscount = Number(order?.discount) > 0;
 
   return (
@@ -50,9 +54,14 @@ const PaymentCheckout = () => {
             </h1>
             <p className="mt-1 text-sm text-gray-500 flex items-center gap-2">
               Estado:
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+              <Badge
+                color={
+                  STATE_COLORS[order?.state_code as OrderStateCode] || "gray"
+                }
+                variant="light"
+              >
                 {order?.state.description}
-              </span>
+              </Badge>
             </p>
           </div>
 
@@ -113,7 +122,7 @@ const PaymentCheckout = () => {
 
           <div className="bg-white p-4 rounded-lg border border-gray-100 mb-6 flex justify-between items-center">
             <span className="text-base font-medium text-gray-700">
-              Total a pagar:
+              Total de la compra
             </span>
             <span className="text-3xl font-extrabold text-gray-900">
               $
@@ -124,7 +133,7 @@ const PaymentCheckout = () => {
           </div>
 
           <div className="w-ful flex flex-col justify-center items-center">
-            {payWithMP && (
+            {canPay && (
               <Button
                 onClick={handlePay}
                 size="lg"
