@@ -1,11 +1,5 @@
 import { Paper, Text, Title } from "@mantine/core";
-import {
-  Cell,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-} from "recharts";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import type { PedidoEstado } from "../types/estadisticas";
 
 interface PedidosEstadoChartProps {
@@ -19,14 +13,20 @@ const STATE_COLORS: Record<string, string> = {
   IN_PREP: "#f97316",
   DELIVERED: "#22c55e",
   CANCELLED: "#ef4444",
-  REJECTED: "#dc2626",
 };
 
-const getColor = (estado: string) =>
-  STATE_COLORS[estado] ?? "#6b7280";
+const stateLabel: Record<string, string> = {
+  PENDING: "Pendiente",
+  CONFIRMED: "Confirmado",
+  IN_PREP: "En Preparación",
+  DELIVERED: "Entregado",
+  CANCELLED: "Cancelado",
+};
+
+const getColor = (estado: string) => STATE_COLORS[estado] ?? "#6b7280";
 
 const renderLabel = ({ name, percent }: { name?: string; percent?: number }) =>
-  `${name ?? ""} ${((percent ?? 0) * 100).toFixed(0)}%`;
+  `${stateLabel[name as string] ?? ""} ${((percent ?? 0) * 100).toFixed(0)}%`;
 
 export const PedidosEstadoChart = ({
   data,
