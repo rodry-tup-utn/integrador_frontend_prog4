@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Title,
@@ -25,7 +25,7 @@ import usePaymentMutation from "../../payment/hooks/payment.mutations.hooks";
 import { ROUTES } from "../../../shared/constants/routes";
 import { productKeys } from "../../products/types/product";
 import { productService } from "../../products/services/product.services";
-import type { OrderDetailPublic } from "../../orders/types/order";
+import type { OrderPublic } from "../../orders/types/order";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 import { notifications } from "@mantine/notifications";
 import CheckoutSuccessCashPending from "../components/CheckoutSuccessCashPending";
@@ -55,7 +55,7 @@ const CheckoutPage = () => {
   const { createCheckout, isCreating: isPaying } = usePaymentMutation();
 
   const [mode, setMode] = useState<PageMode>("form");
-  const [createdOrder, setCreatedOrder] = useState<OrderDetailPublic | null>(
+  const [createdOrder, setCreatedOrder] = useState<OrderPublic | null>(
     null,
   );
   const [userSelectedAddressId, setUserSelectedAddressId] = useState<
@@ -63,7 +63,6 @@ const CheckoutPage = () => {
   >(null);
   const [paymentMethod, setPaymentMethod] = useState<string>("EFECTIVO");
   const [notes, setNotes] = useState("");
-  const [isAutoConfirmingCash, setIsAutoConfirmingCash] = useState(false);
 
   const selectedAddressId =
     userSelectedAddressId ??
@@ -81,33 +80,6 @@ const CheckoutPage = () => {
       staleTime: 5 * 60 * 1000,
     })),
   });
-
-  useEffect(() => {
-    if (
-      mode !== "success" ||
-      paymentMethod !== "EFECTIVO" ||
-      !createdOrder ||
-      createdOrder.state_code !== "PENDING"
-    ) return;
-
-    setIsAutoConfirmingCash(true);
-
-    const timer = setTimeout(async () => {
-      try {
-        const confirmed = await confirmByClient(createdOrder.id);
-        setCreatedOrder(confirmed);
-        notifications.show({ message: "Pedido confirmado — pagás en efectivo al recibir", color: "green" });
-      } catch (error) {
-        const msg = extractApiErrorMessage(error, "No se pudo confirmar el pedido");
-        notifications.show({ message: msg, color: "red" });
-      } finally {
-        setIsAutoConfirmingCash(false);
-      }
-    }, 2000);
-
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, paymentMethod, createdOrder?.id]);
 
   if (items.length === 0 && mode === "form") {
     return (
@@ -139,13 +111,32 @@ const CheckoutPage = () => {
           personalization: i.personalization?.length ? i.personalization : null,
         })),
       });
+
+      let orderToShow: OrderPublic = newOrder;
+
+      if (paymentMethod === "EFECTIVO") {
+        try {
+          orderToShow = await confirmByClient(newOrder.id);
+          notifications.show({
+            message: "Pedido confirmado — pagás en efectivo al recibir",
+            color: "green",
+          });
+        } catch {
+          notifications.show({
+            message:
+              "Pedido creado. Confirmalo manualmente desde Mis pedidos.",
+            color: "yellow",
+          });
+        }
+      }
+
       clearCart();
-      setCreatedOrder(newOrder as unknown as OrderDetailPublic);
+      setCreatedOrder(orderToShow);
       setMode("success");
     } catch (error: unknown) {
       const msg = extractApiErrorMessage(
         error,
-        "No se pudo confirmar el pedido",
+        "No se pudo crear el pedido",
       );
       notifications.show({ message: msg, color: "red" });
     }
@@ -186,46 +177,27 @@ const CheckoutPage = () => {
   if (mode === "success" && createdOrder) {
     const goToOrders = () => navigate(ROUTES.MY_ORDERS);
 
-    if (isAutoConfirmingCash) {
-      return (
-        <Stack align="center" gap="lg" py="xl">
-          <IconShoppingCart size={48} stroke={1} color="green" />
-          <Title order={3}>Pedido creado</Title>
-          <Text c="dimmed">Estamos confirmando tu pedido...</Text>
-          <Button size="lg" loading>Confirmando</Button>
-        </Stack>
-      );
-    }
-
-    if (paymentMethod === "EFECTIVO" && createdOrder.state_code === "PENDING") {
-      return (
-        <CheckoutSuccessCashPending
-          onConfirm={handleConfirmCash}
-          isConfirming={isConfirming}
-          onGoToOrders={goToOrders}
-        />
-      );
-    }
-
-    if (
-      paymentMethod === "EFECTIVO" &&
-      createdOrder.state_code === "CONFIRMED"
-    ) {
-      return <CheckoutSuccessCashConfirmed onGoToOrders={goToOrders} />;
-    }
-
-    if (paymentMethod === "TRANSFERENCIA") {
-      return <CheckoutSuccessTransfer onGoToOrders={goToOrders} />;
-    }
-
-    if (paymentMethod === "MERCADOPAGO") {
-      return (
-        <CheckoutSuccessMercadoPago
-          onPay={handlePayMp}
-          isPaying={isPaying}
-          onGoToOrders={goToOrders}
-        />
-      );
+    switch (paymentMethod) {
+      case "EFECTIVO":
+        return createdOrder.state_code === "CONFIRMED" ? (
+          <CheckoutSuccessCashConfirmed onGoToOrders={goToOrders} />
+        ) : (
+          <CheckoutSuccessCashPending
+            onConfirm={handleConfirmCash}
+            isConfirming={isConfirming}
+            onGoToOrders={goToOrders}
+          />
+        );
+      case "TRANSFERENCIA":
+        return <CheckoutSuccessTransfer onGoToOrders={goToOrders} />;
+      case "MERCADOPAGO":
+        return (
+          <CheckoutSuccessMercadoPago
+            onPay={handlePayMp}
+            isPaying={isPaying}
+            onGoToOrders={goToOrders}
+          />
+        );
     }
   }
 
