@@ -7,6 +7,7 @@ import type {
   IngredientPublic,
   IngredientsListFull,
   IngredientUpdate,
+  MeasurementUnitItem,
   UpdateStockIngredient,
 } from "../types/ingredient";
 
@@ -30,6 +31,11 @@ export const ingredientService = {
 
     getById: async (id: string): Promise<IngredientPublic> => {
       const response = await api.get<IngredientPublic>(`${PUBLIC_URL}/${id}`);
+      return response.data;
+    },
+
+    getMeasurementUnits: async (): Promise<MeasurementUnitItem[]> => {
+      const response = await api.get<MeasurementUnitItem[]>(`${PUBLIC_URL}/measurement-units`);
       return response.data;
     },
   },

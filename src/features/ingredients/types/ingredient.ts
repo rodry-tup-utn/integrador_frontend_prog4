@@ -1,9 +1,11 @@
-export type MeasurementUnit =
-  | "LITER"
-  | "MILILITER"
-  | "GRAMS"
-  | "KILOGRAMS"
-  | "UNIT";
+export type MeasurementUnit = string;
+
+export interface MeasurementUnitItem {
+  code: string;
+  name: string;
+  symbol: string;
+  unit_type: string;
+}
 
 export interface IngredientPublic {
   id: number;
@@ -14,7 +16,7 @@ export interface IngredientPublic {
 
 export interface IngredientPrivate extends IngredientPublic {
   stock: number;
-  measurement_unit: MeasurementUnit;
+  measurement_unit_code: string;
   created_at: string;
   updated_at: string | null;
   deleted_at: string | null;
@@ -34,7 +36,7 @@ export interface IngredientUpdate {
   name?: string;
   description?: string;
   is_allergen?: boolean;
-  measurement_unit?: MeasurementUnit;
+  measurement_unit_code?: string;
   stock?: number;
 }
 
@@ -42,7 +44,7 @@ export interface IngredientCreate {
   name: string;
   description: string;
   is_allergen: boolean;
-  measurement_unit: MeasurementUnit;
+  measurement_unit_code: string;
   stock: number;
 }
 
