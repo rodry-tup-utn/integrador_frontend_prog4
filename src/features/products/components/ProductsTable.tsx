@@ -87,7 +87,7 @@ const ProductsTable = ({
           <Table.Th ta="center">Tipo</Table.Th>
           <Table.Th>
             <Group gap={4}>
-              <Text>Stock</Text>
+              Stock
               <Tooltip label="Stock de manufacturados calculados en base al stock de ingredientes disponible">
                 <IconInfoCircle size={16} style={{ cursor: "pointer" }} />
               </Tooltip>
