@@ -12,6 +12,7 @@ import {
 import { IconTrash } from "@tabler/icons-react";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useAdminIngredientsList } from "../../ingredients/hooks/useAdminIngredientsList";
+import { useMeasurementUnits } from "../../ingredients/hooks/useMeasurementUnits";
 import type { ProductIngredientBatchItem } from "../types/product";
 
 interface IngredientSelectorProps {
@@ -31,24 +32,21 @@ const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
   const [quantity, setQuantity] = useState<number | string>(0);
   const [isRemovable, setIsRemovable] = useState(false);
 
+  const { data: measurementUnits } = useMeasurementUnits();
+
+  const unitSymbolMap = new Map(
+    (measurementUnits ?? []).map((u) => [u.code, u.symbol]),
+  );
+
   const ingredientMap = new Map(
     allIngredients?.data.map((ing) => [ing.id, ing.name]) ?? [],
   );
 
-  const unitMap = new Map(
-    allIngredients?.data.map((ing) => [ing.id, ing.measurement_unit]) ?? [],
+  const unitCodeMap = new Map(
+    allIngredients?.data.map((ing) => [ing.id, ing.measurement_unit_code]) ?? [],
   );
 
-  const formatUnit = (unit: string) => {
-    const map: Record<string, string> = {
-      LITER: "L",
-      MILILITER: "ml",
-      GRAMS: "g",
-      KILOGRAMS: "kg",
-      UNIT: "un",
-    };
-    return map[unit] ?? unit;
-  };
+  const resolveSymbol = (code: string) => unitSymbolMap.get(code) ?? code;
 
   const availableIngredients =
     allIngredients?.data
@@ -102,8 +100,8 @@ const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
                 </Table.Td>
                 <Table.Td ta="center">
                   <Text size="sm">
-                    {formatUnit(
-                      unitMap.get(ing.ingredient_id) ?? "",
+                    {resolveSymbol(
+                      unitCodeMap.get(ing.ingredient_id) ?? "",
                     )}
                   </Text>
                 </Table.Td>
@@ -140,12 +138,11 @@ const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
           className="flex-1"
           renderOption={({ option }) => {
             const id = Number(option.value);
-            const unit = unitMap.get(id);
             return (
               <Group gap="xs" justify="space-between">
                 <Text size="sm">{option.label}</Text>
                 <Text size="xs" c="dimmed">
-                  {formatUnit(unit ?? "")}
+                  {resolveSymbol(unitCodeMap.get(id) ?? "")}
                 </Text>
               </Group>
             );
