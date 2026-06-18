@@ -1,8 +1,9 @@
-import type { IngredientPrivate, MeasurementUnit } from "../types/ingredient";
+import type { IngredientPrivate } from "../types/ingredient";
 import { Table, Badge, Group, Text } from "@mantine/core";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
 import ActionButton from "../../../shared/components/ActionButton";
 import { IconEdit, IconEye, IconRestore, IconTrash } from "@tabler/icons-react";
+import { useMeasurementUnits } from "../hooks/useMeasurementUnits";
 
 interface RowIngredientProps {
   item: IngredientPrivate;
@@ -14,21 +15,6 @@ interface RowIngredientProps {
   isAdmin: boolean;
 }
 
-const mapUnit = (unit: MeasurementUnit) => {
-  switch (unit) {
-    case "GRAMS":
-      return "Gramos";
-    case "KILOGRAMS":
-      return "Kilogramos";
-    case "LITER":
-      return "Litros";
-    case "MILILITER":
-      return "Mililitros";
-    default:
-      return "Unidades";
-  }
-};
-
 export const RowIngredient = ({
   item,
   onEdit,
@@ -38,7 +24,12 @@ export const RowIngredient = ({
   isRestoring,
   isAdmin,
 }: RowIngredientProps) => {
+  const { data: measurementUnits } = useMeasurementUnits();
   const isDeleted = !!item.deleted_at;
+
+  const unitLabel =
+    measurementUnits?.find((u) => u.code === item.measurement_unit_code)?.name
+    ?? item.measurement_unit_code;
 
   const restoreAction = {
     text: `¿Restaurar "${item.name}"?`,
@@ -88,7 +79,7 @@ export const RowIngredient = ({
         <Text> {item.stock} </Text>
       </Table.Td>
       <Table.Td ta="center">
-        <Text>{mapUnit(item.measurement_unit)} </Text>
+        <Text>{unitLabel} </Text>
       </Table.Td>
       <Table.Td ta="center">
         {item.is_allergen ? (

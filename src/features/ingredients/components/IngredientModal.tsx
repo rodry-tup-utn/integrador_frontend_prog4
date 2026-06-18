@@ -1,6 +1,7 @@
 import { useIngredientMutations } from "../hooks/useIngredientMutations";
 import { useState, useEffect } from "react";
-import type { IngredientPrivate, MeasurementUnit } from "../types/ingredient";
+import type { IngredientPrivate } from "../types/ingredient";
+import { useMeasurementUnits } from "../hooks/useMeasurementUnits";
 import { formatDate } from "../helpers/helpers";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 import { notifications } from "@mantine/notifications";
@@ -25,20 +26,12 @@ interface Props {
   isDeleted: boolean;
 }
 
-const units = [
-  { value: "LITER", label: "Litro" },
-  { value: "MILILITER", label: "Mililitro" },
-  { value: "GRAMS", label: "Gramo" },
-  { value: "KILOGRAMS", label: "Kilogramo" },
-  { value: "UNIT", label: "Unidad" },
-] as const;
-
 const initialState = {
   name: "",
   description: "",
   is_allergen: false,
   stock: 0,
-  measurement_unit: "LITER" as MeasurementUnit,
+  measurement_unit_code: "LITER",
 };
 
 export const IngredientModal = ({
@@ -49,7 +42,13 @@ export const IngredientModal = ({
 }: Props) => {
   const { createIngredient, updateIngredient, isCreating, isUpdating } =
     useIngredientMutations();
+  const { data: measurementUnits } = useMeasurementUnits();
   const [formData, setFormData] = useState(initialState);
+
+  const unitOptions = (measurementUnits ?? []).map((u) => ({
+    value: u.code,
+    label: u.name,
+  }));
 
   useEffect(() => {
     if (ingredientData) {
@@ -59,7 +58,7 @@ export const IngredientModal = ({
         description: ingredientData.description || "",
         is_allergen: ingredientData.is_allergen,
         stock: ingredientData.stock,
-        measurement_unit: ingredientData.measurement_unit,
+        measurement_unit_code: ingredientData.measurement_unit_code,
       });
     } else {
       setFormData(initialState);
@@ -155,13 +154,13 @@ export const IngredientModal = ({
             <Select
               label="Unidad de Medida"
               placeholder="Seleccionar unidad"
-              data={units}
+              data={unitOptions}
               disabled={isDeleted}
-              value={formData.measurement_unit}
+              value={formData.measurement_unit_code}
               onChange={(value) =>
                 setFormData({
                   ...formData,
-                  measurement_unit: value as MeasurementUnit,
+                  measurement_unit_code: value ?? "LITER",
                 })
               }
               nothingFoundMessage="Sin resultados"
