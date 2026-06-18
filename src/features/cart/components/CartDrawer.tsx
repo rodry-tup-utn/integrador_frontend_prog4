@@ -40,16 +40,15 @@ const CartDrawer = ({ opened, onClose }: CartDrawerProps) => {
       return;
     }
 
-    if (!user?.roles.includes("CLIENT")) {
-      notifications.show({
-        title: "Acción no permitida",
-        message: "Solo los clientes pueden realizar pedidos",
-        color: "orange",
-      });
+    if (user?.roles.includes("CLIENT") || user?.roles.includes("ADMIN")) {
+      navigate(ROUTES.CHECKOUT);
       return;
     }
-
-    navigate(ROUTES.CHECKOUT);
+    notifications.show({
+      title: "Acción no permitida",
+      message: "Solo los clientes pueden realizar pedidos",
+      color: "orange",
+    });
   };
 
   const total = getTotalPrice();

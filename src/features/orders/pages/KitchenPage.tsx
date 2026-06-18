@@ -9,6 +9,8 @@ import { STATE_COLORS } from "../types/configs";
 import { useState } from "react";
 import ActionButton from "../../../shared/components/ActionButton";
 import { IconEye, IconEyeClosed } from "@tabler/icons-react";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
+import { notifications } from "@mantine/notifications";
 
 export function KitchenPage() {
   const columns = useKitchenOrders();
@@ -16,19 +18,21 @@ export function KitchenPage() {
 
   const { changeOrderState, cancelOrderByStaff } = useAdminOrderMutations();
 
-  const handleAdvance = (order: OrderAdmin) => {
+  const handleAdvance = async (order: OrderAdmin) => {
     const code = order.state_code as OrderStateCode;
     const next = nextState(code);
     if (!next) return;
 
-    showConfirm({
-      title: `Avanzar orden #${order.id} a "${stateLabel(next)}"?`,
-      confirmLabel: "Avanzar",
-      onConfirm: () =>
-        changeOrderState({ id: order.id, data: { state_code: next } }),
-      successMessage: `Orden #${order.id} avanzada a ${stateLabel(next)}`,
-      color: STATE_COLORS[next],
-    });
+    try {
+      await changeOrderState({ id: order.id, data: { state_code: next } });
+      notifications.show({
+        message: `Orden avanzada a ${stateLabel(next)}`,
+        color: STATE_COLORS[next],
+      });
+    } catch (error: unknown) {
+      const mgs = extractApiErrorMessage(error, "Error al avanzar la orden");
+      notifications.show({ message: mgs, color: "red" });
+    }
   };
 
   const handleCancel = (order: OrderAdmin) => {

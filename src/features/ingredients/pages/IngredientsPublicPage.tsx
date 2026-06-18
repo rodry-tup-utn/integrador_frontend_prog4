@@ -77,7 +77,7 @@ export const IngredientsPublicPage = () => {
         mb="md"
       />
       {isLoading ? (
-        <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
+        <SimpleGrid cols={{ base: 1, sm: 3, lg: 4 }} spacing="lg">
           {Array.from({ length: LIMIT }, (_, i) => (
             <Card key={i} h={300} withBorder>
               <Skeleton h="100%" />
@@ -85,7 +85,7 @@ export const IngredientsPublicPage = () => {
           ))}
         </SimpleGrid>
       ) : (
-        <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
+        <SimpleGrid cols={{ base: 1, sm: 4, lg: 5 }} spacing="lg">
           {ingredients?.data?.map((item) => (
             <IngredientPublicCard key={item.id} item={item} />
           ))}

@@ -25,7 +25,7 @@ export const ProfilePage = () => {
     restoreAddress,
     isCreating,
     isUpdating,
-      isRestoring,
+    isRestoring,
   } = useProfileAddressMutations();
 
   const [editing, setEditing] = useState(false);
@@ -77,7 +77,10 @@ export const ProfilePage = () => {
       setEditModalOpen(false);
     } catch (error: unknown) {
       notifications.show({
-        message: extractApiErrorMessage(error, "No se pudo actualizar la direccion"),
+        message: extractApiErrorMessage(
+          error,
+          "No se pudo actualizar la direccion",
+        ),
       });
     }
   };
@@ -179,7 +182,7 @@ export const ProfilePage = () => {
         addressData={null}
       />
       <AddressModal
-        key={selectedAddress?.id ?? "new"}
+        key={selectedAddress?.id ?? "edit"}
         title="Editar Direccion"
         label="Actualizar"
         opened={editModalOpen}

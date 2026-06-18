@@ -31,6 +31,19 @@ export interface CategoryNode {
   children: CategoryNode[];
 }
 
+export interface CategoryNodePrivate {
+  id: number;
+  name: string;
+  parent_id: number | null;
+  has_children: boolean;
+  description: string | null;
+  image_url: string | null;
+  created_at: string;
+  updated_at: string | null;
+  deleted_at: string | null;
+  children: CategoryNodePrivate[];
+}
+
 export interface CategoryUpdate {
   name?: string | null;
   description?: string | null;
@@ -69,4 +82,5 @@ export const categoryKeys = {
     [...categoryKeys.adminLists(), filters] as const,
   adminDetails: () => [...categoryKeys.admin(), "detail"],
   adminDetail: (id: string) => [...categoryKeys.adminDetails(), id] as const,
+  adminTree: (depth: number) => [...categoryKeys.admin(), "tree", depth] as const,
 };

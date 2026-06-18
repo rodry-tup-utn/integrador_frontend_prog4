@@ -32,6 +32,9 @@ const Header = ({ toggle, mobileOpened }: HeaderProps) => {
     useDisclosure(false);
   const totalItems = useCartStore((state) => state.getTotalItems());
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const seeCart =
+    !user || user.roles.includes("CLIENT") || user.roles.includes("ADMIN");
 
   return (
     <Group h="100%" px="md" justify="space-between" wrap="nowrap">
@@ -84,18 +87,22 @@ const Header = ({ toggle, mobileOpened }: HeaderProps) => {
           </>
         )}
 
-        <Indicator
-          label={totalItems}
-          size={16}
-          color="teal"
-          disabled={totalItems === 0}
-        >
-          <ActionIcon variant="subtle" onClick={openCart} size="lg">
-            <IconShoppingCart size={22} />
-          </ActionIcon>
-        </Indicator>
+        {seeCart && (
+          <Group mr="md">
+            <Indicator
+              label={totalItems}
+              size={16}
+              color="teal"
+              disabled={totalItems === 0}
+            >
+              <ActionIcon variant="subtle" onClick={openCart} size="lg">
+                <IconShoppingCart size={22} />
+              </ActionIcon>
+            </Indicator>
 
-        <CartDrawer opened={cartOpened} onClose={closeCart} />
+            <CartDrawer opened={cartOpened} onClose={closeCart} />
+          </Group>
+        )}
       </Group>
     </Group>
   );

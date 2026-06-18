@@ -37,11 +37,7 @@ export const IngresosChart = ({ data, isLoading }: IngresosChartProps) => {
         <Text>Sin datos</Text>
       ) : (
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart
-            data={chartData}
-            layout="vertical"
-            margin={{ left: 20 }}
-          >
+          <BarChart data={chartData} layout="vertical" margin={{ left: 20 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis type="number" tick={{ fontSize: 12 }} />
             <YAxis
@@ -51,10 +47,7 @@ export const IngresosChart = ({ data, isLoading }: IngresosChartProps) => {
               width={100}
             />
             <Tooltip
-              formatter={(value) => [
-                formatCurrency(value as number),
-                "Total",
-              ]}
+              formatter={(value) => [formatCurrency(value as number), "Total"]}
             />
             <Bar
               dataKey="total"
