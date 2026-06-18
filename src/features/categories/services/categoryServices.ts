@@ -4,6 +4,7 @@ import type {
   CategoryList,
   CategoryListPrivate,
   CategoryNode,
+  CategoryNodePrivate,
   CategoryParentUpdate,
   CategoryPath,
   CategoryPrivate,
@@ -111,6 +112,14 @@ export const categoryService = {
         {
           params: { query, offset, limit },
         },
+      );
+      return response.data;
+    },
+
+    getTree: async (depth = 10): Promise<CategoryNodePrivate[]> => {
+      const response = await api.get<CategoryNodePrivate[]>(
+        `${ADMIN_URL}/nodes/root`,
+        { params: { depth } },
       );
       return response.data;
     },
