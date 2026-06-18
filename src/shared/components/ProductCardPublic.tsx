@@ -3,22 +3,46 @@ import { useCartStore } from "../../features/cart/store/cart.store";
 import placeholder from "../../assets/placeholder.jpeg";
 import { Badge, Button, Image, Paper, Stack, Text } from "@mantine/core";
 import { IconShoppingCart } from "@tabler/icons-react";
+import { useAuth } from "../../features/auth/context/AuthContext";
 
 const ProductCardPublic = ({ product }: { product: ProductPublic }) => {
   const { addItem, items } = useCartStore();
+  const { user } = useAuth();
   const inCart = items.some((item) => item.product.id === product.id);
+
+  const canAdd =
+    !user || user.roles.includes("CLIENT") || user.roles.includes("ADMIN");
 
   return (
     <Paper withBorder p="md" radius="md" h="100%">
       <Stack h="100%" gap="sm">
-        <Badge
-          color={product.available && product.stock > 0 ? "teal" : "red"}
-          variant="light"
-          size="xs"
-          style={{ whiteSpace: "nowrap" }}
-        >
-          {product.available && product.stock > 0 ? "Disponible" : "Sin stock"}
-        </Badge>
+        {/* renderizado condicional segun cantidad de stock */}
+        {(() => {
+          const stockState =
+            !product.available || product.stock === 0 || product.stock === null
+              ? "out"
+              : product.stock < 8
+                ? "last"
+                : "available";
+
+          const config = {
+            out: { color: "red", label: "Sin stock" },
+            last: { color: "orange", label: "Últimas unidades" },
+            available: { color: "teal", label: "Disponible" },
+          } as const;
+
+          const current = config[stockState];
+
+          return (
+            <Badge
+              color={current.color}
+              variant="light"
+              style={{ whiteSpace: "nowrap" }}
+            >
+              {current.label}
+            </Badge>
+          );
+        })()}
 
         <Image
           src={placeholder}
@@ -43,17 +67,19 @@ const ProductCardPublic = ({ product }: { product: ProductPublic }) => {
           ${Number(product.base_price).toLocaleString("es-AR")}
         </Text>
 
-        <Button
-          size="xs"
-          variant={inCart ? "light" : "filled"}
-          color="teal"
-          fullWidth
-          leftSection={<IconShoppingCart size={14} />}
-          disabled={!product.available || product.stock === 0}
-          onClick={() => addItem(product)}
-        >
-          {inCart ? "+ Agregar más" : "+ Agregar"}
-        </Button>
+        {canAdd && (
+          <Button
+            size="xs"
+            variant={inCart ? "light" : "filled"}
+            color="teal"
+            fullWidth
+            leftSection={<IconShoppingCart size={14} />}
+            disabled={!product.available || product.stock === 0}
+            onClick={() => addItem(product)}
+          >
+            {inCart ? "+ Agregar más" : "+ Agregar"}
+          </Button>
+        )}
       </Stack>
     </Paper>
   );
