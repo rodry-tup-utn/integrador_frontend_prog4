@@ -20,6 +20,7 @@ import {
   ProductCategoriesCard,
   ProductImageCard,
   ProductPriceCard,
+  ProductSalesUnitCard,
   ProductStockCard,
   ProductTypeCard,
   ProductIngredientsCard,
@@ -255,16 +256,7 @@ const ProductsAdminDetail = () => {
               <ProductStockCard product={product} />
             </Grid.Col>
             <Grid.Col span={{ base: 12, sm: 4 }}>
-              <Paper
-                p="md"
-                withBorder
-                className="bg-slate-100 rounded-2xl border-zinc-500"
-              >
-                <Text size="md">Categorías</Text>
-                <Text size="xl" fw={500}>
-                  {product.categories?.length ?? 0}
-                </Text>
-              </Paper>
+              <ProductSalesUnitCard product={product} />
             </Grid.Col>
           </Grid>
         </Grid.Col>

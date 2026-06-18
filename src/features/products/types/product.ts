@@ -7,6 +7,7 @@ interface ProductBase {
   description: string | null;
   base_price: number;
   stock: number;
+  sales_unit: string | null;
   images_url: string | null;
   available: boolean;
   type: TypeProduct;
@@ -46,6 +47,7 @@ export interface ProductCreate {
   description?: string;
   base_price: number;
   stock: number;
+  sales_unit?: string;
   images_url?: string;
   category_id: number;
   type: TypeProduct;

@@ -17,6 +17,7 @@ import { useProductMutation } from "../hooks/product.mutation.hooks";
 import { notifications } from "@mantine/notifications";
 import ActionButton from "../../../shared/components/ActionButton";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
+import { useMeasurementUnits } from "../../ingredients/hooks/useMeasurementUnits";
 
 interface ProductsTableProps {
   isLoading?: boolean;
@@ -43,6 +44,12 @@ const ProductsTable = ({
   onUpload,
 }: ProductsTableProps) => {
   const { user } = useAuth();
+  const { data: measurementUnits } = useMeasurementUnits();
+  const unitSymbolMap = new Map(
+    (measurementUnits ?? []).map((u) => [u.code, u.name]),
+  );
+
+  const resolveSymbol = (code: string) => unitSymbolMap.get(code) ?? code;
 
   const isAdmin = user?.roles.some((r) => r == "ADMIN");
   const navigate = useNavigate();
@@ -93,6 +100,7 @@ const ProductsTable = ({
               </Tooltip>
             </Group>
           </Table.Th>
+          <Table.Th ta="center">Unidad</Table.Th>
           <Table.Th ta="center">Disponibilidad</Table.Th>
           <Table.Th style={{ textAlign: "center" }}>Acciones</Table.Th>
         </Table.Tr>
@@ -163,6 +171,11 @@ const ProductsTable = ({
                       ? `~${item.stock ?? "—"}`
                       : (item.stock ?? "—")}
                   </Text>
+                </Table.Td>
+                <Table.Td ta="center">
+                  <Badge size="sm" color="blue" variant="outline">
+                    {resolveSymbol(item.sales_unit || "UNIT")}
+                  </Badge>
                 </Table.Td>
                 <Table.Td ta="center">
                   <Tooltip
