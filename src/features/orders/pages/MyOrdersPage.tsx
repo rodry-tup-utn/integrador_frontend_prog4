@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Title, Button, Stack } from "@mantine/core";
+import { useEffect, useRef, useState } from "react";
+import { Title, Stack } from "@mantine/core";
 import type { OrderClientFilters, OrderPublic } from "../types/order";
 import { useClientOrderList } from "../hooks/client/useClientOrderList";
 import { useClientOrderDetail } from "../hooks/client/useClientOrderDetail";
@@ -8,6 +8,12 @@ import { OrdersTable } from "../components/OrdersTable";
 import { OrderFiltersPanel } from "../components/OrdersFilterPanel";
 import { OrderDetailModal } from "../components/OrderDetailModal";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
+import {
+  subscribeToOrder,
+  unsubscribeFromOrder,
+} from "../../../shared/hooks/useOrderWebSocket";
+import ActionButton from "../../../shared/components/ActionButton";
+import { IconXMark } from "@tabler/icons-react";
 
 export const MyOrdersPage = () => {
   const [page, setPage] = useState(1);
@@ -20,6 +26,26 @@ export const MyOrdersPage = () => {
   const { data: detailOrder, isLoading: isDetailLoading } =
     useClientOrderDetail(detailOrderId);
   const { cancelOrder } = useClientOrderMutations();
+
+  // Suscribe a order:{id} de cada orden visible para recibir cambios en tiempo real
+  const prevIdsRef = useRef<Set<number>>(new Set());
+  useEffect(() => {
+    const currentIds = new Set(orders?.data?.map((o) => o.id) ?? []);
+
+    currentIds.forEach((id) => {
+      if (!prevIdsRef.current.has(id)) subscribeToOrder(id);
+    });
+    prevIdsRef.current.forEach((id) => {
+      if (!currentIds.has(id)) unsubscribeFromOrder(id);
+    });
+
+    prevIdsRef.current = currentIds;
+
+    return () => {
+      currentIds.forEach((id) => unsubscribeFromOrder(id));
+      prevIdsRef.current = new Set();
+    };
+  }, [orders?.data]);
 
   const handleCancel = (order: OrderPublic) => {
     showConfirm({
@@ -54,15 +80,14 @@ export const MyOrdersPage = () => {
         onPageChange={setPage}
         onViewDetail={setDetailOrderId}
         renderActions={(order) =>
-          order.state_code === "PENDING" ? (
-            <Button
-              size="xs"
-              variant="outline"
+          order.state_code === "PENDING" || order.state_code == "CONFIRMED" ? (
+            <ActionButton
+              label="Cancelar orden"
+              variant="light"
               color="red"
+              icon={IconXMark}
               onClick={() => handleCancel(order)}
-            >
-              Cancelar
-            </Button>
+            ></ActionButton>
           ) : null
         }
       />

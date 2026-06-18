@@ -7,6 +7,7 @@ interface ProductBase {
   description: string | null;
   base_price: number;
   stock: number;
+  sales_unit: string | null;
   images_url: string | null;
   available: boolean;
   type: TypeProduct;
@@ -46,6 +47,7 @@ export interface ProductCreate {
   description?: string;
   base_price: number;
   stock: number;
+  sales_unit?: string;
   images_url?: string;
   category_id: number;
   type: TypeProduct;
@@ -66,8 +68,6 @@ export interface ProductPrivateList {
   total: number;
 }
 
-import type { MeasurementUnit } from "../../ingredients/types/ingredient";
-
 // ingredientes
 export interface ProductWithIngredients {
   product_id: number;
@@ -81,7 +81,7 @@ export interface IngredientInProduct {
   description: string | null;
   is_removable: boolean;
   quantity_ingredient: number;
-  measurement_unit: MeasurementUnit;
+  measurement_unit_code: string;
 }
 
 export interface ProductIngredient {

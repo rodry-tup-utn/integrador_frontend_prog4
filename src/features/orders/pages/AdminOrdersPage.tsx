@@ -15,10 +15,12 @@ import { OrderFiltersPanel } from "../components/OrdersFilterPanel";
 import { UserSearchFilters } from "../components/UserSearchFilters";
 import { OrderDetailModal } from "../components/OrderDetailModal";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
-import { nextState, stateLabel } from "../types/configs";
+import { nextState, STATE_COLORS, stateLabel } from "../types/configs";
 import ActionButton from "../../../shared/components/ActionButton";
 import { IconArrowBigRightLines, IconXMark } from "@tabler/icons-react";
 import { isCancellable, isProgressable } from "../helpers/helpers";
+import { notifications } from "@mantine/notifications";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 
 export const AdminOrdersPage = () => {
   const [page, setPage] = useState(1);
@@ -60,17 +62,22 @@ export const AdminOrdersPage = () => {
     });
   };
 
-  const handleAdvance = (order: OrderPublic) => {
+  const handleAdvance = async (order: OrderPublic) => {
     const next = nextState(order.state_code as OrderStateCode);
     if (!next) return;
-    showConfirm({
-      title: `Avanzar orden #${order.id} a "${stateLabel(next)}"?`,
-      confirmLabel: "Avanzar",
-      onConfirm: () =>
-        changeOrderState({ id: order.id, data: { state_code: next } }),
-      successMessage: `Orden #${order.id} avanzada a ${stateLabel(next)}`,
-      color: "blue",
-    });
+    try {
+      await changeOrderState({ id: order.id, data: { state_code: next } });
+      notifications.show({
+        message: `Orden ${order.id} avanzada a ${stateLabel(next)}`,
+        color: STATE_COLORS[next],
+      });
+    } catch (error: unknown) {
+      const msg = extractApiErrorMessage(
+        error,
+        "No se pudo actualizar la orden",
+      );
+      notifications.show({ message: msg, color: "red" });
+    }
   };
 
   return (

@@ -68,6 +68,17 @@ export const productService = {
       return response.data;
     },
 
+    updateIngredients: async (
+      product_id: number,
+      data: ProductIngredientBatchCreate,
+    ): Promise<ProductWithIngredients> => {
+      const response = await api.patch<ProductWithIngredients>(
+        `${STOCK_URL}/${product_id}/ingredient`,
+        data,
+      );
+      return response.data;
+    },
+
     updateStock: async (id: number, stock: number): Promise<ProductUpdate> => {
       const response = await api.patch<ProductUpdate>(
         `${STOCK_URL}/${id}/update`,
@@ -87,23 +98,13 @@ export const productService = {
       );
       return response.data;
     },
-  },
-  productIngredient: {
-    getProductWithIngredients: async (
-      id: number,
-    ): Promise<ProductWithIngredients> => {
-      const response = await api.get<ProductWithIngredients>(
-        `/product/${id}/ingredient`,
-      );
-      return response.data;
-    },
 
     addIngredientBatch: async (
-      id: number,
+      product_id: number,
       data: ProductIngredientBatchCreate,
     ): Promise<ProductWithIngredients> => {
       const response = await api.post<ProductWithIngredients>(
-        `/product/${id}/ingredient/batch`,
+        `${STOCK_URL}/${product_id}/ingredient/batch`,
         data,
       );
       return response.data;
@@ -115,7 +116,7 @@ export const productService = {
       data: ProductIngredient,
     ): Promise<ProductIngredientPublic> => {
       const response = await api.post<ProductIngredientPublic>(
-        `/product/${product_id}/ingredient/${ingredient_id}`,
+        `${STOCK_URL}/${product_id}/ingredient/${ingredient_id}`,
         data,
       );
       return response.data;
@@ -127,7 +128,7 @@ export const productService = {
       data: ProductIngredient,
     ): Promise<ProductIngredientPublic> => {
       const response = await api.patch(
-        `/product/${product_id}/ingredient/${ingredient_id}`,
+        `${STOCK_URL}/${product_id}/ingredient/${ingredient_id}`,
         data,
       );
       return response.data;
@@ -137,7 +138,17 @@ export const productService = {
       product_id: number,
       ingredient_id: number,
     ): Promise<void> => {
-      await api.delete(`/product/${product_id}/ingredient/${ingredient_id}`);
+      await api.delete(`${STOCK_URL}/${product_id}/ingredient/${ingredient_id}`);
+    },
+  },
+  productIngredient: {
+    getProductWithIngredients: async (
+      id: number,
+    ): Promise<ProductWithIngredients> => {
+      const response = await api.get<ProductWithIngredients>(
+        `/product/${id}/ingredient`,
+      );
+      return response.data;
     },
   },
 };

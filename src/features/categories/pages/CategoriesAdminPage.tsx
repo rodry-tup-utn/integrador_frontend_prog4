@@ -1,47 +1,56 @@
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import {
   Table,
-  TextInput,
   Button,
   Group,
   Title,
-  Pagination,
   Paper,
   Text,
   Badge,
+  ActionIcon,
+  Box,
 } from "@mantine/core";
 import {
-  IconSearch,
   IconPlus,
   IconEdit,
   IconRestore,
   IconTrash,
+  IconPolaroid,
+  IconChevronRight,
 } from "@tabler/icons-react";
-import { useAdminCategoryList } from "../hooks/useAdminCategoryList";
+import { useAdminCategoryTree } from "../hooks/useAdminCategoryTree";
 import { useCategoryMutations } from "../hooks/useCategoryMutations";
-import type { CategoryPrivate } from "../types/category";
-import { useDebouncedValue } from "@mantine/hooks";
+import type { CategoryNodePrivate } from "../types/category";
 import { CategoryCreateModal } from "../components/CategoryCreateModal";
 import { CategoryEditModal } from "../components/CategoryEditModal";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
 import ActionButton from "../../../shared/components/ActionButton";
+import UploadFile from "../../../widgets/uploadFile/UploadFile";
+
 export default function CategoriesAdminPage() {
-  const [page, setPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [editing, setEditing] = useState<CategoryPrivate | null>(null);
-  const [debounsedSearch] = useDebouncedValue(searchTerm, 300);
-  const limit = 10;
-  const { data, isLoading } = useAdminCategoryList(
-    (page - 1) * limit,
-    limit,
-    debounsedSearch,
-  );
+  const [editing, setEditing] = useState<CategoryNodePrivate | null>(null);
+  const [uploadCategory, setUploadCategory] =
+    useState<CategoryNodePrivate | null>(null);
+  const [openUpload, setOpenUpload] = useState(false);
+  const [expanded, setExpanded] = useState<Set<number>>(new Set());
+  const { data: treeData, isLoading } = useAdminCategoryTree();
   const { deleteCategory, restoreCategory } = useCategoryMutations();
-  const totalPages = data ? Math.ceil(data.total / limit) : 0;
 
-  const handleDelete = (item: CategoryPrivate) => {
+  const toggleExpand = (id: number) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const handleDelete = (item: CategoryNodePrivate) => {
     showConfirm({
       title: "Eliminar categoria?",
       color: "red",
@@ -51,7 +60,7 @@ export default function CategoriesAdminPage() {
     });
   };
 
-  const handleRestore = (item: CategoryPrivate) => {
+  const handleRestore = (item: CategoryNodePrivate) => {
     showConfirm({
       title: "¿Restaurar categoria?",
       confirmLabel: "Restaurar",
@@ -60,6 +69,98 @@ export default function CategoriesAdminPage() {
       successMessage: `Categoría ${item.name} restaurada`,
     });
   };
+
+  const handleUpload = (category: CategoryNodePrivate) => {
+    setUploadCategory(category);
+    setOpenUpload(true);
+  };
+
+  const renderTreeNode = (node: CategoryNodePrivate, depth: number) => {
+    const isDeleted = !!node.deleted_at;
+    const isExpanded = expanded.has(node.id);
+
+    return (
+      <Fragment key={node.id}>
+        <Table.Tr opacity={isDeleted ? 0.6 : undefined}>
+          <Table.Td>
+            <Text size="sm" c="dimmed">
+              #{node.id}
+            </Text>
+          </Table.Td>
+          <Table.Td>
+            <Group
+              gap={4}
+              style={{
+                paddingLeft: depth * 28,
+                cursor: node.has_children ? "pointer" : undefined,
+              }}
+              wrap="nowrap"
+              onClick={() => toggleExpand(node.id)}
+            >
+              {node.has_children ? (
+                <ActionIcon variant="light" color="cyan">
+                  <IconChevronRight
+                    size={14}
+                    style={{
+                      transform: isExpanded ? "rotate(90deg)" : undefined,
+                      transition: "transform 0.15s",
+                    }}
+                  />
+                </ActionIcon>
+              ) : (
+                <Box w={22} />
+              )}
+              <Text td={isDeleted ? "line-through" : undefined} fw={500}>
+                {node.name}
+              </Text>
+            </Group>
+          </Table.Td>
+          <Table.Td>
+            <Text size="sm" c="dimmed" lineClamp={1}>
+              {node.description || "—"}
+            </Text>
+          </Table.Td>
+          <Table.Td>
+            <Badge color={isDeleted ? "red" : "teal"} variant="dot" size="md">
+              {isDeleted ? "Eliminado" : "Activo"}
+            </Badge>
+          </Table.Td>
+          <Table.Td>
+            <Group gap="xs" justify="center">
+              <ActionButton
+                icon={IconEdit}
+                label="Editar"
+                onClick={() => {
+                  setEditing(node);
+                  setEditOpen(true);
+                }}
+                color="blue"
+              />
+
+              <ActionButton
+                icon={IconPolaroid}
+                label="Subir imagen"
+                color="yellow"
+                onClick={() => handleUpload(node)}
+              />
+
+              <ActionButton
+                icon={isDeleted ? IconRestore : IconTrash}
+                onClick={() =>
+                  isDeleted ? handleRestore(node) : handleDelete(node)
+                }
+                label={isDeleted ? "Restaurar" : "Eliminar"}
+                color={isDeleted ? "green" : "red"}
+              />
+            </Group>
+          </Table.Td>
+        </Table.Tr>
+        {isExpanded &&
+          node.children.map((child) => renderTreeNode(child, depth + 1))}
+      </Fragment>
+    );
+  };
+
   return (
     <>
       <Group justify="space-between" mb="lg">
@@ -71,17 +172,6 @@ export default function CategoriesAdminPage() {
           Nueva Categoría
         </Button>
       </Group>
-      <TextInput
-        placeholder="Buscar categoría..."
-        leftSection={<IconSearch size={16} />}
-        value={searchTerm}
-        onChange={(e) => {
-          setSearchTerm(e.currentTarget.value);
-          setPage(1);
-        }}
-        mb="md"
-        maw={400}
-      />
       <Paper shadow="sm" withBorder radius="md" mb="md">
         <Table striped highlightOnHover>
           <Table.Thead>
@@ -102,7 +192,7 @@ export default function CategoriesAdminPage() {
                   </Text>
                 </Table.Td>
               </Table.Tr>
-            ) : !data?.data.length ? (
+            ) : !treeData?.length ? (
               <Table.Tr>
                 <Table.Td colSpan={5}>
                   <Text ta="center" py="xl">
@@ -111,72 +201,14 @@ export default function CategoriesAdminPage() {
                 </Table.Td>
               </Table.Tr>
             ) : (
-              data.data.map((item) => {
-                const isDeleted = !!item.deleted_at;
-                return (
-                  <Table.Tr key={item.id} opacity={isDeleted ? 0.6 : undefined}>
-                    <Table.Td>
-                      <Text size="sm" c="dimmed">
-                        #{item.id}
-                      </Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Text
-                        td={isDeleted ? "line-through" : undefined}
-                        fw={500}
-                      >
-                        {item.name}
-                      </Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Text size="sm" c="dimmed" lineClamp={1}>
-                        {item.description || "—"}
-                      </Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Badge
-                        color={isDeleted ? "red" : "teal"}
-                        variant="dot"
-                        size="md"
-                      >
-                        {isDeleted ? "Eliminado" : "Activo"}
-                      </Badge>
-                    </Table.Td>
-                    <Table.Td>
-                      <Group gap="xs" justify="center">
-                        <ActionButton
-                          icon={IconEdit}
-                          label="Editar"
-                          onClick={() => {
-                            setEditing(item);
-                            setEditOpen(true);
-                          }}
-                          color="blue"
-                        />
-
-                        <ActionButton
-                          icon={isDeleted ? IconRestore : IconTrash}
-                          onClick={() =>
-                            isDeleted ? handleRestore(item) : handleDelete(item)
-                          }
-                          label={isDeleted ? "Restaurar" : "Eliminar"}
-                          color={isDeleted ? "green" : "red"}
-                        />
-                      </Group>
-                    </Table.Td>
-                  </Table.Tr>
-                );
-              })
+              treeData.map((node) => renderTreeNode(node, 0))
             )}
           </Table.Tbody>
         </Table>
       </Paper>
-      <Group justify="space-between">
-        <Text size="sm" c="dimmed">
-          Total: {data?.total || 0}
-        </Text>
-        <Pagination total={totalPages || 1} value={page} onChange={setPage} />
-      </Group>
+      <Text size="sm" c="dimmed">
+        Total: {treeData?.length || 0} categorías raíz
+      </Text>
       <CategoryCreateModal
         opened={createOpen}
         onClose={() => setCreateOpen(false)}
@@ -191,6 +223,16 @@ export default function CategoriesAdminPage() {
           categoryData={editing}
         />
       )}
+      <UploadFile
+        open={openUpload}
+        type="category"
+        handleClose={() => {
+          setOpenUpload(false);
+          setUploadCategory(null);
+        }}
+        id={uploadCategory?.id ?? 0}
+        currentImageUrl={uploadCategory?.image_url}
+      />
     </>
   );
 }

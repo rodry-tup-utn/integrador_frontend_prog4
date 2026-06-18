@@ -7,16 +7,13 @@ import {
   Group,
   Stack,
   Text,
-  Breadcrumbs,
-  Anchor,
   Checkbox,
   Paper,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import type { CategoryPrivate, CategoryCreate } from "../types/category";
-import { CategoryParentSelector } from "./CategoryParentSelector";
+import { CategorySelector } from "./CategorySelector";
 import { useCategoryMutations } from "../hooks/useCategoryMutations";
-import { useCategoryPath } from "../hooks/useCategoryPath";
 import { toDateString } from "../../../shared/helpers/helpers";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 
@@ -36,16 +33,14 @@ export const CategoryEditModal = ({
   const [formData, setFormData] = useState<CategoryCreate>({
     name: categoryData.name,
     description: categoryData.description,
-    parent_id: categoryData.parent_id || undefined,
+    parent_id: categoryData.parent_id ?? undefined,
   });
-  const { data: categoryPath } = useCategoryPath(formData.parent_id);
-
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setFormData({
       name: categoryData.name,
       description: categoryData.description,
-      parent_id: categoryData.parent_id || undefined,
+      parent_id: categoryData.parent_id ?? undefined,
     });
   }, [categoryData, opened]);
 
@@ -122,34 +117,21 @@ export const CategoryEditModal = ({
               <Checkbox
                 label="Categoría raíz"
                 checked={formData.parent_id === null}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setFormData({ ...formData, parent_id: null });
-                  }
-                }}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    parent_id: e.target.checked ? null : undefined,
+                  })
+                }
               />
-              <CategoryParentSelector
+              <CategorySelector
                 value={formData.parent_id}
                 onChange={(id) =>
                   setFormData({ ...formData, parent_id: id })
                 }
                 excludeId={categoryData.id}
+                showBreadcrumbs
               />
-              {categoryPath && (
-                <Breadcrumbs separator=">">
-                  {categoryPath.path.map((name, index) => (
-                    <Anchor
-                      key={index}
-                      size="sm"
-                      c="dimmed"
-                      href="#"
-                      onClick={(e) => e.preventDefault()}
-                    >
-                      {name}
-                    </Anchor>
-                  ))}
-                </Breadcrumbs>
-              )}
               <Group justify="flex-end">
                 <Button variant="subtle" onClick={onClose}>
                   Cancelar

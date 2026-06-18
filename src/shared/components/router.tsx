@@ -19,10 +19,10 @@ import { RoleRoute } from "./RoleRoute";
 import ProductsAdminPage from "../../features/products/pages/ProductsAdminPage";
 import ProductsAdminDetail from "../../features/products/pages/ProductsAdminDetail";
 import ProductsPage from "../../pages/Products/ProductsPage";
+import { MetricsPage } from "../../features/estadisticas/pages/MetricsPage";
 import { UnderConstructionPage } from "../../pages/UnderConstructionPage";
 import RegisterPage from "../../features/auth/pages/RegisterPage";
 import CheckoutPage from "../../features/cart/pages/CheckoutPage";
-import PaymentCheckout from "../../features/payment/pages/PaymentCheckout";
 import PaymentSuccess from "../../features/payment/pages/PaymentSuccess";
 import PaymentFailure from "../../features/payment/pages/PaymentFailure";
 import PaymentPending from "../../features/payment/pages/PaymentPending";
@@ -77,16 +77,15 @@ export const router = createBrowserRouter([
       {
         element: (
           <RoleRoute
-            allowedRoles={["CLIENT"]}
+            allowedRoles={["CLIENT", "ADMIN"]}
             errorMessage="Debes ser cliente para realizar pedidos"
           />
         ),
         children: [
           { path: ROUTES.CHECKOUT, element: <CheckoutPage /> },
-          { path: ROUTES.CHECKOUT_PAYMENT, element: <PaymentCheckout /> },
           { path: ROUTES.CHECKOUT_SUCCESS, element: <PaymentSuccess /> },
           { path: ROUTES.CHECKOUT_FAILURE, element: <PaymentFailure /> },
-          { path: ROUTES.CHECKOUT_PENDING, element: <PaymentPending /> }
+          { path: ROUTES.CHECKOUT_PENDING, element: <PaymentPending /> },
         ],
       },
       {
@@ -125,7 +124,7 @@ export const router = createBrowserRouter([
           },
 
           { path: ROUTES.ADMIN_USERS, element: <UserAdminPage /> },
-          { path: ROUTES.ADMIN_METRICS, element: <UnderConstructionPage /> },
+          { path: ROUTES.ADMIN_METRICS, element: <MetricsPage /> },
           { path: ROUTES.ADMIN_CONFIG, element: <UnderConstructionPage /> },
         ],
       },

@@ -3,14 +3,17 @@ import { notifications } from "@mantine/notifications";
 import { queryClient } from "../api/queryClient";
 import { orderKeys } from "../../features/orders/types/order";
 
+let activeWs: WebSocket | null = null;
+const subscribedOrders = new Set<number>();
+
 const WS_URL =
   (import.meta.env.VITE_API_URL as string).replace(/^http/, "ws") + "/ws";
 
 interface WsOrderEvent {
-  event: "order_created" | "order_updated";
+  event: "order_created" | "order_updated" | "payment_approved";
   data: {
     order_id: number;
-    state: string;
+    state?: string;
   };
 }
 
@@ -42,11 +45,17 @@ const EVENT_CONFIG: Record<
     title: (id) => `Pedido #${id} actualizado`,
     message: (state) => STATE_LABELS[state] || state,
   },
+  payment_approved: {
+    title: (id) => `Pago aprobado para pedido #${id}`,
+    message: () => "El pago fue confirmado",
+  },
 };
 
 export function useOrderWebSocket(enabled: boolean) {
   const wsRef = useRef<WebSocket | null>(null);
-  const reconnectRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const reconnectRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
   const attemptRef = useRef(0);
 
   useEffect(() => {
@@ -55,9 +64,17 @@ export function useOrderWebSocket(enabled: boolean) {
     function connect() {
       const ws = new WebSocket(WS_URL);
       wsRef.current = ws;
+      activeWs = ws;
 
       ws.onopen = () => {
         attemptRef.current = 0;
+        if (subscribedOrders.size > 0) {
+          subscribedOrders.forEach((oid) => {
+            ws.send(
+              JSON.stringify({ action: "subscribe-order", order_id: oid }),
+            );
+          });
+        }
       };
 
       ws.onmessage = (raw) => {
@@ -66,16 +83,19 @@ export function useOrderWebSocket(enabled: boolean) {
 
           if (
             msg.event === "order_created" ||
-            msg.event === "order_updated"
+            msg.event === "order_updated" ||
+            msg.event === "payment_approved"
           ) {
             queryClient.invalidateQueries({ queryKey: orderKeys.all });
 
             const config = EVENT_CONFIG[msg.event];
-            const color = STATE_COLORS[msg.data.state] || "blue";
+            const color = msg.data.state
+              ? STATE_COLORS[msg.data.state] || "blue"
+              : "teal";
 
             notifications.show({
               title: config.title(msg.data.order_id),
-              message: config.message(msg.data.state),
+              message: config.message(msg.data.state ?? ""),
               color,
             });
           }
@@ -85,11 +105,9 @@ export function useOrderWebSocket(enabled: boolean) {
       };
 
       ws.onclose = () => {
+        activeWs = null;
         if (!wsRef.current) return;
-        const delay = Math.min(
-          3000 * Math.pow(2, attemptRef.current),
-          30000,
-        );
+        const delay = Math.min(3000 * Math.pow(2, attemptRef.current), 30000);
         attemptRef.current++;
         reconnectRef.current = setTimeout(connect, delay);
       };
@@ -100,9 +118,28 @@ export function useOrderWebSocket(enabled: boolean) {
     connect();
 
     return () => {
+      activeWs = null;
       clearTimeout(reconnectRef.current);
       wsRef.current?.close();
       wsRef.current = null;
     };
   }, [enabled]);
+}
+
+export function subscribeToOrder(orderId: number) {
+  subscribedOrders.add(orderId);
+  if (activeWs && activeWs.readyState === WebSocket.OPEN) {
+    activeWs.send(
+      JSON.stringify({ action: "subscribe-order", order_id: orderId }),
+    );
+  }
+}
+
+export function unsubscribeFromOrder(orderId: number) {
+  subscribedOrders.delete(orderId);
+  if (activeWs && activeWs.readyState === WebSocket.OPEN) {
+    activeWs.send(
+      JSON.stringify({ action: "unsubscribe-order", order_id: orderId }),
+    );
+  }
 }

@@ -36,6 +36,11 @@ export const orderService = {
     cancel: async (id: number): Promise<void> => {
       await api.post(`${CLIENT_URL}/${id}/cancel`);
     },
+
+    confirm: async (id: number): Promise<OrderDetailPublic> => {
+      const response = await api.patch<OrderDetailPublic>(`${CLIENT_URL}/${id}/confirm`);
+      return response.data;
+    },
   },
 
   order: {

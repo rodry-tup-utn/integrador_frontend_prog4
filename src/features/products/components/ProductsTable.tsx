@@ -6,10 +6,10 @@ import type {
 } from "../types/product";
 import {
   IconEdit,
-  IconEye,
   IconInfoCircle,
   IconRestore,
   IconTrash,
+  IconPolaroid,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/context/AuthContext";
@@ -17,6 +17,7 @@ import { useProductMutation } from "../hooks/product.mutation.hooks";
 import { notifications } from "@mantine/notifications";
 import ActionButton from "../../../shared/components/ActionButton";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
+import { useMeasurementUnits } from "../../ingredients/hooks/useMeasurementUnits";
 
 interface ProductsTableProps {
   isLoading?: boolean;
@@ -25,6 +26,7 @@ interface ProductsTableProps {
   onDelete: (item: ProductPrivate) => void;
   onEdit: (item: ProductPrivate) => void;
   onModalOpen: (value: boolean) => void;
+  onUpload: (item: ProductPrivate) => void;
 }
 
 const mapType = (type: TypeProduct) => {
@@ -39,10 +41,15 @@ const ProductsTable = ({
   data,
   onRestore,
   onDelete,
-  onEdit,
-  onModalOpen,
+  onUpload,
 }: ProductsTableProps) => {
   const { user } = useAuth();
+  const { data: measurementUnits } = useMeasurementUnits();
+  const unitSymbolMap = new Map(
+    (measurementUnits ?? []).map((u) => [u.code, u.name]),
+  );
+
+  const resolveSymbol = (code: string) => unitSymbolMap.get(code) ?? code;
 
   const isAdmin = user?.roles.some((r) => r == "ADMIN");
   const navigate = useNavigate();
@@ -87,12 +94,13 @@ const ProductsTable = ({
           <Table.Th ta="center">Tipo</Table.Th>
           <Table.Th>
             <Group gap={4}>
-              <Text>Stock</Text>
-              <Tooltip label="El stock de manufacturados es aproximado. Vea el detalle para el valor real.">
+              Stock
+              <Tooltip label="Stock de manufacturados calculados en base al stock de ingredientes disponible">
                 <IconInfoCircle size={16} style={{ cursor: "pointer" }} />
               </Tooltip>
             </Group>
           </Table.Th>
+          <Table.Th ta="center">Unidad</Table.Th>
           <Table.Th ta="center">Disponibilidad</Table.Th>
           <Table.Th style={{ textAlign: "center" }}>Acciones</Table.Th>
         </Table.Tr>
@@ -165,6 +173,11 @@ const ProductsTable = ({
                   </Text>
                 </Table.Td>
                 <Table.Td ta="center">
+                  <Badge size="sm" color="blue" variant="outline">
+                    {resolveSymbol(item.sales_unit || "UNIT")}
+                  </Badge>
+                </Table.Td>
+                <Table.Td ta="center">
                   <Tooltip
                     label={
                       item.available
@@ -188,13 +201,18 @@ const ProductsTable = ({
                   <Group gap={4} justify="center">
                     <ActionButton
                       icon={IconEdit}
-                      onClick={() => {
-                        onEdit(item);
-                        onModalOpen(true);
-                      }}
                       label="Editar"
-                      color="blue"
-                    ></ActionButton>
+                      color="teal"
+                      onClick={() =>
+                        navigate(`/admin/products/detail/${item.id}`)
+                      }
+                    />
+                    <ActionButton
+                      icon={IconPolaroid}
+                      label="Subir imagen"
+                      color="yellow"
+                      onClick={() => onUpload(item)}
+                    />
 
                     {isAdmin && (
                       <ActionButton
@@ -206,14 +224,6 @@ const ProductsTable = ({
                         color={isDeleted ? "green" : "red"}
                       />
                     )}
-                    <ActionButton
-                      icon={IconEye}
-                      label="Ver detalle"
-                      color="teal"
-                      onClick={() =>
-                        navigate(`/admin/products/detail/${item.id}`)
-                      }
-                    />
                   </Group>
                 </Table.Td>
               </Table.Tr>

@@ -2,7 +2,11 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useClientOrderDetail } from "../../orders/hooks/client/useClientOrderDetail";
 import { ROUTES } from "../../../shared/constants/routes";
 import { OrderDetailModal } from "../../orders/components/OrderDetailModal";
-import { useState } from "react";
+import {
+  subscribeToOrder,
+  unsubscribeFromOrder,
+} from "../../../shared/hooks/useOrderWebSocket";
+import { useEffect, useState } from "react";
 import { Button } from "@mantine/core";
 
 interface PaymentResultLayoutPros {
@@ -26,6 +30,11 @@ const PaymentResultLayout = ({ icon, title, description, getStateNote }: Payment
 
     const stateNote = order && getStateNote ? getStateNote(order.state.code) : null
 
+    useEffect(() => {
+        if (!orderId) return;
+        subscribeToOrder(orderId);
+        return () => unsubscribeFromOrder(orderId);
+    }, [orderId]);
 
     return (
         <div className="w-full h-full flex flex-col justify-center items-center">
