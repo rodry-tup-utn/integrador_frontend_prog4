@@ -116,7 +116,7 @@ const ProductsTable = ({
           </Table.Tr>
         ) : !data?.data.length ? (
           <Table.Tr>
-            <Table.Td colSpan={8}>
+            <Table.Td colSpan={9}>
               <Text ta="center" py="xl">
                 No hay productos.
               </Text>
