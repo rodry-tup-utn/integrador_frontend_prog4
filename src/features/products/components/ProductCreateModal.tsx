@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { ProductCreate } from "../types/product";
 import {
   Button,
   Group,
   Modal,
   SegmentedControl,
+  Select,
   Textarea,
   TextInput,
   Stack,
@@ -14,6 +15,7 @@ import {
 import { CategorySelector } from "../../categories/components/CategorySelector";
 import IngredientSelector from "./IngredientSelector";
 import { validateAll } from "../helpers/productValidations";
+import { useMeasurementUnits } from "../../ingredients/hooks/useMeasurementUnits";
 
 interface Props {
   opened: boolean;
@@ -33,6 +35,7 @@ const ProductCreateModal = ({
     description: "",
     base_price: 0,
     stock: 0,
+    sales_unit: "",
     images_url: "",
     category_id: 0,
     type: "FINAL",
@@ -44,11 +47,23 @@ const ProductCreateModal = ({
     description: "",
     base_price: "",
     stock: "",
+    sales_unit: "",
     images_url: "",
     category_id: "",
     type: "",
     ingredients: "",
   });
+
+  const { data: measurementUnits } = useMeasurementUnits();
+
+  const unitOptions = useMemo(
+    () =>
+      measurementUnits?.map((u) => ({
+        value: u.code,
+        label: `${u.name} (${u.symbol})`,
+      })) ?? [],
+    [measurementUnits],
+  );
 
   const handleChange = (
     evt: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -99,7 +114,7 @@ const ProductCreateModal = ({
       centered
     >
       <Stack gap="md">
-        <Paper shadow="sm" p="md" radius="md" withBorder>
+        <Paper shadow="md" p="md" radius="md" bg="gray.1" withBorder>
           <Stack gap="md">
             <Text size="md" fw={700}>
               Datos del Producto
@@ -115,29 +130,6 @@ const ProductCreateModal = ({
               error={errors.name}
             />
 
-            <TextInput
-              label="Precio"
-              name="base_price"
-              type="number"
-              required
-              value={formData.base_price}
-              onChange={handleChange}
-              leftSection={"$"}
-              error={errors.base_price}
-            />
-
-            {formData.type === "FINAL" && (
-              <TextInput
-                label="Stock"
-                name="stock"
-                type="number"
-                required
-                value={formData.stock}
-                onChange={handleChange}
-                error={errors.stock}
-              />
-            )}
-
             <Textarea
               label="Descripción"
               name="description"
@@ -147,6 +139,43 @@ const ProductCreateModal = ({
               onChange={handleChange}
               error={errors.description}
             />
+
+            <Group justify="center" grow>
+              <TextInput
+                label="Precio"
+                name="base_price"
+                type="number"
+                required
+                value={formData.base_price}
+                onChange={handleChange}
+                leftSection={"$"}
+                error={errors.base_price}
+              />
+
+              {formData.type === "FINAL" && (
+                <TextInput
+                  label="Stock"
+                  name="stock"
+                  type="number"
+                  required
+                  value={formData.stock}
+                  onChange={handleChange}
+                  error={errors.stock}
+                />
+              )}
+
+              <Select
+                label="Unidad de venta"
+                placeholder="Seleccionar unidad"
+                data={unitOptions}
+                value={formData.sales_unit || null}
+                onChange={(value) =>
+                  setFormData((prev) => ({ ...prev, sales_unit: value ?? "" }))
+                }
+                clearable
+                searchable
+              />
+            </Group>
 
             <TextInput
               label="Link de la imagen"
