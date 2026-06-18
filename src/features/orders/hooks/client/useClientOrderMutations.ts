@@ -19,10 +19,17 @@ export const useClientOrderMutations = () => {
     onSuccess: invalidate,
   });
 
+  const confirmByClientMutation = useMutation({
+    mutationFn: (id: number) => orderService.client.confirm(id),
+    onSuccess: invalidate,
+  });
+
   return {
     createOrder: createMutation.mutateAsync,
     cancelOrder: cancelMutation.mutateAsync,
     isCreating: createMutation.isPending,
     isCancelling: cancelMutation.isPending,
+    confirmByClient: confirmByClientMutation.mutateAsync,
+    isConfirming: confirmByClientMutation.isPending,
   };
 };
