@@ -50,12 +50,12 @@ export const useProductMutation = () => {
 
   const mutationAddIngredientBatch = useMutation({
     mutationFn: ({
-      id,
+      product_id,
       data,
     }: {
-      id: number;
+      product_id: number;
       data: ProductIngredientBatchCreate;
-    }) => productService.productIngredient.addIngredientBatch(id, data),
+    }) => productService.stock.addIngredientBatch(product_id, data),
     onSuccess: invalidate,
   });
 
@@ -69,7 +69,7 @@ export const useProductMutation = () => {
       ingredientId: number;
       data: ProductIngredient;
     }) =>
-      productService.productIngredient.addIngredient(
+      productService.stock.addIngredient(
         productId,
         ingredientId,
         data,
@@ -87,7 +87,7 @@ export const useProductMutation = () => {
       ingredientId: number;
       data: ProductIngredient;
     }) =>
-      productService.productIngredient.updateIngredient(
+      productService.stock.updateIngredient(
         productId,
         ingredientId,
         data,
@@ -103,10 +103,21 @@ export const useProductMutation = () => {
       productId: number;
       ingredientId: number;
     }) =>
-      productService.productIngredient.removeIngredient(
+      productService.stock.removeIngredient(
         productId,
         ingredientId,
       ),
+    onSuccess: invalidate,
+  });
+
+  const mutationUpdateIngredientsBatch = useMutation({
+    mutationFn: ({
+      product_id,
+      data,
+    }: {
+      product_id: number;
+      data: ProductIngredientBatchCreate;
+    }) => productService.stock.updateIngredients(product_id, data),
     onSuccess: invalidate,
   });
 
@@ -126,6 +137,7 @@ export const useProductMutation = () => {
     addIngredient: mutationAddIngredient.mutateAsync,
     updateProductIngredient: mutationUpdateIngredient.mutateAsync,
     removeIngredient: mutationDeleteIngredient.mutateAsync,
+    updateIngredientsBatch: mutationUpdateIngredientsBatch.mutateAsync,
 
     // statuses
     isCreating:
@@ -136,7 +148,8 @@ export const useProductMutation = () => {
       mutationUpdate.isPending ||
       mutationUpdateStock.isPending ||
       mutationAvailability.isPending ||
-      mutationUpdateIngredient.isPending,
+      mutationUpdateIngredient.isPending ||
+      mutationUpdateIngredientsBatch.isPending,
     isDeleting: mutationDelete.isPending || mutationDeleteIngredient.isPending,
     isRestoring: mutationRestore.isPending,
   };
