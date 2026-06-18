@@ -23,7 +23,7 @@ import {
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { IngredientInProduct, ProductDetail } from "../types/product";
 import { useProductMutation } from "../hooks/product.mutation.hooks";
 import { notifications } from "@mantine/notifications";
@@ -105,6 +105,11 @@ export const ProductStockCard = ({ product }: { product: ProductDetail }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(product.stock);
   const { updateStock, isUpdating } = useProductMutation();
+  const { data: measurementUnits } = useMeasurementUnits();
+
+  const unitSymbol =
+    measurementUnits?.find((u) => u.code === product.sales_unit)?.symbol ??
+    "u.";
 
   useEffect(() => {
     if (!isEditing) {
@@ -163,13 +168,112 @@ export const ProductStockCard = ({ product }: { product: ProductDetail }) => {
       ) : (
         <Group justify="space-between" align="center">
           <Text size="xl" fw={500}>
-            {value} u.
+            {value} {unitSymbol}
           </Text>
           {product.type == "FINAL" && (
             <ActionIcon variant="subtle" onClick={() => setIsEditing(true)}>
               <IconEdit size={20} />
             </ActionIcon>
           )}
+        </Group>
+      )}
+    </Paper>
+  );
+};
+
+export const ProductSalesUnitCard = ({
+  product,
+}: {
+  product: ProductDetail;
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [value, setValue] = useState(product.sales_unit ?? "");
+  const { updateProduct, isUpdating } = useProductMutation();
+  const { data: measurementUnits } = useMeasurementUnits();
+
+  const unitOptions = useMemo(
+    () =>
+      measurementUnits?.map((u) => ({
+        value: u.code,
+        label: `${u.name} (${u.symbol})`,
+      })) ?? [],
+    [measurementUnits],
+  );
+
+  const currentUnit = measurementUnits?.find(
+    (u) => u.code === product.sales_unit,
+  );
+
+  useEffect(() => {
+    if (!isEditing) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setValue(product.sales_unit ?? "");
+    }
+  }, [product.sales_unit, isEditing]);
+
+  const handleSave = () => {
+    updateProduct(
+      { id: product.id, data: { sales_unit: value || undefined } },
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+          notifications.show({
+            color: "green",
+            message: "Producto actualizado",
+          });
+        },
+        onError: (error) => {
+          notifications.show({
+            color: "red",
+            message: extractApiErrorMessage(error, "Error al actualizar"),
+          });
+        },
+      },
+    );
+  };
+
+  return (
+    <Paper
+      p="md"
+      withBorder
+      className="bg-slate-100 rounded-2xl border-zinc-500"
+    >
+      <Text size="sm">Unidad de venta</Text>
+      {isEditing ? (
+        <Stack gap="xs">
+          <Select
+            data={unitOptions}
+            value={value || null}
+            onChange={(v) => setValue(v ?? "")}
+            searchable
+            nothingFoundMessage="Sin resultados"
+          />
+          <Group gap="xs">
+            <ActionIcon color="teal" onClick={handleSave} loading={isUpdating}>
+              <IconCheck size={20} />
+            </ActionIcon>
+            <ActionIcon
+              color="red"
+              variant="subtle"
+              onClick={() => setIsEditing(false)}
+            >
+              <IconX size={20} />
+            </ActionIcon>
+          </Group>
+        </Stack>
+      ) : (
+        <Group justify="space-between" align="center">
+          <Text size="xl" fw={500}>
+            {currentUnit
+              ? `${currentUnit.name} (${currentUnit.symbol})`
+              : "—"}
+          </Text>
+          <ActionIcon
+            variant="subtle"
+            onClick={() => setIsEditing(true)}
+          >
+            <IconEdit size={20} />
+          </ActionIcon>
         </Group>
       )}
     </Paper>
