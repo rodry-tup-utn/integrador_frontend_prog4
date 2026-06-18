@@ -1,4 +1,4 @@
-import { Pagination, Text, TextInput, Title } from "@mantine/core";
+import { Group, Pagination, Text, TextInput, Title } from "@mantine/core";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -17,6 +17,7 @@ import ActionButton from "../../../shared/components/ActionButton";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 import UploadFile from "../../../widgets/uploadFile/UploadFile";
+import { CategorySelector } from "../../categories/components/CategorySelector";
 
 const ProductsAdminPage = () => {
   const LIMIT = 20;
@@ -30,11 +31,13 @@ const ProductsAdminPage = () => {
     null,
   );
   const [openUpload, setOpenUpload] = useState(false);
+  const [category, setCategory] = useState<number | undefined>(undefined);
 
   const filters: ProductFilters = {
     offset: (page - 1) * LIMIT,
     limit: LIMIT,
     search: debouncedSearch || undefined,
+    category_id: category,
   };
 
   const { data, isLoading } = useAdminProducts(filters);
@@ -96,20 +99,27 @@ const ProductsAdminPage = () => {
       </Title>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <section className="cell p-2">
-          <div className="flex items-center justify-center md:justify-start">
-            <TextInput
-              placeholder="Buscar producto..."
-              leftSection={<IconSearch size={16} />}
-              value={searchTerm}
-              onChange={(evt) => {
-                setSearchTerm(evt.currentTarget.value);
-                setPage(1);
-              }}
-              w={"100%"}
-            />
-          </div>
-        </section>
+        <Group justify="center" align="center" grow>
+          <TextInput
+            label="Buscar por nombre"
+            placeholder="Buscar producto..."
+            leftSection={<IconSearch size={16} />}
+            value={searchTerm}
+            onChange={(evt) => {
+              setSearchTerm(evt.currentTarget.value);
+              setPage(1);
+            }}
+            w={"100%"}
+          />
+
+          <CategorySelector
+            label="Filtrar por categoria"
+            onChange={(value) => {
+              setCategory(value || undefined);
+            }}
+            value={category}
+          />
+        </Group>
 
         <section className="cell py-2 px-4">
           <div className="flex items-center justify-center md:justify-end">
