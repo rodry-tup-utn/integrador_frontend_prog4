@@ -24,13 +24,14 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import type { ProductDetail } from "../types/product";
+import type { IngredientInProduct, ProductDetail } from "../types/product";
 import { useProductMutation } from "../hooks/product.mutation.hooks";
 import { notifications } from "@mantine/notifications";
 import placeholder from "../../../assets/placeholder.jpeg";
 import { useProductWithIngredients } from "../hooks/product.queries.hooks";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useAdminIngredientsList } from "../../ingredients/hooks/useAdminIngredientsList";
+import { useMeasurementUnits } from "../../ingredients/hooks/useMeasurementUnits";
 import ActionButton from "../../../shared/components/ActionButton";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 
@@ -274,31 +275,28 @@ export const ProductIngredientsCard = ({
   const [draftQuantities, setDraftQuantities] = useState<
     Record<number, number>
   >({});
-  const [draftRemovable, setDraftRemovable] = useState<
-    Record<number, boolean>
-  >({});
-  const { addIngredient, updateProductIngredient, removeIngredient } =
+  const [draftRemovable, setDraftRemovable] = useState<Record<number, boolean>>(
+    {},
+  );
+  const { addIngredient, removeIngredient, updateIngredientsBatch } =
     useProductMutation();
 
   const currentIngredients = productWithIngredients?.ingredients ?? [];
+
+  const { data: measurementUnits } = useMeasurementUnits();
+
+  const resolveSymbol = (code: string) =>
+    measurementUnits?.find((u) => u.code === code)?.symbol ?? code;
 
   const availableIngredients =
     allIngredients?.data
       .filter(
         (ing) => !currentIngredients.some((i) => i.ingredient_id === ing.id),
       )
-      .map((ing) => ({ value: String(ing.id), label: ing.name })) ?? [];
-
-  const formatUnit = (unit: string) => {
-    const map: Record<string, string> = {
-      LITER: "L",
-      MILILITER: "ml",
-      GRAMS: "g",
-      KILOGRAMS: "kg",
-      UNIT: "un",
-    };
-    return map[unit] ?? unit;
-  };
+      .map((ing) => ({
+        value: String(ing.id),
+        label: `${ing.name} (${resolveSymbol(ing.measurement_unit_code)})`,
+      })) ?? [];
 
   const handleAdd = () => {
     if (!selected) return;
@@ -330,40 +328,58 @@ export const ProductIngredientsCard = ({
       },
     );
   };
-  const handleUpdate = (
-    ingredientId: number,
-    qty: number,
-    removable: boolean,
-  ) => {
-    updateProductIngredient(
-      {
-        productId: productId,
-        ingredientId,
-        data: { is_removable: removable, quantity_ingredient: qty },
-      },
+  const handleSaveChanges = () => {
+    const ingredients = currentIngredients.map((ing) => ({
+      ingredient_id: ing.ingredient_id,
+      quantity_ingredient:
+        draftQuantities[ing.ingredient_id] ?? ing.quantity_ingredient,
+      is_removable: draftRemovable[ing.ingredient_id] ?? ing.is_removable,
+    }));
+
+    updateIngredientsBatch(
+      { product_id: productId, data: { ingredients } },
       {
         onSuccess: () => {
-          setDraftQuantities((prev) => {
-            const next = { ...prev };
-            delete next[ingredientId];
-            return next;
-          });
-          setDraftRemovable((prev) => {
-            const next = { ...prev };
-            delete next[ingredientId];
-            return next;
-          });
+          setDraftQuantities({});
+          setDraftRemovable({});
           notifications.show({
             color: "green",
-            message: "Regla de personalización actualizada",
+            message: "Ingredientes actualizados",
           });
         },
         onError: (error) => {
-          const msg = extractApiErrorMessage(error);
-          notifications.show({ color: "red", message: msg });
+          notifications.show({
+            color: "red",
+            message: extractApiErrorMessage(
+              error,
+              "Error al actualizar ingredientes",
+            ),
+          });
         },
       },
     );
+  };
+
+  const handleDeleteIngredient = async (
+    productId: number,
+    ing: IngredientInProduct,
+  ) => {
+    try {
+      await removeIngredient({
+        productId: productId,
+        ingredientId: ing.ingredient_id,
+      });
+      notifications.show({
+        message: `Ingrediente ${ing.name} eliminado`,
+        color: "green",
+      });
+    } catch (error: unknown) {
+      const msg = extractApiErrorMessage(
+        error,
+        "No se pudo eliminar el ingrediente",
+      );
+      notifications.show({ message: msg, color: "red" });
+    }
   };
 
   return (
@@ -381,97 +397,121 @@ export const ProductIngredientsCard = ({
           Sin ingredientes cargados
         </Text>
       ) : (
-        <Table striped highlightOnHover>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Nombre</Table.Th>
-              <Table.Th ta="center">Unidad</Table.Th>
-              <Table.Th ta="center">Cantidad</Table.Th>
-              <Table.Th ta="center">Removible</Table.Th>
-              <Table.Th ta="center">Acciones</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {currentIngredients.map((ing) => {
-              const draftQty =
-                draftQuantities[ing.ingredient_id] ?? ing.quantity_ingredient;
-              const draftRemovableValue =
-                draftRemovable[ing.ingredient_id] ?? ing.is_removable;
-              return (
-                <Table.Tr key={ing.ingredient_id}>
-                  <Table.Td>
-                    <Text size="sm" fw={500}>
-                      {ing.name}
-                    </Text>
-                  </Table.Td>
-                  <Table.Td ta="center">
-                    <Text size="sm">{formatUnit(ing.measurement_unit)}</Text>
-                  </Table.Td>
-                  <Table.Td ta="center">
-                    <Group justify="center">
-                      <NumberInput
-                        value={draftQty}
-                        min={0}
-                        w={80}
-                        step={ing.measurement_unit == "UNIT" ? 1 : 0.25}
-                        onChange={(v) =>
-                          setDraftQuantities((prev) => ({
-                            ...prev,
-                            [ing.ingredient_id]: Number(v) || 0,
-                          }))
-                        }
-                      />
-                    </Group>
-                  </Table.Td>
-                  <Table.Td ta="center">
-                    <Group justify="center">
-                      <Switch
-                        size="sm"
-                        checked={draftRemovableValue}
-                        onChange={(e) => {
-                          const checked = e.currentTarget.checked;
-                          setDraftRemovable((prev) => ({
-                            ...prev,
-                            [ing.ingredient_id]: checked,
-                          }));
-                        }}
-                      />
-                    </Group>
-                  </Table.Td>
-                  <Table.Td ta="center">
-                    <Group gap="xs" justify="center">
-                      <Button
-                        size="xs"
-                        variant="light"
-                        color="teal"
-                        onClick={() =>
-                          handleUpdate(
-                            ing.ingredient_id,
-                            draftQty,
-                            draftRemovableValue,
-                          )
-                        }
-                      >
-                        Guardar
-                      </Button>
-                      <ActionButton
-                        onClick={() =>
-                          removeIngredient({
-                            productId: productId,
-                            ingredientId: ing.ingredient_id,
-                          })
-                        }
-                        icon={IconTrash}
-                        label="Eliminar ingrediente"
-                        color="red"
-                      ></ActionButton>
-                    </Group>
-                  </Table.Td>
-                </Table.Tr>
-              );
-            })}
-          </Table.Tbody>
-        </Table>
+        <>
+          <Table striped highlightOnHover>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Nombre</Table.Th>
+                <Table.Th ta="center">Unidad</Table.Th>
+                <Table.Th ta="center">Cantidad</Table.Th>
+                <Table.Th ta="center">Removible</Table.Th>
+                <Table.Th ta="center">Acciones</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {currentIngredients.map((ing) => {
+                const draftQty =
+                  draftQuantities[ing.ingredient_id] ?? ing.quantity_ingredient;
+                const draftRemovableValue =
+                  draftRemovable[ing.ingredient_id] ?? ing.is_removable;
+                return (
+                  <Table.Tr key={ing.ingredient_id}>
+                    <Table.Td>
+                      <Text size="sm" fw={500}>
+                        {ing.name}
+                      </Text>
+                    </Table.Td>
+                    <Table.Td ta="center">
+                      <Text size="sm">
+                        {resolveSymbol(ing.measurement_unit_code)}
+                      </Text>
+                    </Table.Td>
+                    <Table.Td ta="center">
+                      <Group justify="center">
+                        <NumberInput
+                          value={draftQty}
+                          min={0}
+                          w={80}
+                          step={ing.measurement_unit_code == "UNIT" ? 1 : 0.25}
+                          onChange={(v) =>
+                            setDraftQuantities((prev) => ({
+                              ...prev,
+                              [ing.ingredient_id]: Number(v) || 0,
+                            }))
+                          }
+                        />
+                      </Group>
+                    </Table.Td>
+                    <Table.Td ta="center">
+                      <Group justify="center">
+                        <Switch
+                          size="sm"
+                          checked={draftRemovableValue}
+                          onChange={(e) => {
+                            const checked = e.currentTarget.checked;
+                            setDraftRemovable((prev) => ({
+                              ...prev,
+                              [ing.ingredient_id]: checked,
+                            }));
+
+                            const ingredients = currentIngredients.map((i) => ({
+                              ingredient_id: i.ingredient_id,
+                              quantity_ingredient:
+                                draftQuantities[i.ingredient_id] ?? i.quantity_ingredient,
+                              is_removable:
+                                i.ingredient_id === ing.ingredient_id
+                                  ? checked
+                                  : (draftRemovable[i.ingredient_id] ?? i.is_removable),
+                            }));
+
+                            updateIngredientsBatch(
+                              { product_id: productId, data: { ingredients } },
+                              {
+                                onSuccess: () => {
+                                  setDraftRemovable((prev) => {
+                                    const next = { ...prev };
+                                    delete next[ing.ingredient_id];
+                                    return next;
+                                  });
+                                  notifications.show({
+                                    color: "green",
+                                    message: "Removible actualizado",
+                                  });
+                                },
+                                onError: (error) => {
+                                  notifications.show({
+                                    color: "red",
+                                    message: extractApiErrorMessage(
+                                      error,
+                                      "Error al actualizar removible",
+                                    ),
+                                  });
+                                },
+                              },
+                            );
+                          }}
+                        />
+                      </Group>
+                    </Table.Td>
+                    <Table.Td ta="center">
+                      <Group gap="xs" justify="center">
+                        <ActionButton
+                          onClick={() => handleDeleteIngredient(productId, ing)}
+                          icon={IconTrash}
+                          label="Eliminar ingrediente"
+                          color="red"
+                        ></ActionButton>
+                      </Group>
+                    </Table.Td>
+                  </Table.Tr>
+                );
+              })}
+            </Table.Tbody>
+          </Table>
+          <Group justify="flex-end" mt="sm">
+            <Button onClick={handleSaveChanges}>Guardar cambios</Button>
+          </Group>
+        </>
       )}
 
       <Group gap="sm" mt="xs">
