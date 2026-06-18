@@ -1,6 +1,7 @@
 import { Pagination, Text, TextInput, Title } from "@mantine/core";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useDebouncedValue } from "@mantine/hooks";
 import ProductsTable from "../components/ProductsTable";
 import { useAdminProducts } from "../hooks/product.queries.hooks";
@@ -9,8 +10,7 @@ import {
   type ProductFilters,
   type ProductPrivate,
 } from "../types/product";
-import ProductsModal from "../components/ProductsModal";
-import ProductsForm from "../components/ProductsForm";
+import ProductCreateModal from "../components/ProductCreateModal";
 import { useProductMutation } from "../hooks/product.mutation.hooks";
 import { notifications } from "@mantine/notifications";
 import ActionButton from "../../../shared/components/ActionButton";
@@ -20,14 +20,16 @@ import UploadFile from "../../../widgets/uploadFile/UploadFile";
 
 const ProductsAdminPage = () => {
   const LIMIT = 20;
+  const navigate = useNavigate();
 
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch] = useDebouncedValue(searchTerm, 300);
-  const [editing, setEditing] = useState<ProductPrivate | null>(null);
-  const [open, setOpen] = useState(false);
-  const [uploadProduct, setUploadProduct] = useState<ProductPrivate | null>(null);
-  const [openUpload, setOpenUpload] = useState(false)
+  const [createOpen, setCreateOpen] = useState(false);
+  const [uploadProduct, setUploadProduct] = useState<ProductPrivate | null>(
+    null,
+  );
+  const [openUpload, setOpenUpload] = useState(false);
 
   const filters: ProductFilters = {
     offset: (page - 1) * LIMIT,
@@ -36,7 +38,7 @@ const ProductsAdminPage = () => {
   };
 
   const { data, isLoading } = useAdminProducts(filters);
-  const { createProduct, updateProduct, deleteProduct, restoreProduct } =
+  const { createProduct, deleteProduct, restoreProduct, isCreating } =
     useProductMutation();
 
   const totalPages = data
@@ -44,8 +46,7 @@ const ProductsAdminPage = () => {
     : 0;
 
   const handleEdit = (item: ProductPrivate) => {
-    setEditing(item);
-    setOpen(true);
+    navigate(`/admin/products/detail/${item.id}`);
   };
 
   const handleDelete = (item: ProductPrivate) => {
@@ -54,7 +55,7 @@ const ProductsAdminPage = () => {
       onConfirm: () => deleteProduct(item.id),
       title: `Eliminar el producto ${item.name}`,
       color: "red",
-      successMessage: `Producto ${item.name} eliminado correctament`,
+      successMessage: `Producto ${item.name} eliminado correctamente`,
     });
   };
 
@@ -64,59 +65,28 @@ const ProductsAdminPage = () => {
       onConfirm: () => restoreProduct(item.id),
       title: `Restaurar el producto ${item.name}`,
       color: "teal",
-      successMessage: `Producto ${item.name} restaurado correctament`,
+      successMessage: `Producto ${item.name} restaurado correctamente`,
     });
   };
 
-  const handleClose = () => {
-    setEditing(null);
-    setOpen(false);
+  const handleUpload = (product: ProductPrivate) => {
+    setUploadProduct(product);
+    setOpenUpload(true);
   };
 
-  const handleUpload = (product: ProductPrivate) => {
-    setUploadProduct(product)
-    setOpenUpload(true)
-  }
-
-  const handleSubmit = (data: ProductCreate) => {
-    if (editing) {
-      updateProduct(
-        { id: editing!.id, data },
-        {
-          onSuccess: () => {
-            setOpen(false);
-            setEditing(null);
-            notifications.show({
-              color: "green",
-              message: "Producto actualizado",
-            });
-          },
-          onError: (error) => {
-            notifications.show({
-              color: "red",
-              message: extractApiErrorMessage(error, "Error al actualizar"),
-            });
-          },
-        },
-      );
-    } else {
-      createProduct(data, {
-        onSuccess: () => {
-          setOpen(false);
-          setEditing(null);
-          notifications.show({ color: "green", message: "Producto creado" });
-        },
-        onError: (error) => {
-          notifications.show({
-            color: "red",
-            message: extractApiErrorMessage(
-              error,
-              "Error al crear el producto",
-            ),
-          });
-        },
-      });
-    }
+  const handleCreate = (data: ProductCreate) => {
+    createProduct(data, {
+      onSuccess: () => {
+        setCreateOpen(false);
+        notifications.show({ color: "green", message: "Producto creado" });
+      },
+      onError: (error) => {
+        notifications.show({
+          color: "red",
+          message: extractApiErrorMessage(error, "Error al crear el producto"),
+        });
+      },
+    });
   };
 
   return (
@@ -124,10 +94,7 @@ const ProductsAdminPage = () => {
       <Title order={2} style={{ marginBottom: "8px" }}>
         Productos
       </Title>
-      <Text size="sm" c="dimmed" mb="md">
-        El stock de productos manufacturados es aproximado. Consulte el detalle
-        para ver el stock real.
-      </Text>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <section className="cell p-2">
           <div className="flex items-center justify-center md:justify-start">
@@ -150,10 +117,10 @@ const ProductsAdminPage = () => {
               icon={IconPlus}
               label="Nuevo Producto"
               text="Nuevo producto"
-              onClick={() => setOpen(true)}
+              onClick={() => setCreateOpen(true)}
               color="teal"
               variant="filled"
-            ></ActionButton>
+            />
           </div>
         </section>
 
@@ -163,7 +130,7 @@ const ProductsAdminPage = () => {
               isLoading={isLoading}
               data={data}
               onEdit={handleEdit}
-              onModalOpen={setOpen}
+              onModalOpen={setCreateOpen}
               onDelete={handleDelete}
               onRestore={handleRestore}
               onUpload={handleUpload}
@@ -189,23 +156,22 @@ const ProductsAdminPage = () => {
           </div>
         </section>
       </div>
-      <ProductsModal open={open} handleClose={handleClose}>
-        <ProductsForm
-          handleClose={handleClose}
-          editing={editing}
-          key={editing?.id ?? "new"}
-          onSubmit={handleSubmit}
-        />
-      </ProductsModal>
+      <ProductCreateModal
+        opened={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onSubmit={handleCreate}
+        isSubmitting={isCreating}
+      />
       <UploadFile
         open={openUpload}
         type="product"
         handleClose={() => {
-          setOpenUpload(false)
-          setUploadProduct(null)
+          setOpenUpload(false);
+          setUploadProduct(null);
         }}
         id={uploadProduct?.id ?? 0}
-        currentImageUrl={uploadProduct?.images_url} />
+        currentImageUrl={uploadProduct?.images_url}
+      />
     </div>
   );
 };

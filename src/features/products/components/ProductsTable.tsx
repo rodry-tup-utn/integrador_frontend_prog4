@@ -6,11 +6,10 @@ import type {
 } from "../types/product";
 import {
   IconEdit,
-  IconEye,
   IconInfoCircle,
   IconRestore,
   IconTrash,
-  IconPolaroid
+  IconPolaroid,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/context/AuthContext";
@@ -41,9 +40,7 @@ const ProductsTable = ({
   data,
   onRestore,
   onDelete,
-  onEdit,
-  onModalOpen,
-  onUpload
+  onUpload,
 }: ProductsTableProps) => {
   const { user } = useAuth();
 
@@ -91,7 +88,7 @@ const ProductsTable = ({
           <Table.Th>
             <Group gap={4}>
               <Text>Stock</Text>
-              <Tooltip label="El stock de manufacturados es aproximado. Vea el detalle para el valor real.">
+              <Tooltip label="Stock de manufacturados calculados en base al stock de ingredientes disponible">
                 <IconInfoCircle size={16} style={{ cursor: "pointer" }} />
               </Tooltip>
             </Group>
@@ -191,13 +188,18 @@ const ProductsTable = ({
                   <Group gap={4} justify="center">
                     <ActionButton
                       icon={IconEdit}
-                      onClick={() => {
-                        onEdit(item);
-                        onModalOpen(true);
-                      }}
                       label="Editar"
-                      color="blue"
-                    ></ActionButton>
+                      color="teal"
+                      onClick={() =>
+                        navigate(`/admin/products/detail/${item.id}`)
+                      }
+                    />
+                    <ActionButton
+                      icon={IconPolaroid}
+                      label="Subir imagen"
+                      color="yellow"
+                      onClick={() => onUpload(item)}
+                    />
 
                     {isAdmin && (
                       <ActionButton
@@ -209,20 +211,6 @@ const ProductsTable = ({
                         color={isDeleted ? "green" : "red"}
                       />
                     )}
-                    <ActionButton
-                      icon={IconPolaroid}
-                      label="Subir imagen"
-                      color="yellow"
-                      onClick={() => onUpload(item)}
-                    />
-                    <ActionButton
-                      icon={IconEye}
-                      label="Ver detalle"
-                      color="teal"
-                      onClick={() =>
-                        navigate(`/admin/products/detail/${item.id}`)
-                      }
-                    />
                   </Group>
                 </Table.Td>
               </Table.Tr>
