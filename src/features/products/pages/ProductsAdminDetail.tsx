@@ -53,6 +53,7 @@ const ProductsAdminDetail = () => {
     }
   }, [product]);
 
+  const [fileKey, setFileKey] = useState(0);
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState("");
   const [editingDesc, setEditingDesc] = useState(false);
@@ -174,41 +175,41 @@ const ProductsAdminDetail = () => {
     if (!file) return;
     try {
       const result = await uploadImage(file);
-      setLocalImages((prev) => [...prev, result.url]);
+      const updatedImages = [...localImages, result.url];
+      setLocalImages(updatedImages);
+      updateProduct(
+        { id: prodId, data: { images_url: updatedImages } },
+        {
+          onError: () => {
+            setLocalImages(localImages);
+          },
+        },
+      );
     } catch (error) {
       notifications.show({
         title: "Error",
         message: extractApiErrorMessage(error, "No se pudo subir la imagen"),
         color: "red",
       });
+    } finally {
+      setFileKey((k) => k + 1);
     }
   };
 
   const handleRemoveImage = async (url: string) => {
+    const updatedImages = localImages.filter((u) => u !== url);
+    setLocalImages(updatedImages);
     try {
       const publicId = extractPublicId(url);
       if (publicId) await deleteImage(publicId);
     } catch {
-      // si falla cleanup igual actualizamos la lista
+      // si falla cleanup igual continuamos
     }
-    setLocalImages((prev) => prev.filter((u) => u !== url));
-  };
-
-  const handleSaveImages = () => {
     updateProduct(
-      { id: prodId, data: { images_url: localImages } },
+      { id: prodId, data: { images_url: updatedImages } },
       {
-        onSuccess: () => {
-          notifications.show({
-            color: "green",
-            message: "Imágenes actualizadas",
-          });
-        },
-        onError: (err) => {
-          notifications.show({
-            color: "red",
-            message: extractApiErrorMessage(err, "Error al actualizar imágenes"),
-          });
+        onError: () => {
+          setLocalImages(localImages);
         },
       },
     );
@@ -355,6 +356,7 @@ const ProductsAdminDetail = () => {
                 </Text>
               )}
               <FileInput
+                key={fileKey}
                 placeholder="Agregar imagen"
                 leftSection={<IconPhoto size={16} />}
                 accept="image/jpeg,image/png,image/webp"
@@ -362,14 +364,6 @@ const ProductsAdminDetail = () => {
                 loading={isUploading}
                 clearable
               />
-              <Button
-                size="xs"
-                fullWidth
-                onClick={handleSaveImages}
-                loading={isUpdating}
-              >
-                Guardar imágenes
-              </Button>
             </Stack>
           </Paper>
         </Grid.Col>
