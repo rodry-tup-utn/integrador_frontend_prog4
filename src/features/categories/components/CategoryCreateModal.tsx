@@ -9,12 +9,17 @@ import {
   Text,
   Checkbox,
   Paper,
+  Image,
+  FileInput,
+  ActionIcon,
 } from "@mantine/core";
+import { IconPhoto, IconTrash } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 import type { CategoryCreate } from "../types/category";
 import { CategorySelector } from "./CategorySelector";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 import { useCategoryMutations } from "../hooks/useCategoryMutations";
+import useImageUpload from "../../upload/hooks/useImageUpload";
 
 interface Props {
   opened: boolean;
@@ -29,14 +34,37 @@ const initialState: CategoryCreate = {
 
 export const CategoryCreateModal = ({ opened, onClose }: Props) => {
   const { createCategory, isCreating } = useCategoryMutations();
+  const { uploadImage, isUploading } = useImageUpload();
   const [formData, setFormData] = useState<CategoryCreate>(initialState);
+  const [preview, setPreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (opened) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData(initialState);
+      setPreview(null);
     }
   }, [opened]);
+
+  const handleFileUpload = async (file: File | null) => {
+    if (!file) return;
+    try {
+      const result = await uploadImage(file);
+      setFormData((prev) => ({ ...prev, image_url: result.url }));
+      setPreview(result.url);
+    } catch (error) {
+      notifications.show({
+        title: "Error",
+        message: extractApiErrorMessage(error, "No se pudo subir la imagen"),
+        color: "red",
+      });
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormData((prev) => ({ ...prev, image_url: undefined }));
+    setPreview(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,6 +140,41 @@ export const CategoryCreateModal = ({ opened, onClose }: Props) => {
                 }
                 showBreadcrumbs
               />
+
+              <Stack gap="xs">
+                <Text size="sm" fw={600}>
+                  Imagen
+                </Text>
+                {preview ? (
+                  <Stack gap={3} align="center">
+                    <Image
+                      src={preview}
+                      h={100}
+                      w="auto"
+                      fit="contain"
+                      radius="sm"
+                    />
+                    <ActionIcon
+                      color="red"
+                      variant="light"
+                      size="sm"
+                      onClick={handleRemoveImage}
+                    >
+                      <IconTrash size={14} />
+                    </ActionIcon>
+                  </Stack>
+                ) : (
+                  <FileInput
+                    placeholder="Seleccionar imagen"
+                    leftSection={<IconPhoto size={16} />}
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleFileUpload}
+                    loading={isUploading}
+                    clearable
+                  />
+                )}
+              </Stack>
+
               <Group justify="flex-end">
                 <Button variant="subtle" onClick={onClose}>
                   Cancelar
