@@ -2,7 +2,18 @@ import { useState } from "react";
 import type { ProductPublic } from "../../features/products/types/product";
 import { useCartStore } from "../../features/cart/store/cart.store";
 import placeholder from "../../assets/placeholder.jpeg";
-import { Badge, Button, Image, Paper, Stack, Text } from "@mantine/core";
+import {
+  ActionIcon,
+  Badge,
+  Box,
+  Button,
+  Group,
+  Image,
+  Paper,
+  Stack,
+  Text,
+  UnstyledButton,
+} from "@mantine/core";
 import {
   IconChevronLeft,
   IconChevronRight,
@@ -52,110 +63,81 @@ const ProductCardPublic = ({ product }: { product: ProductPublic }) => {
         })()}
 
         {images.length > 0 ? (
-          <div style={{ position: "relative", overflow: "hidden", borderRadius: "var(--mantine-radius-md)" }}>
-            <div
-              style={{
-                display: "flex",
-                transform: `translateX(-${imgIndex * 100}%)`,
-                transition: "transform 0.3s ease",
-              }}
-            >
-              {images.map((url) => (
-                <div key={url} style={{ flex: "0 0 100%", minWidth: 0 }}>
-                  <Image src={url} alt={product.name} h={140} fit="cover" />
-                </div>
-              ))}
-            </div>
+          <Box pos="relative">
+            <Image
+              src={images[imgIndex]}
+              alt={product.name}
+              h={140}
+              fit="contain"
+              radius="md"
+            />
 
             {images.length > 1 && (
               <>
-                <button
-                  type="button"
+                <ActionIcon
+                  variant="filled"
+                  color="dark"
+                  size="sm"
+                  pos="absolute"
+                  left={4}
+                  top="50%"
+                  style={{ transform: "translateY(-50%)", opacity: 0.8 }}
                   onClick={() =>
                     setImgIndex((i) => (i === 0 ? images.length - 1 : i - 1))
                   }
-                  style={{
-                    position: "absolute",
-                    left: 4,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    border: "none",
-                    borderRadius: "50%",
-                    width: 28,
-                    height: 28,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    background: "rgba(0,0,0,0.45)",
-                    color: "#fff",
-                    opacity: 0.8,
-                    transition: "opacity 0.2s",
-                  }}
                 >
-                  <IconChevronLeft size={16} />
-                </button>
-                <button
-                  type="button"
+                  <IconChevronLeft size={14} />
+                </ActionIcon>
+
+                <ActionIcon
+                  variant="filled"
+                  color="dark"
+                  size="sm"
+                  pos="absolute"
+                  right={4}
+                  top="50%"
+                  style={{ transform: "translateY(-50%)", opacity: 0.8 }}
                   onClick={() =>
                     setImgIndex((i) => (i === images.length - 1 ? 0 : i + 1))
                   }
-                  style={{
-                    position: "absolute",
-                    right: 4,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    border: "none",
-                    borderRadius: "50%",
-                    width: 28,
-                    height: 28,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    background: "rgba(0,0,0,0.45)",
-                    color: "#fff",
-                    opacity: 0.8,
-                    transition: "opacity 0.2s",
-                  }}
                 >
-                  <IconChevronRight size={16} />
-                </button>
+                  <IconChevronRight size={14} />
+                </ActionIcon>
 
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: 6,
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    display: "flex",
-                    gap: 5,
-                  }}
+                <Group
+                  justify="center"
+                  pos="absolute"
+                  bottom={6}
+                  left={0}
+                  right={0}
+                  gap={4}
                 >
                   {images.map((_, i) => (
-                    <button
+                    <UnstyledButton
                       key={i}
-                      type="button"
                       onClick={() => setImgIndex(i)}
-                      aria-label={`Imagen ${i + 1}`}
                       style={{
                         width: 7,
                         height: 7,
                         borderRadius: "50%",
-                        border: "none",
-                        cursor: "pointer",
+                        background:
+                          i === imgIndex ? "#fff" : "rgba(255,255,255,0.5)",
                         padding: 0,
-                        background: i === imgIndex ? "#fff" : "rgba(255,255,255,0.5)",
-                        transition: "background 0.2s",
                       }}
                     />
                   ))}
-                </div>
+                </Group>
               </>
             )}
-          </div>
+          </Box>
         ) : (
-          <Image src={placeholder} alt={product.name} h={140} fit="cover" radius="md" />
+          <Image
+            src={placeholder}
+            alt={product.name}
+            h={140}
+            fit="cover"
+            radius="md"
+          />
         )}
 
         <Stack gap={4} style={{ flex: 1 }}>
