@@ -39,6 +39,7 @@ interface Props {
   isLoading: boolean;
   opened: boolean;
   onClose: () => void;
+  viewPay?: boolean;
 }
 
 const STATE_SEQUENCE: OrderStateCode[] = [
@@ -68,7 +69,13 @@ const PAYMENT_METHOD_ICONS: Record<string, React.ReactNode> = {
   TRANSFERENCIA: <IconBuildingBank size={20} />,
 };
 
-const OrderDetailModal = ({ order, isLoading, opened, onClose }: Props) => {
+const OrderDetailModal = ({
+  order,
+  isLoading,
+  opened,
+  onClose,
+  viewPay = false,
+}: Props) => {
   const { confirmByClient, isConfirming } = useClientOrderMutations();
   const { createCheckout, isCreating: isPaying } = usePaymentMutation();
 
@@ -334,11 +341,14 @@ const OrderDetailModal = ({ order, isLoading, opened, onClose }: Props) => {
 
                 <Paper withBorder p="md" radius="md">
                   <Group gap="sm" mb="xs">
-                    {PAYMENT_METHOD_ICONS[order.payment_method_code] || <IconCash size={20} />}
+                    {PAYMENT_METHOD_ICONS[order.payment_method_code] || (
+                      <IconCash size={20} />
+                    )}
                     <Title order={5}>Método de pago</Title>
                   </Group>
                   <Text>
-                    {PAYMENT_METHOD_LABELS[order.payment_method_code] || order.payment_method_code}
+                    {PAYMENT_METHOD_LABELS[order.payment_method_code] ||
+                      order.payment_method_code}
                   </Text>
                 </Paper>
 
@@ -353,6 +363,7 @@ const OrderDetailModal = ({ order, isLoading, opened, onClose }: Props) => {
                 )}
 
                 {order.payment_method_code === "MERCADOPAGO" &&
+                  viewPay &&
                   order.state_code === "PENDING" && (
                     <Button
                       size="lg"
@@ -367,6 +378,7 @@ const OrderDetailModal = ({ order, isLoading, opened, onClose }: Props) => {
                   )}
 
                 {order.payment_method_code === "EFECTIVO" &&
+                  viewPay &&
                   order.state_code === "PENDING" && (
                     <Button
                       size="lg"

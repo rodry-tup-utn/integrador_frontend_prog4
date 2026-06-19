@@ -97,6 +97,7 @@ export const MyOrdersPage = () => {
         isLoading={isDetailLoading}
         opened={!!detailOrderId}
         onClose={() => setDetailOrderId(null)}
+        viewPay
       />
     </>
   );
