@@ -1,7 +1,6 @@
 import { Group, Pagination, Text, TextInput, Title } from "@mantine/core";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useDebouncedValue } from "@mantine/hooks";
 import ProductsTable from "../components/ProductsTable";
 import { useAdminProducts } from "../hooks/product.queries.hooks";
@@ -16,21 +15,15 @@ import { notifications } from "@mantine/notifications";
 import ActionButton from "../../../shared/components/ActionButton";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
-import UploadFile from "../../../widgets/uploadFile/UploadFile";
 import { CategorySelector } from "../../categories/components/CategorySelector";
 
 const ProductsAdminPage = () => {
   const LIMIT = 20;
-  const navigate = useNavigate();
 
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch] = useDebouncedValue(searchTerm, 300);
   const [createOpen, setCreateOpen] = useState(false);
-  const [uploadProduct, setUploadProduct] = useState<ProductPrivate | null>(
-    null,
-  );
-  const [openUpload, setOpenUpload] = useState(false);
   const [category, setCategory] = useState<number | undefined>(undefined);
 
   const filters: ProductFilters = {
@@ -47,10 +40,6 @@ const ProductsAdminPage = () => {
   const totalPages = data
     ? Math.ceil(data.total / (filters.limit ?? LIMIT))
     : 0;
-
-  const handleEdit = (item: ProductPrivate) => {
-    navigate(`/admin/products/detail/${item.id}`);
-  };
 
   const handleDelete = (item: ProductPrivate) => {
     showConfirm({
@@ -70,11 +59,6 @@ const ProductsAdminPage = () => {
       color: "teal",
       successMessage: `Producto ${item.name} restaurado correctamente`,
     });
-  };
-
-  const handleUpload = (product: ProductPrivate) => {
-    setUploadProduct(product);
-    setOpenUpload(true);
   };
 
   const handleCreate = (data: ProductCreate) => {
@@ -139,11 +123,9 @@ const ProductsAdminPage = () => {
             <ProductsTable
               isLoading={isLoading}
               data={data}
-              onEdit={handleEdit}
               onModalOpen={setCreateOpen}
               onDelete={handleDelete}
               onRestore={handleRestore}
-              onUpload={handleUpload}
             />
           </div>
         </section>
@@ -171,16 +153,6 @@ const ProductsAdminPage = () => {
         onClose={() => setCreateOpen(false)}
         onSubmit={handleCreate}
         isSubmitting={isCreating}
-      />
-      <UploadFile
-        open={openUpload}
-        type="product"
-        handleClose={() => {
-          setOpenUpload(false);
-          setUploadProduct(null);
-        }}
-        id={uploadProduct?.id ?? 0}
-        currentImageUrl={uploadProduct?.images_url}
       />
     </div>
   );

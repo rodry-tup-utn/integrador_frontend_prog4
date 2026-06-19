@@ -35,7 +35,7 @@ const MainLayout = () => {
         />
       )}
       <AppShell.Main bg="gray.0">
-        <Container size="xl" py="xl">
+        <Container size="90%" py="xl">
           <Outlet />
         </Container>
       </AppShell.Main>

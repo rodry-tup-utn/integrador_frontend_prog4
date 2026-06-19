@@ -8,7 +8,7 @@ interface ProductBase {
   base_price: number;
   stock: number;
   sales_unit: string | null;
-  images_url: string | null;
+  images_url: string[] | null;
   available: boolean;
   type: TypeProduct;
 }
@@ -48,7 +48,7 @@ export interface ProductCreate {
   base_price: number;
   stock: number;
   sales_unit?: string;
-  images_url?: string;
+  images_url?: string[];
   category_id: number;
   type: TypeProduct;
   ingredients: ProductIngredientBatchItem[];

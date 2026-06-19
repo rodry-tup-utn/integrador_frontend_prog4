@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAdminProductDetail } from "../hooks/product.queries.hooks";
 import {
   Badge,
@@ -14,11 +14,13 @@ import {
   Title,
   Stack,
   ActionIcon,
+  Image,
+  SimpleGrid,
+  FileInput,
 } from "@mantine/core";
-import { IconCheck, IconEdit, IconX } from "@tabler/icons-react";
+import { IconCheck, IconEdit, IconPhoto, IconTrash, IconX } from "@tabler/icons-react";
 import {
   ProductCategoriesCard,
-  ProductImageCard,
   ProductPriceCard,
   ProductSalesUnitCard,
   ProductStockCard,
@@ -30,7 +32,7 @@ import { useProductMutation } from "../hooks/product.mutation.hooks";
 import { notifications } from "@mantine/notifications";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 import NotFoundState from "../../../shared/components/NotFoundState";
-import UploadFile from "../../../widgets/uploadFile/UploadFile";
+import useImageUpload from "../../upload/hooks/useImageUpload";
 
 const ProductsAdminDetail = () => {
   const { id } = useParams();
@@ -40,13 +42,24 @@ const ProductsAdminDetail = () => {
   const { changeStockAvailable, updateProduct, isUpdating } =
     useProductMutation();
 
+  const { uploadImage, deleteImage, isUploading } = useImageUpload();
+
+  const [localImages, setLocalImages] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (product) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLocalImages(product.images_url ?? []);
+    }
+  }, [product]);
+
+  const [fileKey, setFileKey] = useState(0);
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState("");
   const [editingDesc, setEditingDesc] = useState(false);
   const [descDraft, setDescDraft] = useState("");
   const [editingCategory, setEditingCategory] = useState(false);
   const [categoryDraft, setCategoryDraft] = useState<number | null>(null);
-  const [openUpload, setOpenUpload] = useState(false);
 
   if (!id || isNaN(prodId))
     return <NotFoundState message="Producto no encontrado" />;
@@ -153,6 +166,50 @@ const ProductsAdminDetail = () => {
             color: "red",
             message: extractApiErrorMessage(err, "Error al actualizar"),
           });
+        },
+      },
+    );
+  };
+
+  const handleAddImage = async (file: File | null) => {
+    if (!file) return;
+    try {
+      const result = await uploadImage(file);
+      const updatedImages = [...localImages, result.url];
+      setLocalImages(updatedImages);
+      updateProduct(
+        { id: prodId, data: { images_url: updatedImages } },
+        {
+          onError: () => {
+            setLocalImages(localImages);
+          },
+        },
+      );
+    } catch (error) {
+      notifications.show({
+        title: "Error",
+        message: extractApiErrorMessage(error, "No se pudo subir la imagen"),
+        color: "red",
+      });
+    } finally {
+      setFileKey((k) => k + 1);
+    }
+  };
+
+  const handleRemoveImage = async (url: string) => {
+    const updatedImages = localImages.filter((u) => u !== url);
+    setLocalImages(updatedImages);
+    try {
+      const publicId = extractPublicId(url);
+      if (publicId) await deleteImage(publicId);
+    } catch {
+      // si falla cleanup igual continuamos
+    }
+    updateProduct(
+      { id: prodId, data: { images_url: updatedImages } },
+      {
+        onError: () => {
+          setLocalImages(localImages);
         },
       },
     );
@@ -267,16 +324,47 @@ const ProductsAdminDetail = () => {
             withBorder
             className="bg-slate-100 rounded-2xl border-zinc-500"
           >
-            <ProductImageCard product={product} />
-            <Button
-              variant="subtle"
-              size="sm"
-              fullWidth
-              mt="sm"
-              onClick={() => setOpenUpload(true)}
-            >
-              Cambiar imagen
-            </Button>
+            <Stack gap="sm">
+              <Text size="md" fw={700}>
+                Imágenes
+              </Text>
+              {localImages.length > 0 ? (
+                <SimpleGrid cols={2} spacing="sm">
+                  {localImages.map((url) => (
+                    <Stack key={url} gap={3} align="center">
+                      <Image
+                        src={url}
+                        h={120}
+                        w="auto"
+                        fit="contain"
+                        radius="sm"
+                      />
+                      <ActionIcon
+                        color="red"
+                        variant="light"
+                        size="sm"
+                        onClick={() => handleRemoveImage(url)}
+                      >
+                        <IconTrash size={14} />
+                      </ActionIcon>
+                    </Stack>
+                  ))}
+                </SimpleGrid>
+              ) : (
+                <Text size="sm" c="dimmed">
+                  Sin imágenes
+                </Text>
+              )}
+              <FileInput
+                key={fileKey}
+                placeholder="Agregar imagen"
+                leftSection={<IconPhoto size={16} />}
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleAddImage}
+                loading={isUploading}
+                clearable
+              />
+            </Stack>
           </Paper>
         </Grid.Col>
 
@@ -383,15 +471,13 @@ const ProductsAdminDetail = () => {
           </Paper>
         </Grid.Col>
       </Grid>
-      <UploadFile
-        open={openUpload}
-        type="product"
-        handleClose={() => setOpenUpload(false)}
-        id={prodId}
-        currentImageUrl={product.images_url}
-      />
     </>
   );
 };
+
+function extractPublicId(url: string): string | null {
+  const match = url.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[a-z]+)?$/);
+  return match?.[1] ?? null;
+}
 
 export default ProductsAdminDetail;

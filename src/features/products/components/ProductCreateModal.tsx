@@ -11,11 +11,19 @@ import {
   Stack,
   Paper,
   Text,
+  Image,
+  ActionIcon,
+  SimpleGrid,
+  FileInput,
 } from "@mantine/core";
+import { IconPhoto, IconTrash } from "@tabler/icons-react";
 import { CategorySelector } from "../../categories/components/CategorySelector";
 import IngredientSelector from "./IngredientSelector";
 import { validateAll } from "../helpers/productValidations";
 import { useMeasurementUnits } from "../../ingredients/hooks/useMeasurementUnits";
+import useImageUpload from "../../upload/hooks/useImageUpload";
+import { notifications } from "@mantine/notifications";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 
 interface Props {
   opened: boolean;
@@ -36,7 +44,7 @@ const ProductCreateModal = ({
     base_price: 0,
     stock: 0,
     sales_unit: "",
-    images_url: "",
+    images_url: [],
     category_id: 0,
     type: "FINAL",
     ingredients: [],
@@ -55,6 +63,8 @@ const ProductCreateModal = ({
   });
 
   const { data: measurementUnits } = useMeasurementUnits();
+  const { uploadImage, deleteImage } = useImageUpload();
+  const [previews, setPreviews] = useState<string[]>([]);
 
   const unitOptions = useMemo(
     () =>
@@ -97,6 +107,38 @@ const ProductCreateModal = ({
     setFormData((prev) => ({ ...prev, ingredients }));
   };
 
+  const handleFileUpload = async (file: File | null) => {
+    if (!file) return;
+    try {
+      const result = await uploadImage(file);
+      setFormData((prev) => ({
+        ...prev,
+        images_url: [...(prev.images_url ?? []), result.url],
+      }));
+      setPreviews((prev) => [...prev, result.url]);
+    } catch (error) {
+      notifications.show({
+        title: "Error",
+        message: extractApiErrorMessage(error, "No se pudo subir la imagen"),
+        color: "red",
+      });
+    }
+  };
+
+  const handleRemoveImage = async (url: string) => {
+    try {
+      const publicId = extractPublicId(url);
+      if (publicId) await deleteImage(publicId);
+    } catch {
+      // si falla el cleanup seguimos igual
+    }
+    setFormData((prev) => ({
+      ...prev,
+      images_url: (prev.images_url ?? []).filter((u) => u !== url),
+    }));
+    setPreviews((prev) => prev.filter((u) => u !== url));
+  };
+
   const handleSubmit = () => {
     const newErrors = validateAll(formData);
     setErrors(newErrors);
@@ -105,10 +147,20 @@ const ProductCreateModal = ({
     onSubmit(formData);
   };
 
+  const handleClose = () => {
+    previews.forEach((url) => {
+      const publicId = extractPublicId(url);
+      if (publicId) deleteImage(publicId);
+    });
+    setPreviews([]);
+    setFormData((prev) => ({ ...prev, images_url: [] }));
+    onClose();
+  };
+
   return (
     <Modal
       opened={opened}
-      onClose={onClose}
+      onClose={handleClose}
       size="70%"
       title="Nuevo Producto"
       centered
@@ -177,22 +229,49 @@ const ProductCreateModal = ({
               />
             </Group>
 
-            <TextInput
-              label="Link de la imagen"
-              name="images_url"
-              placeholder="https://cloudinary.com/"
-              value={formData.images_url}
-              onChange={handleChange}
-              error={errors.images_url}
-            />
+            <Group gap="md" grow>
+              <CategorySelector
+                label="Categoría"
+                value={formData.category_id}
+                onChange={handleCategoryChange}
+                showBreadcrumbs
+                onlyLeaves
+              />
 
-            <CategorySelector
-              label="Categoría"
-              value={formData.category_id}
-              onChange={handleCategoryChange}
-              showBreadcrumbs
-              onlyLeaves
-            />
+              <Stack gap={3}>
+                <FileInput
+                  label="Imágenes"
+                  placeholder="Seleccionar imágenes"
+                  leftSection={<IconPhoto size={16} />}
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleFileUpload}
+                  clearable
+                />
+                {previews.length > 0 && (
+                  <SimpleGrid cols={3} spacing="xs" mt="xs">
+                    {previews.map((url) => (
+                      <Stack key={url} gap={3} align="center">
+                        <Image
+                          src={url}
+                          h={80}
+                          w="auto"
+                          fit="contain"
+                          radius="sm"
+                        />
+                        <ActionIcon
+                          color="red"
+                          variant="light"
+                          size="sm"
+                          onClick={() => handleRemoveImage(url)}
+                        >
+                          <IconTrash size={14} />
+                        </ActionIcon>
+                      </Stack>
+                    ))}
+                  </SimpleGrid>
+                )}
+              </Stack>
+            </Group>
           </Stack>
         </Paper>
 
@@ -223,7 +302,7 @@ const ProductCreateModal = ({
         </Paper>
 
         <Group justify="flex-end">
-          <Button variant="subtle" onClick={onClose}>
+          <Button variant="subtle" onClick={handleClose}>
             Cancelar
           </Button>
           <Button onClick={handleSubmit} loading={isSubmitting}>
@@ -234,5 +313,10 @@ const ProductCreateModal = ({
     </Modal>
   );
 };
+
+function extractPublicId(url: string): string | null {
+  const match = url.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[a-z]+)?$/);
+  return match?.[1] ?? null;
+}
 
 export default ProductCreateModal;
