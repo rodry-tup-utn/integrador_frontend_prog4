@@ -9,13 +9,18 @@ import {
   Text,
   Checkbox,
   Paper,
+  Image,
+  FileInput,
+  ActionIcon,
 } from "@mantine/core";
+import { IconPhoto, IconTrash } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 import type { CategoryPrivate, CategoryCreate } from "../types/category";
 import { CategorySelector } from "./CategorySelector";
 import { useCategoryMutations } from "../hooks/useCategoryMutations";
 import { toDateString } from "../../../shared/helpers/helpers";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
+import useImageUpload from "../../upload/hooks/useImageUpload";
 
 interface Props {
   opened: boolean;
@@ -23,18 +28,22 @@ interface Props {
   categoryData: CategoryPrivate;
 }
 
-export const CategoryEditModal = ({
-  opened,
-  onClose,
-  categoryData,
-}: Props) => {
+function extractPublicId(url: string): string | null {
+  const match = url.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[a-z]+)?$/);
+  return match?.[1] ?? null;
+}
+
+export const CategoryEditModal = ({ opened, onClose, categoryData }: Props) => {
   const { updateCategory, updateParentCategory, isUpdating } =
     useCategoryMutations();
+  const { uploadImage, deleteImage, isUploading } = useImageUpload();
   const [formData, setFormData] = useState<CategoryCreate>({
     name: categoryData.name,
     description: categoryData.description,
     parent_id: categoryData.parent_id ?? undefined,
   });
+  const [preview, setPreview] = useState<string | null>(categoryData.image_url);
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setFormData({
@@ -42,7 +51,35 @@ export const CategoryEditModal = ({
       description: categoryData.description,
       parent_id: categoryData.parent_id ?? undefined,
     });
+    setPreview(categoryData.image_url);
   }, [categoryData, opened]);
+
+  const handleFileUpload = async (file: File | null) => {
+    if (!file) return;
+    try {
+      const result = await uploadImage(file);
+      setFormData((prev) => ({ ...prev, image_url: result.url }));
+      setPreview(result.url);
+    } catch (error) {
+      notifications.show({
+        title: "Error",
+        message: extractApiErrorMessage(error, "No se pudo subir la imagen"),
+        color: "red",
+      });
+    }
+  };
+
+  const handleRemoveImage = async () => {
+    if (!preview) return;
+    try {
+      const publicId = extractPublicId(preview);
+      if (publicId) await deleteImage(publicId);
+    } catch {
+      // si falla cleanup igual limpiamos local
+    }
+    setFormData((prev) => ({ ...prev, image_url: null }));
+    setPreview(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +89,7 @@ export const CategoryEditModal = ({
         data: {
           name: formData.name,
           description: formData.description || null,
+          image_url: formData.image_url ?? null,
         },
       });
 
@@ -71,8 +109,10 @@ export const CategoryEditModal = ({
     } catch (error: unknown) {
       notifications.show({
         title: "Error",
-        message:
-          extractApiErrorMessage(error, "Error al actualizar la categoría"),
+        message: extractApiErrorMessage(
+          error,
+          "Error al actualizar la categoría",
+        ),
         color: "red",
       });
     }
@@ -116,7 +156,7 @@ export const CategoryEditModal = ({
               />
               <Checkbox
                 label="Categoría raíz"
-                checked={formData.parent_id === null}
+                checked={formData.parent_id === undefined}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
@@ -126,12 +166,54 @@ export const CategoryEditModal = ({
               />
               <CategorySelector
                 value={formData.parent_id}
-                onChange={(id) =>
-                  setFormData({ ...formData, parent_id: id })
-                }
+                onChange={(id) => setFormData({ ...formData, parent_id: id })}
                 excludeId={categoryData.id}
                 showBreadcrumbs
               />
+
+              <Stack gap="xs">
+                <Text size="sm" fw={600}>
+                  Imagen
+                </Text>
+                {preview ? (
+                  <Stack gap={3} align="center">
+                    <Image
+                      src={preview}
+                      h={100}
+                      w="auto"
+                      fit="contain"
+                      radius="sm"
+                    />
+                    <Group gap="xs">
+                      <FileInput
+                        placeholder="Cambiar"
+                        leftSection={<IconPhoto size={16} />}
+                        accept="image/jpeg,image/png,image/webp"
+                        onChange={handleFileUpload}
+                        loading={isUploading}
+                        clearable
+                      />
+                      <ActionIcon
+                        color="red"
+                        variant="light"
+                        onClick={handleRemoveImage}
+                      >
+                        <IconTrash size={14} />
+                      </ActionIcon>
+                    </Group>
+                  </Stack>
+                ) : (
+                  <FileInput
+                    placeholder="Seleccionar imagen"
+                    leftSection={<IconPhoto size={16} />}
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleFileUpload}
+                    loading={isUploading}
+                    clearable
+                  />
+                )}
+              </Stack>
+
               <Group justify="flex-end">
                 <Button variant="subtle" onClick={onClose}>
                   Cancelar
@@ -153,9 +235,7 @@ export const CategoryEditModal = ({
                   <Text size="sm" c="dimmed">
                     Inactivo desde:
                   </Text>
-                  <Text size="sm">
-                    {toDateString(categoryData.deleted_at)}
-                  </Text>
+                  <Text size="sm">{toDateString(categoryData.deleted_at)}</Text>
                 </Group>
               )}
               <Group gap="xs">
@@ -168,9 +248,7 @@ export const CategoryEditModal = ({
                 <Text size="sm" c="dimmed">
                   Creado:
                 </Text>
-                <Text size="sm">
-                  {toDateString(categoryData.created_at)}
-                </Text>
+                <Text size="sm">{toDateString(categoryData.created_at)}</Text>
               </Group>
               <Group gap="xs">
                 <Text size="sm" c="dimmed">

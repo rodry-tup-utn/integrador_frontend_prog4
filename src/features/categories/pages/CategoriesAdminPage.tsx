@@ -15,7 +15,6 @@ import {
   IconEdit,
   IconRestore,
   IconTrash,
-  IconPolaroid,
   IconChevronRight,
 } from "@tabler/icons-react";
 import { useAdminCategoryTree } from "../hooks/useAdminCategoryTree";
@@ -25,15 +24,11 @@ import { CategoryCreateModal } from "../components/CategoryCreateModal";
 import { CategoryEditModal } from "../components/CategoryEditModal";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
 import ActionButton from "../../../shared/components/ActionButton";
-import UploadFile from "../../../widgets/uploadFile/UploadFile";
 
 export default function CategoriesAdminPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editing, setEditing] = useState<CategoryNodePrivate | null>(null);
-  const [uploadCategory, setUploadCategory] =
-    useState<CategoryNodePrivate | null>(null);
-  const [openUpload, setOpenUpload] = useState(false);
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
   const { data: treeData, isLoading } = useAdminCategoryTree();
   const { deleteCategory, restoreCategory } = useCategoryMutations();
@@ -68,11 +63,6 @@ export default function CategoriesAdminPage() {
       onConfirm: () => restoreCategory(item.id),
       successMessage: `Categoría ${item.name} restaurada`,
     });
-  };
-
-  const handleUpload = (category: CategoryNodePrivate) => {
-    setUploadCategory(category);
-    setOpenUpload(true);
   };
 
   const renderTreeNode = (node: CategoryNodePrivate, depth: number) => {
@@ -135,13 +125,6 @@ export default function CategoriesAdminPage() {
                   setEditOpen(true);
                 }}
                 color="blue"
-              />
-
-              <ActionButton
-                icon={IconPolaroid}
-                label="Subir imagen"
-                color="yellow"
-                onClick={() => handleUpload(node)}
               />
 
               <ActionButton
@@ -223,16 +206,6 @@ export default function CategoriesAdminPage() {
           categoryData={editing}
         />
       )}
-      <UploadFile
-        open={openUpload}
-        type="category"
-        handleClose={() => {
-          setOpenUpload(false);
-          setUploadCategory(null);
-        }}
-        id={uploadCategory?.id ?? 0}
-        currentImageUrl={uploadCategory?.image_url}
-      />
     </>
   );
 }

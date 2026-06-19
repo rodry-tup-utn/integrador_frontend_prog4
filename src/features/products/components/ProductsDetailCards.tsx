@@ -281,6 +281,7 @@ export const ProductSalesUnitCard = ({
 };
 
 export const ProductImageCard = ({ product }: { product: ProductDetail }) => {
+  const src = product.images_url?.[0] || placeholder;
   return (
     <Paper
       p="md"
@@ -293,13 +294,13 @@ export const ProductImageCard = ({ product }: { product: ProductDetail }) => {
       </Group>
 
       <Center>
-        <Image src={placeholder} h={280} fit="contain" />
+        <Image src={src} h={280} fit="contain" />
       </Center>
       <Text
         size="sm"
         c="gray.8"
         ta="center"
-      >{`URL: ${product.images_url || "Producto sin imagen"}`}</Text>
+      >{`${product.images_url?.length ?? 0} imagen(es)`}</Text>
     </Paper>
   );
 };
