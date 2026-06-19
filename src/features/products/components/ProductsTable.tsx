@@ -23,7 +23,6 @@ interface ProductsTableProps {
   data?: ProductPrivateList;
   onRestore: (item: ProductPrivate) => void;
   onDelete: (item: ProductPrivate) => void;
-  onEdit: (item: ProductPrivate) => void;
   onModalOpen: (value: boolean) => void;
 }
 
