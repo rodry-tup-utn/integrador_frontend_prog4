@@ -9,6 +9,7 @@ import {
   IconInfoCircle,
   IconRestore,
   IconTrash,
+  IconEyeSearch
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/context/AuthContext";
@@ -199,15 +200,15 @@ const ProductsTable = ({
                   <Group gap={4} justify="center">
                     <ActionButton
                       icon={IconEdit}
-                      label="Update"
+                      label="Editar"
                       color='cyan'
                       onClick={() =>
                         onEdit(item.id)
                       }
                     />
                     <ActionButton
-                      icon={IconEdit}
-                      label="Editar"
+                      icon={IconEyeSearch}
+                      label="Detalles"
                       color="teal"
                       onClick={() =>
                         navigate(`/admin/products/detail/${item.id}`)
