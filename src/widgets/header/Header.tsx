@@ -6,6 +6,7 @@ import {
   Burger,
   Indicator,
   ActionIcon,
+  Tooltip,
 } from "@mantine/core";
 import { Link, useNavigate } from "react-router-dom";
 import { ROUTES } from "../../shared/constants/routes";
@@ -15,6 +16,8 @@ import {
   IconSoup,
   IconHome,
   IconArrowLeft,
+  IconLayoutSidebarLeftCollapse,
+  IconLayoutSidebarLeftExpand,
 } from "@tabler/icons-react";
 import CartDrawer from "../../features/cart/components/CartDrawer";
 import { useDisclosure } from "@mantine/hooks";
@@ -23,10 +26,17 @@ import ActionButton from "../../shared/components/ActionButton";
 
 interface HeaderProps {
   toggle: () => void;
+  toggleDesktop: () => void;
+  desktopOpened: boolean;
   mobileOpened: boolean;
 }
 
-const Header = ({ toggle, mobileOpened }: HeaderProps) => {
+const Header = ({
+  toggle,
+  toggleDesktop,
+  desktopOpened,
+  mobileOpened,
+}: HeaderProps) => {
   const { isAuthenticated } = useAuth();
   const [cartOpened, { open: openCart, close: closeCart }] =
     useDisclosure(false);
@@ -42,6 +52,25 @@ const Header = ({ toggle, mobileOpened }: HeaderProps) => {
       <Group gap="xs" wrap="nowrap">
         {isAuthenticated && (
           <Burger opened={mobileOpened} onClick={toggle} hiddenFrom="sm" />
+        )}
+        {isAuthenticated && (
+          <Tooltip
+            label={desktopOpened ? "Colapsar sidebar" : "Expandir sidebar"}
+          >
+            <ActionIcon
+              onClick={toggleDesktop}
+              variant="subtle"
+              color="teal"
+              size="lg"
+              visibleFrom="sm"
+            >
+              {desktopOpened ? (
+                <IconLayoutSidebarLeftCollapse size={20} />
+              ) : (
+                <IconLayoutSidebarLeftExpand size={20} />
+              )}
+            </ActionIcon>
+          </Tooltip>
         )}
         <ThemeIcon size="lg" radius="md" color="teal">
           <IconSoup size={20} />
