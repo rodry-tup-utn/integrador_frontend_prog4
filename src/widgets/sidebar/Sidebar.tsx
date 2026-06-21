@@ -5,7 +5,11 @@ import NavLinkSidebar from "./NavLinkSidebar";
 import { sidebarSections } from "./sidebarLinks";
 import { useNavigate } from "react-router-dom";
 
-const Sidebar = () => {
+interface SidebarProps {
+  onMobileClose?: () => void;
+}
+
+const Sidebar = ({ onMobileClose }: SidebarProps) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const visibleSections = sidebarSections.filter(
@@ -21,7 +25,7 @@ const Sidebar = () => {
   return (
     <Stack h="100%" justify="space-between">
       {/* Links */}
-      <Stack gap={0}>
+      <Stack gap={0} style={{ overflowY: "auto" }}>
         {visibleSections.map((section) => (
           <NavLinkSidebar
             key={section.title}
@@ -30,6 +34,7 @@ const Sidebar = () => {
             links={section.links}
             opened={section.opened || false}
             userRoles={user?.roles || []}
+            onLinkClick={onMobileClose}
           />
         ))}
       </Stack>
