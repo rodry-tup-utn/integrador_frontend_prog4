@@ -1,4 +1,4 @@
-import { Group, Pagination, Text, TextInput, Title } from "@mantine/core";
+import { Group, Pagination, Paper, Text, TextInput, Title } from "@mantine/core";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
 import { useState } from "react";
 import { useDebouncedValue } from "@mantine/hooks";
@@ -119,7 +119,7 @@ const ProductsAdminPage = () => {
         </section>
 
         <section className="cell md:col-span-2">
-          <div className="flex flex-col items-start justify-between min-h-50 p-2 shadow-md border-b-gray-400 rounded-md">
+          <Paper shadow="sm" withBorder radius="md" p="md">
             <ProductsTable
               isLoading={isLoading}
               data={data}
@@ -127,7 +127,7 @@ const ProductsAdminPage = () => {
               onDelete={handleDelete}
               onRestore={handleRestore}
             />
-          </div>
+          </Paper>
         </section>
 
         <section className="cell p-2" style={{ border: "2px doted green" }}>
