@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import type { ProductCreate } from "../types/product";
+import type { ProductCreate, ProductDetailResponse } from "../types/product";
 import {
   Button,
   Group,
@@ -19,7 +19,7 @@ import {
 import { IconPhoto, IconTrash } from "@tabler/icons-react";
 import { CategorySelector } from "../../categories/components/CategorySelector";
 import IngredientSelector from "./IngredientSelector";
-import { validateAll } from "../helpers/productValidations";
+import { mapIngredientToBatchItem, validateAll } from "../helpers/productValidations";
 import { useMeasurementUnits } from "../../ingredients/hooks/useMeasurementUnits";
 import useImageUpload from "../../upload/hooks/useImageUpload";
 import { notifications } from "@mantine/notifications";
@@ -30,26 +30,26 @@ interface Props {
   onClose: () => void;
   onSubmit: (data: ProductCreate) => void;
   isSubmitting?: boolean;
+  initialData?: ProductDetailResponse
 }
 
-const ProductCreateModal = ({
-  opened,
-  onClose,
-  onSubmit,
-  isSubmitting,
-}: Props) => {
-  const [formData, setFormData] = useState<ProductCreate>({
-    name: "",
-    description: "",
-    base_price: 0,
-    stock: 0,
-    sales_unit: "",
-    images_url: [],
-    category_id: 0,
-    type: "FINAL",
-    ingredients: [],
-  });
+const ProductCreateModal = ({ opened, onClose, onSubmit, isSubmitting, initialData, }: Props) => {
 
+  console.log("INITIALDATA: ", initialData)
+  const isEditing = initialData !== undefined
+
+  const [formData, setFormData] = useState<ProductCreate>({
+    name: initialData?.name ?? '',
+    description: initialData?.description ?? "",
+    base_price: parseFloat(String(initialData?.base_price)) ?? 0,
+    stock: initialData?.stock ?? 0,
+    sales_unit: initialData?.sales_unit ?? "",
+    images_url: initialData?.images_url ?? [],
+    category_id: initialData?.primary_category.id ?? 0,
+    type: initialData?.type ?? "FINAL",
+    ingredients: initialData?.ingredients?.map(mapIngredientToBatchItem) ?? [],
+  })
+  const [previews, setPreviews] = useState<string[]>(initialData?.images_url ?? []);
   const [errors, setErrors] = useState({
     name: "",
     description: "",
@@ -64,7 +64,6 @@ const ProductCreateModal = ({
 
   const { data: measurementUnits } = useMeasurementUnits();
   const { uploadImage, deleteImage } = useImageUpload();
-  const [previews, setPreviews] = useState<string[]>([]);
 
   const unitOptions = useMemo(
     () =>
@@ -143,8 +142,22 @@ const ProductCreateModal = ({
     const newErrors = validateAll(formData);
     setErrors(newErrors);
     const hasErrors = Object.values(newErrors).some((err) => err !== "");
-    if (hasErrors) return;
-    onSubmit(formData);
+    if (hasErrors) {
+      return;
+    } else {
+      onSubmit(formData);
+      setFormData({
+        name: "",
+        description: "",
+        base_price: 0,
+        stock: 0,
+        sales_unit: "",
+        images_url: [],
+        category_id: 0,
+        type: "FINAL",
+        ingredients: [],
+      })
+    }
   };
 
   const handleClose = () => {
@@ -162,7 +175,7 @@ const ProductCreateModal = ({
       opened={opened}
       onClose={handleClose}
       size="70%"
-      title="Nuevo Producto"
+      title={isEditing ? "Editar producto" : "Nuevo Producto"}
       centered
     >
       <Stack gap="md">
@@ -291,7 +304,6 @@ const ProductCreateModal = ({
                 { value: "MANUFACTURED", label: "Manufacturado" },
               ]}
             />
-
             {formData.type === "MANUFACTURED" && (
               <IngredientSelector
                 value={formData.ingredients}
@@ -306,7 +318,7 @@ const ProductCreateModal = ({
             Cancelar
           </Button>
           <Button onClick={handleSubmit} loading={isSubmitting}>
-            Crear Producto
+            {isEditing ? "Actualizar Producto" : "Crear Producto"}
           </Button>
         </Group>
       </Stack>

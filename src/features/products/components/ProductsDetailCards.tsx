@@ -361,11 +361,8 @@ export const ProductCategoriesCard = ({
   );
 };
 
-export const ProductIngredientsCard = ({
-  productId,
-}: {
-  productId: number;
-}) => {
+export const ProductIngredientsCard = ({ productId }: { productId: number }) => {
+  
   const { data: productWithIngredients } = useProductWithIngredients(productId);
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebouncedValue(search, 400);
@@ -433,6 +430,7 @@ export const ProductIngredientsCard = ({
       },
     );
   };
+
   const handleSaveChanges = () => {
     const ingredients = currentIngredients.map((ing) => ({
       ingredient_id: ing.ingredient_id,

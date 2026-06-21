@@ -24,6 +24,7 @@ interface ProductsTableProps {
   onRestore: (item: ProductPrivate) => void;
   onDelete: (item: ProductPrivate) => void;
   onModalOpen: (value: boolean) => void;
+  onEdit: (id: number) => void
 }
 
 const mapType = (type: TypeProduct) => {
@@ -38,6 +39,7 @@ const ProductsTable = ({
   data,
   onRestore,
   onDelete,
+  onEdit
 }: ProductsTableProps) => {
   const { user } = useAuth();
   const { data: measurementUnits } = useMeasurementUnits();
@@ -195,6 +197,14 @@ const ProductsTable = ({
 
                 <Table.Td>
                   <Group gap={4} justify="center">
+                    <ActionButton
+                      icon={IconEdit}
+                      label="Update"
+                      color='cyan'
+                      onClick={() =>
+                        onEdit(item.id)
+                      }
+                    />
                     <ActionButton
                       icon={IconEdit}
                       label="Editar"

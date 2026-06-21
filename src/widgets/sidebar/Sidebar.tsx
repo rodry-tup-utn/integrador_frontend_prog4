@@ -19,7 +19,7 @@ const Sidebar = () => {
   };
 
   return (
-    <Stack h="100%" justify="space-between">
+    <Stack h="100%" justify="space-between" px={'xs'} pt={'xs'} className="overflow-y-scroll">
       {/* Links */}
       <Stack gap={0}>
         {visibleSections.map((section) => (

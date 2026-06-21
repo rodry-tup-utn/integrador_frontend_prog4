@@ -21,7 +21,7 @@ const MainLayout = () => {
         <Header toggle={toggle} mobileOpened={mobileOpened} />
       </AppShell.Header>
       {isAuthenticated && (
-        <AppShell.Navbar p="xs">
+        <AppShell.Navbar>
           <Sidebar />
         </AppShell.Navbar>
       )}

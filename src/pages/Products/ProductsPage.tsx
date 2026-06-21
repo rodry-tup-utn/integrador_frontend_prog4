@@ -59,7 +59,7 @@ const ProductsPage = () => {
     categoryStack.length === 0
       ? (categoryTree ?? [])
       : (findNode(categoryTree ?? [], categoryStack[categoryStack.length - 1])
-          ?.children ?? []);
+        ?.children ?? []);
 
   const [sortBy, order]: [string | undefined, OrderDirection | undefined] =
     filters.sortValue
@@ -77,6 +77,23 @@ const ProductsPage = () => {
     limit: 50,
   });
 
+  console.log(productsList)
+
+  /*   const availableIngredients =
+    allIngredients?.data
+      .filter((ing) => {
+        const notSelected = !value.some((i) => i.ingredient_id === ing.id)
+        const isActive = ing.deleted_at === null && Number(ing.stock) > 0
+        return notSelected && isActive
+      })
+      .map((ing) => ({ value: String(ing.id), label: ing.name })) ?? []; */
+
+  const visibleProducts = productsList?.data?.filter((prod) => {
+    const isAvailable = prod.available
+    const hasStock = prod.stock > 0
+    return isAvailable && hasStock
+  }) ?? []
+
   return (
     <div className="flex flex-col gap-6 p-6">
       <div className="flex items-center justify-between">
@@ -85,7 +102,7 @@ const ProductsPage = () => {
             Nuestros productos
           </Text>
           <Text size="sm" c="dimmed">
-            {productsList?.total ?? 0} productos disponibles
+            {visibleProducts.length ?? 0} productos disponibles
           </Text>
         </div>
       </div>
@@ -193,9 +210,9 @@ const ProductsPage = () => {
         <div className="flex justify-center py-16">
           <Text c="dimmed">Cargando productos...</Text>
         </div>
-      ) : productsList?.data && productsList.data.length > 0 ? (
+      ) : visibleProducts && visibleProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {productsList.data.map((product) => (
+          {visibleProducts.map((product) => (
             <ProductCardPublic key={product.id} product={product} />
           ))}
         </div>

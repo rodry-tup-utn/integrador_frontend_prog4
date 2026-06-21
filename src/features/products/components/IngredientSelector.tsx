@@ -50,7 +50,11 @@ const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
 
   const availableIngredients =
     allIngredients?.data
-      .filter((ing) => !value.some((i) => i.ingredient_id === ing.id))
+      .filter((ing) => {
+        const notSelected = !value.some((i) => i.ingredient_id === ing.id)
+        const isActive = ing.deleted_at === null && Number(ing.stock) > 0
+        return notSelected && isActive
+      })
       .map((ing) => ({ value: String(ing.id), label: ing.name })) ?? [];
 
   const handleAdd = () => {
@@ -70,6 +74,26 @@ const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
 
   const handleRemove = (ingredientId: number) => {
     onChange(value.filter((ing) => ing.ingredient_id !== ingredientId));
+  };
+
+  const handleQuantityChange = (ingredientId: number, newQuantity: number | string) => {
+    onChange(
+      value.map((ing) =>
+        ing.ingredient_id === ingredientId
+          ? { ...ing, quantity_ingredient: Number(newQuantity) || 0 }
+          : ing,
+      ),
+    );
+  }
+
+  const handleRemovableChange = (ingredientId: number, checked: boolean) => {
+    onChange(
+      value.map((ing) =>
+        ing.ingredient_id === ingredientId
+          ? { ...ing, is_removable: checked }
+          : ing,
+      ),
+    );
   };
 
   return (
@@ -106,13 +130,27 @@ const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
                   </Text>
                 </Table.Td>
                 <Table.Td ta="center">
-                  <Text size="sm">{ing.quantity_ingredient}</Text>
+                  <Group justify="center">
+                    <NumberInput
+                      value={ing.quantity_ingredient}
+                      min={0}
+                      step={unitCodeMap.get(ing.ingredient_id) === "UNIT" ? 1 : 0.25}
+                      leftSection={resolveSymbol(unitCodeMap.get(ing.ingredient_id) ?? '')}
+                      onChange={(v) => handleQuantityChange(ing.ingredient_id, v)}
+                      w={90}
+                    />
+                  </Group>
                 </Table.Td>
 
-                <Table.Td ta="center">
-                  <Switch size="sm" checked={ing.is_removable} readOnly />
+                <Table.Td ta="center" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }} >
+                  <Switch
+                    size="sm"
+                    checked={ing.is_removable}
+                    onChange={(evt) => handleRemovableChange(ing.ingredient_id, evt.currentTarget.checked)}
+
+                  />
                 </Table.Td>
-                <Table.Td ta="center">
+                <Table.Td ta="center" >
                   <ActionIcon
                     color="red"
                     variant="subtle"
@@ -127,37 +165,45 @@ const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
         </Table>
       )}
 
-      <div className="flex items-center gap-2">
-        <Select
-          placeholder="Agregar ingrediente..."
-          searchable
-          data={availableIngredients}
-          value={selected ? String(selected) : null}
-          onChange={(v) => setSelected(v ? Number(v) : null)}
-          onSearchChange={setSearch}
-          className="flex-1"
-          renderOption={({ option }) => {
-            const id = Number(option.value);
-            return (
-              <Group gap="xs" justify="space-between">
-                <Text size="sm">{option.label}</Text>
-                <Text size="xs" c="dimmed">
-                  {resolveSymbol(unitCodeMap.get(id) ?? "")}
-                </Text>
-              </Group>
-            );
-          }}
-        />
-        <NumberInput value={quantity} min={0} onChange={setQuantity} w={80} />
-        <Switch
-          size="sm"
-          label="Removible"
-          checked={isRemovable}
-          onChange={(e) => setIsRemovable(e.currentTarget.checked)}
-        />
-        <Button onClick={handleAdd} disabled={!selected}>
-          Agregar
-        </Button>
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto_auto] gap-4 items-center">
+        <div className="col-span-1">
+          <Select
+            placeholder="Agregar ingrediente..."
+            searchable
+            data={availableIngredients}
+            value={selected ? String(selected) : null}
+            onChange={(v) => setSelected(v ? Number(v) : null)}
+            onSearchChange={setSearch}
+            className="flex-1"
+            renderOption={({ option }) => {
+              const id = Number(option.value);
+              return (
+                <Group gap="xs" justify="space-between">
+                  <Text size="sm">{option.label}</Text>
+                  <Text size="xs" c="dimmed">
+                    {resolveSymbol(unitCodeMap.get(id) ?? "")}
+                  </Text>
+                </Group>
+              );
+            }}
+          />
+        </div>
+        <div className="col-span-1 w-full md:w-auto" >
+          <NumberInput value={quantity} min={0} onChange={setQuantity} w={80} leftSection={resolveSymbol(unitCodeMap.get(selected!) ?? "")} className="w-full md:min-w-36" />
+        </div>
+        <div className="col-span-1">
+          <Switch
+            size="sm"
+            label="Removible"
+            checked={isRemovable}
+            onChange={(e) => setIsRemovable(e.currentTarget.checked)}
+          />
+        </div>
+        <div className="col-span-1">
+          <Button onClick={handleAdd} disabled={!selected}>
+            Agregar
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -105,6 +105,23 @@ export interface ProductIngredientBatchCreate {
   ingredients: ProductIngredientBatchItem[];
 }
 
+export interface ProductDetailResponse extends ProductBase {
+  primary_category: CategorySummary;
+  categories: CategorySummary[];
+  ingredients: ProductIngredientResponse[];
+  created_at: string;
+  updated_at: string | null;
+  deleted_at: string | null;
+}
+
+export interface ProductIngredientResponse {
+  ingredient_id: number;
+  name: string;
+  description: string;
+  is_removable: boolean;
+  is_allergen: boolean;
+  quantity: string;
+}
 export interface ProductFilters {
   search?: string;
   category_id?: number;
@@ -122,10 +139,8 @@ export const productKeys = {
   list: (filters: ProductFilters = {}) => ["product", "list", filters] as const,
   detail: (id: number) => ["product", "detail", id] as const,
   // admin
-  adminAll: (filters: ProductFilters = {}) =>
-    ["product", "admin", "list", filters] as const,
-  getWithCategory: (id: number) =>
-    ["product", "admin", "category", id] as const,
+  adminAll: (filters: ProductFilters = {}) => ["product", "admin", "list", filters] as const,
+  getWithCategory: (id: number) => ["product", "admin", "category", id] as const,
   // Product-Ingredient
   getWithIngredients: (product_id: number) =>
     ["product", "ingredient", "product_id", product_id] as const,
