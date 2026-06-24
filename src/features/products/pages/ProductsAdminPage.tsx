@@ -210,8 +210,9 @@ const ProductsAdminPage = () => {
 
           <Select
             label="Tipo de producto"
+            placeholder="Tipo..."
+            clearable
             data={[
-              { value: "", label: "Todos" },
               { value: "MANUFACTURED", label: "Manufacturados" },
               { value: "FINAL", label: "Finales" },
             ]}
