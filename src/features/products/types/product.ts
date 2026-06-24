@@ -105,6 +105,23 @@ export interface ProductIngredientBatchCreate {
   ingredients: ProductIngredientBatchItem[];
 }
 
+export interface ProductDetailResponse extends ProductBase {
+  primary_category: CategorySummary;
+  categories: CategorySummary[];
+  ingredients: ProductIngredientResponse[];
+  created_at: string;
+  updated_at: string | null;
+  deleted_at: string | null;
+}
+
+export interface ProductIngredientResponse {
+  ingredient_id: number;
+  name: string;
+  description: string;
+  is_removable: boolean;
+  is_allergen: boolean;
+  quantity: string;
+}
 export interface ProductFilters {
   search?: string;
   category_id?: number;
@@ -115,6 +132,16 @@ export interface ProductFilters {
   limit?: number;
   sort_by?: "name" | "base_price";
   order?: "asc" | "desc";
+  type?: TypeProduct;
+}
+
+export interface CalculateStockItem {
+  ingredient_id: number;
+  quantity_ingredient: number;
+}
+
+export interface CalculateStockResponse {
+  stock: number;
 }
 
 export const productKeys = {

@@ -1,5 +1,8 @@
-import type { ProductCreate } from "../types/product";
-
+import type {
+  ProductCreate,
+  ProductIngredientBatchItem,
+  ProductIngredientResponse,
+} from "../types/product";
 
 export const validateField = (name: string, value: string | number): string => {
   switch (name) {
@@ -28,3 +31,12 @@ export const validateAll = (data: ProductCreate): Record<keyof ProductCreate, st
     Object.entries(data).map(([key, value]) => [key, validateField(key, value)]),
   ) as Record<keyof ProductCreate, string>;
 };
+
+
+export const mapIngredientToBatchItem = (ingredient: ProductIngredientResponse): ProductIngredientBatchItem => ({
+  ingredient_id: ingredient.ingredient_id,
+  is_removable: ingredient.is_removable,
+  quantity_ingredient: parseFloat(ingredient.quantity),
+});
+
+

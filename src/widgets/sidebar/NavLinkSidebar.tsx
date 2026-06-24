@@ -17,6 +17,7 @@ const NavLinkSidebar = ({
   MainIcon,
   opened,
   userRoles,
+  onLinkClick,
 }: Props) => {
   const location = useLocation();
   return (
@@ -40,6 +41,7 @@ const NavLinkSidebar = ({
               leftSection={<Icon size={16} />}
               active={location.pathname === to}
               variant="light"
+              onClick={onLinkClick}
             />
           ))}
       </NavLink>

@@ -1,13 +1,24 @@
-import { Group, Pagination, Text, TextInput, Title } from "@mantine/core";
+import {
+  Group,
+  Pagination,
+  Paper,
+  Select,
+  Text,
+  TextInput,
+  Title,
+} from "@mantine/core";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
 import { useState } from "react";
 import { useDebouncedValue } from "@mantine/hooks";
 import ProductsTable from "../components/ProductsTable";
 import { useAdminProducts } from "../hooks/product.queries.hooks";
 import {
+  productKeys,
   type ProductCreate,
+  type ProductDetailResponse,
   type ProductFilters,
   type ProductPrivate,
+  type TypeProduct,
 } from "../types/product";
 import ProductCreateModal from "../components/ProductCreateModal";
 import { useProductMutation } from "../hooks/product.mutation.hooks";
@@ -16,6 +27,8 @@ import ActionButton from "../../../shared/components/ActionButton";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 import { CategorySelector } from "../../categories/components/CategorySelector";
+import { queryClient } from "../../../shared/api/queryClient";
+import { productService } from "../services/product.services";
 
 const ProductsAdminPage = () => {
   const LIMIT = 20;
@@ -25,17 +38,32 @@ const ProductsAdminPage = () => {
   const [debouncedSearch] = useDebouncedValue(searchTerm, 300);
   const [createOpen, setCreateOpen] = useState(false);
   const [category, setCategory] = useState<number | undefined>(undefined);
+  const [editingProductId, setEditingProductId] = useState<number | null>();
+  const [prodToEdit, setProdToEdit] = useState<
+    ProductDetailResponse | undefined
+  >(undefined);
+  const [typeFilter, setTypeFilter] = useState<TypeProduct | undefined>(
+    undefined,
+  );
 
   const filters: ProductFilters = {
     offset: (page - 1) * LIMIT,
     limit: LIMIT,
     search: debouncedSearch || undefined,
     category_id: category,
+    type: typeFilter,
   };
 
   const { data, isLoading } = useAdminProducts(filters);
-  const { createProduct, deleteProduct, restoreProduct, isCreating } =
-    useProductMutation();
+  const {
+    createProduct,
+    deleteProduct,
+    restoreProduct,
+    updateProduct,
+    updateIngredientsBatch,
+    removeIngredient,
+    isCreating,
+  } = useProductMutation();
 
   const totalPages = data
     ? Math.ceil(data.total / (filters.limit ?? LIMIT))
@@ -76,6 +104,82 @@ const ProductsAdminPage = () => {
     });
   };
 
+  const handleEdit = async (data: number) => {
+    try {
+      const detail = await queryClient.fetchQuery({
+        queryKey: productKeys.getWithCategory(data),
+        queryFn: () => productService.stock.getWithCategory(data),
+      });
+      setEditingProductId(data);
+      setProdToEdit(detail);
+      setCreateOpen(true);
+    } catch {
+      notifications.show({
+        title: "Error",
+        message: "No se pudo cargar el producto",
+        color: "red",
+      });
+    }
+  };
+
+  const handleModalClose = () => {
+    setCreateOpen(false);
+    setEditingProductId(null);
+    setProdToEdit(undefined);
+  };
+
+  const handleSubmit = async (data: ProductCreate) => {
+    if (!editingProductId) {
+      handleCreate(data);
+      return;
+    }
+
+    try {
+      const { ingredients, ...productFields } = data;
+
+      await updateProduct({ id: editingProductId, data: productFields });
+
+      if (data.type === "MANUFACTURED") {
+        if (ingredients.length > 0) {
+          await updateIngredientsBatch({
+            product_id: editingProductId,
+            data: { ingredients },
+          });
+        }
+
+        const originalIds = new Set(
+          (prodToEdit?.ingredients ?? []).map((i) => i.ingredient_id),
+        );
+        const currentIds = new Set(ingredients.map((i) => i.ingredient_id));
+        const removedIds = [...originalIds].filter((id) => !currentIds.has(id));
+
+        await Promise.all(
+          removedIds.map((id) =>
+            removeIngredient({ productId: editingProductId, ingredientId: id }),
+          ),
+        );
+      }
+      const msg = prodToEdit
+        ? `${prodToEdit?.name} actualizado`
+        : "Producto actualizado con éxito";
+      handleModalClose();
+      notifications.show({
+        title: "Producto actualizado",
+        message: msg,
+        color: "green",
+      });
+    } catch (error) {
+      notifications.show({
+        title: "Error al actualizar",
+        message: extractApiErrorMessage(
+          error,
+          "Error al actualizar el producto",
+        ),
+        color: "red",
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col">
       <Title order={2} style={{ marginBottom: "8px" }}>
@@ -103,6 +207,18 @@ const ProductsAdminPage = () => {
             }}
             value={category}
           />
+
+          <Select
+            label="Tipo de producto"
+            data={[
+              { value: "", label: "Todos" },
+              { value: "MANUFACTURED", label: "Manufacturados" },
+              { value: "FINAL", label: "Finales" },
+            ]}
+            onChange={(t) =>
+              t ? setTypeFilter(t as TypeProduct) : setTypeFilter(undefined)
+            }
+          />
         </Group>
 
         <section className="cell py-2 px-4">
@@ -111,7 +227,9 @@ const ProductsAdminPage = () => {
               icon={IconPlus}
               label="Nuevo Producto"
               text="Nuevo producto"
-              onClick={() => setCreateOpen(true)}
+              onClick={() => {
+                setCreateOpen(true);
+              }}
               color="teal"
               variant="filled"
             />
@@ -119,15 +237,16 @@ const ProductsAdminPage = () => {
         </section>
 
         <section className="cell md:col-span-2">
-          <div className="flex flex-col items-start justify-between min-h-50 p-2 shadow-md border-b-gray-400 rounded-md">
+          <Paper shadow="sm" withBorder radius="md" p="md">
             <ProductsTable
               isLoading={isLoading}
               data={data}
               onModalOpen={setCreateOpen}
               onDelete={handleDelete}
               onRestore={handleRestore}
+              onEdit={handleEdit}
             />
-          </div>
+          </Paper>
         </section>
 
         <section className="cell p-2" style={{ border: "2px doted green" }}>
@@ -148,12 +267,16 @@ const ProductsAdminPage = () => {
           </div>
         </section>
       </div>
-      <ProductCreateModal
-        opened={createOpen}
-        onClose={() => setCreateOpen(false)}
-        onSubmit={handleCreate}
-        isSubmitting={isCreating}
-      />
+      {
+        <ProductCreateModal
+          key={prodToEdit?.name ?? "new"}
+          opened={createOpen}
+          onClose={handleModalClose}
+          onSubmit={handleSubmit}
+          isSubmitting={isCreating}
+          initialData={prodToEdit ?? undefined}
+        />
+      }
     </div>
   );
 };

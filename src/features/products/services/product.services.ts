@@ -1,7 +1,6 @@
 import api from "../../../shared/api/axiosConfig";
 import type {
   ProductCreate,
-  ProductDetail,
   ProductIngredient,
   ProductIngredientBatchCreate,
   ProductIngredientPublic,
@@ -12,6 +11,8 @@ import type {
   ProductPublic,
   ProductUpdate,
   ProductWithIngredients,
+  ProductDetailResponse,
+  ProductIngredientBatchItem,
 } from "../types/product";
 
 const ADMIN_URL = "/admin/product";
@@ -56,8 +57,10 @@ export const productService = {
       });
       return response.data;
     },
-    getWithCategory: async (id: number): Promise<ProductDetail> => {
-      const response = await api.get<ProductDetail>(`${STOCK_URL}/${id}`);
+    getWithCategory: async (id: number): Promise<ProductDetailResponse> => {
+      const response = await api.get<ProductDetailResponse>(
+        `${STOCK_URL}/${id}`,
+      );
       return response.data;
     },
     update: async (id: number, data: ProductUpdate): Promise<ProductUpdate> => {
@@ -88,13 +91,22 @@ export const productService = {
       );
       return response.data;
     },
+    calculateStock: async (data: {
+      ingredients: ProductIngredientBatchItem[];
+    }): Promise<{ stock: number }> => {
+      const response = await api.post(`${STOCK_URL}/calculate-stock`, data);
+      return response.data;
+    },
+
     setAvailability: async (
       id: number,
       is_available: boolean,
     ): Promise<ProductPublic> => {
       const response = await api.patch<ProductPublic>(
         `${STOCK_URL}/${id}/available`,
-        { available: is_available },
+        {
+          available: is_available,
+        },
       );
       return response.data;
     },
@@ -138,7 +150,9 @@ export const productService = {
       product_id: number,
       ingredient_id: number,
     ): Promise<void> => {
-      await api.delete(`${STOCK_URL}/${product_id}/ingredient/${ingredient_id}`);
+      await api.delete(
+        `${STOCK_URL}/${product_id}/ingredient/${ingredient_id}`,
+      );
     },
   },
   productIngredient: {

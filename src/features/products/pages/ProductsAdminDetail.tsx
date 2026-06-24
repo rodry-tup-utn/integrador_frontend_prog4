@@ -9,8 +9,6 @@ import {
   Group,
   Paper,
   Text,
-  TextInput,
-  Textarea,
   Title,
   Stack,
   ActionIcon,
@@ -18,7 +16,7 @@ import {
   SimpleGrid,
   FileInput,
 } from "@mantine/core";
-import { IconCheck, IconEdit, IconPhoto, IconTrash, IconX } from "@tabler/icons-react";
+import { IconEdit, IconPhoto, IconTrash } from "@tabler/icons-react";
 import {
   ProductCategoriesCard,
   ProductPriceCard,
@@ -27,24 +25,25 @@ import {
   ProductTypeCard,
   ProductIngredientsCard,
 } from "../components/ProductsDetailCards";
-import { CategorySelector } from "../../categories/components/CategorySelector";
+import ProductCreateModal from "../components/ProductCreateModal";
 import { useProductMutation } from "../hooks/product.mutation.hooks";
 import { notifications } from "@mantine/notifications";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 import NotFoundState from "../../../shared/components/NotFoundState";
 import useImageUpload from "../../upload/hooks/useImageUpload";
+import type { ProductCreate } from "../types/product";
 
 const ProductsAdminDetail = () => {
   const { id } = useParams();
   const prodId = Number(id);
 
   const { data: product, isLoading } = useAdminProductDetail(prodId);
-  const { changeStockAvailable, updateProduct, isUpdating } =
-    useProductMutation();
+  const { updateProduct, isUpdating } = useProductMutation();
 
   const { uploadImage, deleteImage, isUploading } = useImageUpload();
 
   const [localImages, setLocalImages] = useState<string[]>([]);
+  const [editModalOpened, setEditModalOpened] = useState(false);
 
   useEffect(() => {
     if (product) {
@@ -54,117 +53,27 @@ const ProductsAdminDetail = () => {
   }, [product]);
 
   const [fileKey, setFileKey] = useState(0);
-  const [editingName, setEditingName] = useState(false);
-  const [nameDraft, setNameDraft] = useState("");
-  const [editingDesc, setEditingDesc] = useState(false);
-  const [descDraft, setDescDraft] = useState("");
-  const [editingCategory, setEditingCategory] = useState(false);
-  const [categoryDraft, setCategoryDraft] = useState<number | null>(null);
 
   if (!id || isNaN(prodId))
     return <NotFoundState message="Producto no encontrado" />;
   if (isLoading) return <>Cargando...</>;
   if (!product) return <NotFoundState message="Producto no encontrado" />;
 
-  const handleAvailability = (availability: boolean) => {
-    changeStockAvailable(
-      { id: prodId, is_available: availability },
+  const handleModalSubmit = (data: ProductCreate) => {
+    updateProduct(
+      { id: prodId, data },
       {
         onSuccess: () => {
+          setEditModalOpened(false);
           notifications.show({
             color: "green",
-            message: "Disponibilidad actualizada",
+            message: "Producto actualizado",
           });
         },
         onError: (error) => {
-          const message = extractApiErrorMessage(error);
-          notifications.show({ color: "red", message: message });
-        },
-      },
-    );
-  };
-
-  const startEditName = () => {
-    setNameDraft(product.name);
-    setEditingName(true);
-  };
-
-  const saveName = () => {
-    if (!nameDraft.trim() || nameDraft === product.name) {
-      setEditingName(false);
-      return;
-    }
-    updateProduct(
-      { id: prodId, data: { name: nameDraft } },
-      {
-        onSuccess: () => {
-          setEditingName(false);
-          notifications.show({ color: "green", message: "Nombre actualizado" });
-        },
-        onError: (err) => {
           notifications.show({
             color: "red",
-            message: extractApiErrorMessage(err, "Error al actualizar"),
-          });
-        },
-      },
-    );
-  };
-
-  const startEditDesc = () => {
-    setDescDraft(product.description ?? "");
-    setEditingDesc(true);
-  };
-
-  const saveDesc = () => {
-    if (descDraft === (product.description ?? "")) {
-      setEditingDesc(false);
-      return;
-    }
-    updateProduct(
-      { id: prodId, data: { description: descDraft || undefined } },
-      {
-        onSuccess: () => {
-          setEditingDesc(false);
-          notifications.show({
-            color: "green",
-            message: "Descripción actualizada",
-          });
-        },
-        onError: (err) => {
-          notifications.show({
-            color: "red",
-            message: extractApiErrorMessage(err, "Error al actualizar"),
-          });
-        },
-      },
-    );
-  };
-
-  const startEditCategory = () => {
-    setCategoryDraft(product.primary_category?.id ?? null);
-    setEditingCategory(true);
-  };
-
-  const saveCategory = () => {
-    if (categoryDraft === (product.primary_category?.id ?? null)) {
-      setEditingCategory(false);
-      return;
-    }
-    updateProduct(
-      { id: prodId, data: { category_id: categoryDraft ?? 0 } },
-      {
-        onSuccess: () => {
-          setEditingCategory(false);
-          notifications.show({
-            color: "green",
-            message: "Categoría actualizada",
-          });
-        },
-        onError: (err) => {
-          notifications.show({
-            color: "red",
-            message: extractApiErrorMessage(err, "Error al actualizar"),
+            message: extractApiErrorMessage(error, "Error al actualizar"),
           });
         },
       },
@@ -225,81 +134,30 @@ const ProductsAdminDetail = () => {
             className="bg-slate-100 rounded-2xl border-zinc-500"
           >
             <Group justify="space-between" align="center">
-              <div style={{ flex: 1 }}>
-                <Text size="md">#{product.id}</Text>
-                {editingName ? (
-                  <Group gap="sm" mt="xs">
-                    <TextInput
-                      value={nameDraft}
-                      onChange={(e) => setNameDraft(e.currentTarget.value)}
-                      style={{ flex: 1 }}
-                    />
-                    <ActionIcon
-                      color="teal"
-                      onClick={saveName}
-                      loading={isUpdating}
-                    >
-                      <IconCheck size={20} />
-                    </ActionIcon>
-                    <ActionIcon
-                      color="red"
-                      variant="subtle"
-                      onClick={() => setEditingName(false)}
-                    >
-                      <IconX size={20} />
-                    </ActionIcon>
-                  </Group>
-                ) : (
-                  <Group gap="xs" align="center">
-                    <Title order={2} mb="xs">
-                      {product.name}
-                    </Title>
-                    <ActionIcon variant="subtle" onClick={startEditName}>
-                      <IconEdit size={18} />
-                    </ActionIcon>
-                  </Group>
+              <Stack gap={0}>
+                <Text size="sm" c="dimmed">
+                  #{product.id}
+                </Text>
+                <Group gap="xs" align="center">
+                  <Title order={2}>{product.name}</Title>
+                  <Badge
+                    color={product.available ? "teal" : "red"}
+                    variant="dot"
+                    size="lg"
+                  >
+                    {product.available ? "Disponible" : "No disponible"}
+                  </Badge>
+                </Group>
+                {product.description && (
+                  <Text size="md">{product.description}</Text>
                 )}
-                {editingDesc ? (
-                  <Group gap="sm" mt="xs">
-                    <Textarea
-                      value={descDraft}
-                      onChange={(e) => setDescDraft(e.currentTarget.value)}
-                      style={{ flex: 1 }}
-                      minRows={2}
-                    />
-                    <ActionIcon
-                      color="teal"
-                      onClick={saveDesc}
-                      loading={isUpdating}
-                    >
-                      <IconCheck size={20} />
-                    </ActionIcon>
-                    <ActionIcon
-                      color="red"
-                      variant="subtle"
-                      onClick={() => setEditingDesc(false)}
-                    >
-                      <IconX size={20} />
-                    </ActionIcon>
-                  </Group>
-                ) : (
-                  <Group gap="xs" align="center">
-                    <Text size="md">{product.description}</Text>
-                    <ActionIcon variant="subtle" onClick={startEditDesc}>
-                      <IconEdit size={16} />
-                    </ActionIcon>
-                  </Group>
-                )}
-              </div>
-              <Badge
-                color={product.available ? "teal" : "red"}
-                variant="dot"
-                size="lg"
-                style={{ cursor: "pointer" }}
-                onClick={() => handleAvailability(!product.available)}
+              </Stack>
+              <Button
+                leftSection={<IconEdit size={18} />}
+                onClick={() => setEditModalOpened(true)}
               >
-                {product.available ? "Disponible" : "No disponible"}
-              </Badge>
+                Editar producto
+              </Button>
             </Group>
           </Paper>
         </Grid.Col>
@@ -378,41 +236,10 @@ const ProductsAdminDetail = () => {
             >
               <Group justify="space-between" align="center" mb="sm">
                 <Text size="md">Categoría principal</Text>
-                <ActionIcon variant="subtle" onClick={startEditCategory}>
-                  <IconEdit size={18} />
-                </ActionIcon>
               </Group>
-              {editingCategory ? (
-                <Stack gap="sm">
-                  <CategorySelector
-                    label=""
-                    value={categoryDraft}
-                    onChange={(v) => setCategoryDraft(v)}
-                    showBreadcrumbs
-                    onlyLeaves
-                  />
-                  <Group gap="sm">
-                    <Button
-                      size="xs"
-                      onClick={saveCategory}
-                      loading={isUpdating}
-                    >
-                      Guardar
-                    </Button>
-                    <Button
-                      size="xs"
-                      variant="subtle"
-                      onClick={() => setEditingCategory(false)}
-                    >
-                      Cancelar
-                    </Button>
-                  </Group>
-                </Stack>
-              ) : (
-                <Badge variant="filled" color="dark" size="lg">
-                  {product?.primary_category?.name}
-                </Badge>
-              )}
+              <Badge variant="filled" color="dark" size="lg">
+                {product?.primary_category?.name}
+              </Badge>
             </Paper>
             <ProductCategoriesCard product={product} />
           </Stack>
@@ -420,13 +247,7 @@ const ProductsAdminDetail = () => {
 
         {product.type === "MANUFACTURED" && (
           <Grid.Col span={12}>
-            <Paper
-              p="md"
-              withBorder
-              className="bg-slate-100 rounded-2xl border-zinc-500"
-            >
-              <ProductIngredientsCard productId={product.id} />
-            </Paper>
+            <ProductIngredientsCard ingredients={product.ingredients ?? []} />
           </Grid.Col>
         )}
 
@@ -471,6 +292,14 @@ const ProductsAdminDetail = () => {
           </Paper>
         </Grid.Col>
       </Grid>
+
+      <ProductCreateModal
+        opened={editModalOpened}
+        onClose={() => setEditModalOpened(false)}
+        onSubmit={handleModalSubmit}
+        isSubmitting={isUpdating}
+        initialData={product}
+      />
     </>
   );
 };

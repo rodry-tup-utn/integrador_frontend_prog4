@@ -1,8 +1,10 @@
 import { useState, useMemo } from "react";
-import type { ProductCreate } from "../types/product";
+import type { ProductCreate, ProductDetailResponse } from "../types/product";
 import {
+  Alert,
   Button,
   Group,
+  Loader,
   Modal,
   SegmentedControl,
   Select,
@@ -13,14 +15,18 @@ import {
   Text,
   Image,
   ActionIcon,
-  SimpleGrid,
   FileInput,
 } from "@mantine/core";
-import { IconPhoto, IconTrash } from "@tabler/icons-react";
+import { useDebouncedValue } from "@mantine/hooks";
+import { IconInfoCircle, IconPhoto, IconTrash } from "@tabler/icons-react";
 import { CategorySelector } from "../../categories/components/CategorySelector";
 import IngredientSelector from "./IngredientSelector";
-import { validateAll } from "../helpers/productValidations";
+import {
+  mapIngredientToBatchItem,
+  validateAll,
+} from "../helpers/productValidations";
 import { useMeasurementUnits } from "../../ingredients/hooks/useMeasurementUnits";
+import { useCalculateStock } from "../hooks/useCalculateStock";
 import useImageUpload from "../../upload/hooks/useImageUpload";
 import { notifications } from "@mantine/notifications";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
@@ -30,6 +36,7 @@ interface Props {
   onClose: () => void;
   onSubmit: (data: ProductCreate) => void;
   isSubmitting?: boolean;
+  initialData?: ProductDetailResponse;
 }
 
 const ProductCreateModal = ({
@@ -37,19 +44,33 @@ const ProductCreateModal = ({
   onClose,
   onSubmit,
   isSubmitting,
+  initialData,
 }: Props) => {
+  console.log("INITIALDATA: ", initialData);
+  const isEditing = initialData !== undefined;
+  const originalType = initialData?.type;
+
   const [formData, setFormData] = useState<ProductCreate>({
-    name: "",
-    description: "",
-    base_price: 0,
-    stock: 0,
-    sales_unit: "",
-    images_url: [],
-    category_id: 0,
-    type: "FINAL",
-    ingredients: [],
+    name: initialData?.name ?? "",
+    description: initialData?.description ?? "",
+    base_price: parseFloat(String(initialData?.base_price)) ?? 0,
+    stock: initialData?.stock ?? 0,
+    sales_unit: initialData?.sales_unit ?? "",
+    images_url: initialData?.images_url ?? [],
+    category_id: initialData?.primary_category.id ?? 0,
+    type: initialData?.type ?? "FINAL",
+    ingredients: initialData?.ingredients?.map(mapIngredientToBatchItem) ?? [],
   });
 
+  const typeChangeWarning =
+    isEditing && formData.type !== originalType
+      ? formData.type === "MANUFACTURED"
+        ? "El stock pasará a calcularse según los ingredientes disponibles."
+        : "Los ingredientes serán eliminados y deberás definir el stock manualmente."
+      : null;
+  const [previews, setPreviews] = useState<string[]>(
+    initialData?.images_url ?? [],
+  );
   const [errors, setErrors] = useState({
     name: "",
     description: "",
@@ -64,7 +85,10 @@ const ProductCreateModal = ({
 
   const { data: measurementUnits } = useMeasurementUnits();
   const { uploadImage, deleteImage } = useImageUpload();
-  const [previews, setPreviews] = useState<string[]>([]);
+
+  const [debouncedIngredients] = useDebouncedValue(formData.ingredients, 400);
+  const { data: stockResult, isFetching } =
+    useCalculateStock(debouncedIngredients);
 
   const unitOptions = useMemo(
     () =>
@@ -96,7 +120,6 @@ const ProductCreateModal = ({
     setFormData((prev) => ({
       ...prev,
       type,
-      ingredients: type === "FINAL" ? [] : prev.ingredients,
       stock: type === "MANUFACTURED" ? 0 : prev.stock,
     }));
   };
@@ -143,8 +166,13 @@ const ProductCreateModal = ({
     const newErrors = validateAll(formData);
     setErrors(newErrors);
     const hasErrors = Object.values(newErrors).some((err) => err !== "");
-    if (hasErrors) return;
-    onSubmit(formData);
+    if (hasErrors) {
+      return;
+    } else {
+      const submitData =
+        formData.type === "FINAL" ? { ...formData, ingredients: [] } : formData;
+      onSubmit(submitData);
+    }
   };
 
   const handleClose = () => {
@@ -161,8 +189,8 @@ const ProductCreateModal = ({
     <Modal
       opened={opened}
       onClose={handleClose}
-      size="70%"
-      title="Nuevo Producto"
+      size="80%"
+      title={isEditing ? "Editar producto" : "Nuevo Producto"}
       centered
     >
       <Stack gap="md">
@@ -204,18 +232,32 @@ const ProductCreateModal = ({
                 error={errors.base_price}
               />
 
-              {formData.type === "FINAL" && (
-                <TextInput
-                  label="Stock"
-                  name="stock"
-                  type="number"
-                  required
-                  value={formData.stock}
-                  onChange={handleChange}
-                  error={errors.stock}
-                />
-              )}
+              <TextInput
+                label={
+                  formData.type == "FINAL"
+                    ? "Stock"
+                    : "Stock (se calcula a partir del stock de ingredientes)"
+                }
+                name="stock"
+                type="number"
+                required
+                readOnly={formData.type == "MANUFACTURED"}
+                value={
+                  formData.type === "MANUFACTURED"
+                    ? (stockResult?.stock ?? formData.stock)
+                    : formData.stock
+                }
+                onChange={handleChange}
+                error={errors.stock}
+                rightSection={
+                  isFetching && formData.type === "MANUFACTURED" ? (
+                    <Loader size="xs" />
+                  ) : undefined
+                }
+              />
+            </Group>
 
+            <Group gap="md" grow>
               <Select
                 label="Unidad de venta"
                 placeholder="Seleccionar unidad"
@@ -227,51 +269,46 @@ const ProductCreateModal = ({
                 clearable
                 searchable
               />
-            </Group>
-
-            <Group gap="md" grow>
               <CategorySelector
                 label="Categoría"
                 value={formData.category_id}
                 onChange={handleCategoryChange}
-                showBreadcrumbs
                 onlyLeaves
               />
-
-              <Stack gap={3}>
-                <FileInput
-                  label="Imágenes"
-                  placeholder="Seleccionar imágenes"
-                  leftSection={<IconPhoto size={16} />}
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={handleFileUpload}
-                  clearable
-                />
-                {previews.length > 0 && (
-                  <SimpleGrid cols={3} spacing="xs" mt="xs">
-                    {previews.map((url) => (
-                      <Stack key={url} gap={3} align="center">
-                        <Image
-                          src={url}
-                          h={80}
-                          w="auto"
-                          fit="contain"
-                          radius="sm"
-                        />
-                        <ActionIcon
-                          color="red"
-                          variant="light"
-                          size="sm"
-                          onClick={() => handleRemoveImage(url)}
-                        >
-                          <IconTrash size={14} />
-                        </ActionIcon>
-                      </Stack>
-                    ))}
-                  </SimpleGrid>
-                )}
-              </Stack>
             </Group>
+          </Stack>
+          <Stack gap={4}>
+            <FileInput
+              label="Imágenes"
+              placeholder="Seleccionar imágenes"
+              leftSection={<IconPhoto size={16} />}
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleFileUpload}
+              clearable
+            />
+            {previews.length > 0 && (
+              <Group gap={3} justify="space-around">
+                {previews.map((url) => (
+                  <Stack key={url} gap={3} align="center">
+                    <Image
+                      p={3}
+                      src={url}
+                      h={100}
+                      w="auto"
+                      fit="contain"
+                      radius="md"
+                    />
+                    <ActionIcon
+                      color="red"
+                      variant="light"
+                      onClick={() => handleRemoveImage(url)}
+                    >
+                      <IconTrash size={16} />
+                    </ActionIcon>
+                  </Stack>
+                ))}
+              </Group>
+            )}
           </Stack>
         </Paper>
 
@@ -291,7 +328,17 @@ const ProductCreateModal = ({
                 { value: "MANUFACTURED", label: "Manufacturado" },
               ]}
             />
-
+            {typeChangeWarning && (
+              <Alert
+                variant="light"
+                color={formData.type === "MANUFACTURED" ? "blue" : "orange"}
+                icon={<IconInfoCircle size={16} />}
+                py="xs"
+                px="md"
+              >
+                <Text size="sm">{typeChangeWarning}</Text>
+              </Alert>
+            )}
             {formData.type === "MANUFACTURED" && (
               <IngredientSelector
                 value={formData.ingredients}
@@ -306,7 +353,7 @@ const ProductCreateModal = ({
             Cancelar
           </Button>
           <Button onClick={handleSubmit} loading={isSubmitting}>
-            Crear Producto
+            {isEditing ? "Actualizar Producto" : "Crear Producto"}
           </Button>
         </Group>
       </Stack>
