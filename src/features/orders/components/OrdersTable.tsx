@@ -1,4 +1,4 @@
-import { Table, Paper, Group, Pagination, Text, Badge } from "@mantine/core";
+import { Table, Paper, Group, Pagination, Text } from "@mantine/core";
 import type { OrderPublic, OrderStateCode } from "../types/order";
 import { STATE_COLORS, STATE_LABELS } from "../types/configs";
 import ActionButton from "../../../shared/components/ActionButton";
