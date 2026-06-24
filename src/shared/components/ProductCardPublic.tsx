@@ -28,6 +28,10 @@ const ProductCardPublic = ({ product }: { product: ProductPublic }) => {
   const [imgIndex, setImgIndex] = useState(0);
   const images = product.images_url?.filter(Boolean) ?? [];
 
+  const qtyInCart =
+    items.find((i) => i.product.id === product.id)?.quantity ?? 0;
+  const realStock = product.stock - qtyInCart;
+
   const canAdd =
     !user || user.roles.includes("CLIENT") || user.roles.includes("ADMIN");
 
@@ -37,16 +41,22 @@ const ProductCardPublic = ({ product }: { product: ProductPublic }) => {
         {/* renderizado condicional segun cantidad de stock */}
         {(() => {
           const stockState =
-            !product.available || product.stock === 0 || product.stock === null
+            !product.available || realStock === 0
               ? "out"
-              : product.stock < 8
+              : realStock <= 5
                 ? "last"
                 : "available";
 
           const config = {
             out: { color: "red", label: "Sin stock" },
-            last: { color: "orange", label: "Últimas unidades" },
-            available: { color: "teal", label: "Disponible" },
+            last: {
+              color: "orange",
+              label: `Últimas ${realStock} unidades`,
+            },
+            available: {
+              color: "teal",
+              label: `Disponible (${realStock})`,
+            },
           } as const;
 
           const current = config[stockState];
@@ -162,10 +172,16 @@ const ProductCardPublic = ({ product }: { product: ProductPublic }) => {
             color="teal"
             fullWidth
             leftSection={<IconShoppingCart size={14} />}
-            disabled={!product.available || product.stock === 0}
-            onClick={() => addItem(product)}
+            disabled={!product.available || realStock === 0}
+            onClick={() => {
+              addItem(product);
+            }}
           >
-            {inCart ? "+ Agregar más" : "+ Agregar"}
+            {realStock > 0
+              ? inCart
+                ? "+ Agregar más"
+                : "+ Agregar"
+              : "Sin stock"}
           </Button>
         )}
       </Stack>

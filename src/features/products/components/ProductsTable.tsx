@@ -9,7 +9,7 @@ import {
   IconInfoCircle,
   IconRestore,
   IconTrash,
-  IconEyeSearch
+  IconEyeSearch,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/context/AuthContext";
@@ -25,7 +25,7 @@ interface ProductsTableProps {
   onRestore: (item: ProductPrivate) => void;
   onDelete: (item: ProductPrivate) => void;
   onModalOpen: (value: boolean) => void;
-  onEdit: (id: number) => void
+  onEdit: (id: number) => void;
 }
 
 const mapType = (type: TypeProduct) => {
@@ -40,7 +40,7 @@ const ProductsTable = ({
   data,
   onRestore,
   onDelete,
-  onEdit
+  onEdit,
 }: ProductsTableProps) => {
   const { user } = useAuth();
   const { data: measurementUnits } = useMeasurementUnits();
@@ -201,10 +201,8 @@ const ProductsTable = ({
                     <ActionButton
                       icon={IconEdit}
                       label="Editar"
-                      color='cyan'
-                      onClick={() =>
-                        onEdit(item.id)
-                      }
+                      color="cyan"
+                      onClick={() => onEdit(item.id)}
                     />
                     <ActionButton
                       icon={IconEyeSearch}

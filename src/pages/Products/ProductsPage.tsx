@@ -59,7 +59,7 @@ const ProductsPage = () => {
     categoryStack.length === 0
       ? (categoryTree ?? [])
       : (findNode(categoryTree ?? [], categoryStack[categoryStack.length - 1])
-        ?.children ?? []);
+          ?.children ?? []);
 
   const [sortBy, order]: [string | undefined, OrderDirection | undefined] =
     filters.sortValue
@@ -77,22 +77,8 @@ const ProductsPage = () => {
     limit: 50,
   });
 
-  console.log(productsList)
-
-  /*   const availableIngredients =
-    allIngredients?.data
-      .filter((ing) => {
-        const notSelected = !value.some((i) => i.ingredient_id === ing.id)
-        const isActive = ing.deleted_at === null && Number(ing.stock) > 0
-        return notSelected && isActive
-      })
-      .map((ing) => ({ value: String(ing.id), label: ing.name })) ?? []; */
-
-  const visibleProducts = productsList?.data?.filter((prod) => {
-    const isAvailable = prod.available
-    const hasStock = prod.stock > 0
-    return isAvailable && hasStock
-  }) ?? []
+  const visibleProducts =
+    productsList?.data?.filter((prod) => prod.available) ?? [];
 
   return (
     <div className="flex flex-col gap-6 p-6">

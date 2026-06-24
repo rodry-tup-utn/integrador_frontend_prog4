@@ -132,6 +132,16 @@ export interface ProductFilters {
   limit?: number;
   sort_by?: "name" | "base_price";
   order?: "asc" | "desc";
+  type?: TypeProduct;
+}
+
+export interface CalculateStockItem {
+  ingredient_id: number;
+  quantity_ingredient: number;
+}
+
+export interface CalculateStockResponse {
+  stock: number;
 }
 
 export const productKeys = {
@@ -139,8 +149,10 @@ export const productKeys = {
   list: (filters: ProductFilters = {}) => ["product", "list", filters] as const,
   detail: (id: number) => ["product", "detail", id] as const,
   // admin
-  adminAll: (filters: ProductFilters = {}) => ["product", "admin", "list", filters] as const,
-  getWithCategory: (id: number) => ["product", "admin", "category", id] as const,
+  adminAll: (filters: ProductFilters = {}) =>
+    ["product", "admin", "list", filters] as const,
+  getWithCategory: (id: number) =>
+    ["product", "admin", "category", id] as const,
   // Product-Ingredient
   getWithIngredients: (product_id: number) =>
     ["product", "ingredient", "product_id", product_id] as const,

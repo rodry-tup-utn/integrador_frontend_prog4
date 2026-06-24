@@ -124,7 +124,6 @@ export const AdminOrdersPage = () => {
         extraHeaders={
           <>
             <Table.Th>Nombre</Table.Th>
-            <Table.Th>Email</Table.Th>
           </>
         }
         renderExtraCells={(order) => {
@@ -134,7 +133,6 @@ export const AdminOrdersPage = () => {
               <Table.Td>
                 {ao.user.name}, {ao.user.lastname}
               </Table.Td>
-              <Table.Td>{ao.user.email}</Table.Td>
             </>
           );
         }}

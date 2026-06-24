@@ -12,6 +12,7 @@ import type {
   ProductUpdate,
   ProductWithIngredients,
   ProductDetailResponse,
+  ProductIngredientBatchItem,
 } from "../types/product";
 
 const ADMIN_URL = "/admin/product";
@@ -48,18 +49,25 @@ export const productService = {
     },
   },
   stock: {
-    getAllStock: async (filters: ProductFilters = {}): Promise<ProductPrivateList> => {
+    getAllStock: async (
+      filters: ProductFilters = {},
+    ): Promise<ProductPrivateList> => {
       const response = await api.get<ProductPrivateList>(STOCK_URL, {
         params: filters,
       });
       return response.data;
     },
     getWithCategory: async (id: number): Promise<ProductDetailResponse> => {
-      const response = await api.get<ProductDetailResponse>(`${STOCK_URL}/${id}`);
+      const response = await api.get<ProductDetailResponse>(
+        `${STOCK_URL}/${id}`,
+      );
       return response.data;
     },
     update: async (id: number, data: ProductUpdate): Promise<ProductUpdate> => {
-      const response = await api.patch<ProductUpdate>(`${STOCK_URL}/${id}`, data);
+      const response = await api.patch<ProductUpdate>(
+        `${STOCK_URL}/${id}`,
+        data,
+      );
       return response.data;
     },
 
@@ -75,15 +83,31 @@ export const productService = {
     },
 
     updateStock: async (id: number, stock: number): Promise<ProductUpdate> => {
-      const response = await api.patch<ProductUpdate>(`${STOCK_URL}/${id}/update`, {
-        stock: stock,
-      });
+      const response = await api.patch<ProductUpdate>(
+        `${STOCK_URL}/${id}/update`,
+        {
+          stock: stock,
+        },
+      );
       return response.data;
     },
-    setAvailability: async (id: number, is_available: boolean): Promise<ProductPublic> => {
-      const response = await api.patch<ProductPublic>(`${STOCK_URL}/${id}/available`, {
-        available: is_available,
-      });
+    calculateStock: async (data: {
+      ingredients: ProductIngredientBatchItem[];
+    }): Promise<{ stock: number }> => {
+      const response = await api.post(`${STOCK_URL}/calculate-stock`, data);
+      return response.data;
+    },
+
+    setAvailability: async (
+      id: number,
+      is_available: boolean,
+    ): Promise<ProductPublic> => {
+      const response = await api.patch<ProductPublic>(
+        `${STOCK_URL}/${id}/available`,
+        {
+          available: is_available,
+        },
+      );
       return response.data;
     },
 
@@ -122,13 +146,22 @@ export const productService = {
       return response.data;
     },
 
-    removeIngredient: async (product_id: number, ingredient_id: number): Promise<void> => {
-      await api.delete(`${STOCK_URL}/${product_id}/ingredient/${ingredient_id}`);
+    removeIngredient: async (
+      product_id: number,
+      ingredient_id: number,
+    ): Promise<void> => {
+      await api.delete(
+        `${STOCK_URL}/${product_id}/ingredient/${ingredient_id}`,
+      );
     },
   },
   productIngredient: {
-    getProductWithIngredients: async (id: number): Promise<ProductWithIngredients> => {
-      const response = await api.get<ProductWithIngredients>(`/product/${id}/ingredient`);
+    getProductWithIngredients: async (
+      id: number,
+    ): Promise<ProductWithIngredients> => {
+      const response = await api.get<ProductWithIngredients>(
+        `/product/${id}/ingredient`,
+      );
       return response.data;
     },
   },

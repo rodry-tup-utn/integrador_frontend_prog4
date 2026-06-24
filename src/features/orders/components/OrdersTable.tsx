@@ -1,4 +1,4 @@
-import { Table, Paper, Group, Pagination, Text, Badge } from "@mantine/core";
+import { Table, Paper, Group, Pagination, Text } from "@mantine/core";
 import type { OrderPublic, OrderStateCode } from "../types/order";
 import { STATE_COLORS, STATE_LABELS } from "../types/configs";
 import ActionButton from "../../../shared/components/ActionButton";
@@ -33,86 +33,95 @@ export const OrdersTable = ({
   return (
     <>
       <Paper shadow="sm" withBorder radius="md" mb="md">
-        <Table striped highlightOnHover horizontalSpacing="lg">
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>ID</Table.Th>
-              {extraHeaders}
-              <Table.Th>Fecha</Table.Th>
-              <Table.Th>Estado</Table.Th>
-              <Table.Th>Subtotal</Table.Th>
-              <Table.Th>Descuento</Table.Th>
-              <Table.Th>Envío</Table.Th>
-              <Table.Th>Total</Table.Th>
-              <Table.Th ta="center">Acciones</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {isLoading ? (
+        <Table.ScrollContainer minWidth={500}>
+          <Table striped highlightOnHover horizontalSpacing="lg">
+            <Table.Thead>
               <Table.Tr>
-                <Table.Td colSpan={extraHeaders ? 10 : 8}>
-                  <Text ta="center" py="md">
-                    Cargando órdenes...
-                  </Text>
-                </Table.Td>
+                <Table.Th>ID</Table.Th>
+                {extraHeaders}
+                <Table.Th>Fecha</Table.Th>
+                <Table.Th ta="center" style={{ whiteSpace: "nowrap" }}>
+                  Estado
+                </Table.Th>
+
+                <Table.Th>Total</Table.Th>
+                <Table.Th ta="center" p="lg">
+                  Acciones
+                </Table.Th>
               </Table.Tr>
-            ) : !orders?.length ? (
-              <Table.Tr>
-                <Table.Td colSpan={8}>
-                  <Text ta="center" py="md" c="dimmed">
-                    No se encontraron pedidos.
-                  </Text>
-                </Table.Td>
-              </Table.Tr>
-            ) : (
-              orders.map((order) => {
-                const subtotal = Number(order.subtotal);
-                const discount = Number(order.discount);
-                const shipping = Number(order.shipping_cost);
-                const totalAmount = subtotal - discount + shipping;
-                return (
-                  <Table.Tr key={order.id}>
-                    <Table.Td>#{order.id}</Table.Td>
-                    {renderExtraCells?.(order)}
-                    <Table.Td>
-                      {new Date(order.created_at).toLocaleDateString()}
-                    </Table.Td>
-                    <Table.Td>
-                      <Badge
-                        color={
-                          STATE_COLORS[order.state_code as OrderStateCode] ||
-                          "gray"
-                        }
-                        variant="light"
-                      >
-                        {STATE_LABELS[order.state_code as OrderStateCode] ||
-                          order.state_code}
-                      </Badge>
-                    </Table.Td>
-                    <Table.Td>${subtotal.toFixed(2)}</Table.Td>
-                    <Table.Td>${discount.toFixed(2)}</Table.Td>
-                    <Table.Td>${shipping.toFixed(2)}</Table.Td>
-                    <Table.Td>
-                      <Text fw={700}>${totalAmount.toFixed(2)}</Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Group gap="md" justify="center">
-                        <ActionButton
-                          icon={IconEye}
-                          label="Ver detalle"
-                          color="teal"
-                          variant="light"
-                          onClick={() => onViewDetail(order.id)}
-                        ></ActionButton>
-                        {renderActions(order)}
-                      </Group>
-                    </Table.Td>
-                  </Table.Tr>
-                );
-              })
-            )}
-          </Table.Tbody>
-        </Table>
+            </Table.Thead>
+            <Table.Tbody>
+              {isLoading ? (
+                <Table.Tr>
+                  <Table.Td colSpan={extraHeaders ? 6 : 5}>
+                    <Text ta="center" py="md">
+                      Cargando órdenes...
+                    </Text>
+                  </Table.Td>
+                </Table.Tr>
+              ) : !orders?.length ? (
+                <Table.Tr>
+                  <Table.Td colSpan={extraHeaders ? 6 : 5}>
+                    <Text ta="center" py="md" c="dimmed">
+                      No se encontraron pedidos.
+                    </Text>
+                  </Table.Td>
+                </Table.Tr>
+              ) : (
+                orders.map((order) => {
+                  const subtotal = Number(order.subtotal);
+                  const discount = Number(order.discount);
+                  const shipping = Number(order.shipping_cost);
+                  const totalAmount = subtotal - discount + shipping;
+                  return (
+                    <Table.Tr key={order.id}>
+                      <Table.Td>#{order.id}</Table.Td>
+                      {renderExtraCells?.(order)}
+                      <Table.Td>
+                        {new Date(order.created_at).toLocaleDateString()}
+                      </Table.Td>
+                      <Table.Td ta="center">
+                        <Text
+                          component="span"
+                          c={
+                            STATE_COLORS[order.state_code as OrderStateCode] ||
+                            "gray"
+                          }
+                          fw={600}
+                          size="sm"
+                          tt="uppercase"
+                          bg={`${STATE_COLORS[order.state_code as OrderStateCode] || "gray"}.1`}
+                          px={8}
+                          py={2}
+                          style={{ borderRadius: "var(--mantine-radius-sm)" }}
+                        >
+                          {STATE_LABELS[order.state_code as OrderStateCode] ||
+                            order.state_code}
+                        </Text>
+                      </Table.Td>
+
+                      <Table.Td>
+                        <Text fw={700}>${totalAmount.toFixed(2)}</Text>
+                      </Table.Td>
+                      <Table.Td>
+                        <Group gap="md" justify="center">
+                          <ActionButton
+                            icon={IconEye}
+                            label="Ver detalle"
+                            color="teal"
+                            variant="light"
+                            onClick={() => onViewDetail(order.id)}
+                          ></ActionButton>
+                          {renderActions(order)}
+                        </Group>
+                      </Table.Td>
+                    </Table.Tr>
+                  );
+                })
+              )}
+            </Table.Tbody>
+          </Table>
+        </Table.ScrollContainer>
       </Paper>
       <Group justify="space-between">
         <Text size="sm" c="dimmed">
