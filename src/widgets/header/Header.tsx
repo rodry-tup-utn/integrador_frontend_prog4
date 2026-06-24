@@ -89,7 +89,7 @@ const Header = ({
             onClick={() => navigate(ROUTES.HOME)}
             label="Dashboard"
             icon={IconHome}
-            text="Home"
+            text="Dashboard"
             color="cyan"
             variant="subtle"
           />
