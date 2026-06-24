@@ -5,6 +5,7 @@ import {
   Group,
   NumberInput,
   Select,
+  Stack,
   Switch,
   Table,
   Text,
@@ -13,20 +14,29 @@ import { IconTrash } from "@tabler/icons-react";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useAdminIngredientsList } from "../../ingredients/hooks/useAdminIngredientsList";
 import { useMeasurementUnits } from "../../ingredients/hooks/useMeasurementUnits";
-import type { ProductIngredientBatchItem } from "../types/product";
+import {
+  type IngredientInProduct,
+  type ProductIngredientBatchItem,
+} from "../types/product";
 
 interface IngredientSelectorProps {
   value: ProductIngredientBatchItem[];
   onChange: (ingredients: ProductIngredientBatchItem[]) => void;
+  ingredients?: IngredientInProduct[];
 }
 
 const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
   const [search, setSearch] = useState("");
-  const [debouncedSearch] = useDebouncedValue(search, 400);
+  const [debouncedSearch] = useDebouncedValue(search, 250);
+  const { data: searchIngredients } = useAdminIngredientsList({
+    offset: 0,
+    limit: 10,
+    search: debouncedSearch,
+  });
+
   const { data: allIngredients } = useAdminIngredientsList({
     offset: 0,
-    limit: 20,
-    search: debouncedSearch,
+    limit: 200,
   });
   const [selected, setSelected] = useState<number | null>(null);
   const [quantity, setQuantity] = useState<number | string>(0);
@@ -43,15 +53,19 @@ const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
   );
 
   const unitCodeMap = new Map(
-    allIngredients?.data.map((ing) => [ing.id, ing.measurement_unit_code]) ?? [],
+    allIngredients?.data.map((ing) => [ing.id, ing.measurement_unit_code]) ??
+      [],
   );
 
   const resolveSymbol = (code: string) => unitSymbolMap.get(code) ?? code;
 
   const availableIngredients =
-    allIngredients?.data
+    searchIngredients?.data
       .filter((ing) => !value.some((i) => i.ingredient_id === ing.id))
-      .map((ing) => ({ value: String(ing.id), label: ing.name })) ?? [];
+      .map((ing) => ({
+        value: String(ing.id),
+        label: `${ing.name} (${resolveSymbol(ing.measurement_unit_code)})`,
+      })) ?? [];
 
   const handleAdd = () => {
     if (!selected) return;
@@ -72,8 +86,31 @@ const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
     onChange(value.filter((ing) => ing.ingredient_id !== ingredientId));
   };
 
+  const handleQuantityChange = (
+    ingredientId: number,
+    newQuantity: number | string,
+  ) => {
+    onChange(
+      value.map((ing) =>
+        ing.ingredient_id === ingredientId
+          ? { ...ing, quantity_ingredient: Number(newQuantity) || 0 }
+          : ing,
+      ),
+    );
+  };
+
+  const handleRemovableChange = (ingredientId: number, checked: boolean) => {
+    onChange(
+      value.map((ing) =>
+        ing.ingredient_id === ingredientId
+          ? { ...ing, is_removable: checked }
+          : ing,
+      ),
+    );
+  };
+
   return (
-    <div className="flex flex-col gap-3">
+    <Stack gap="sm">
       {value.length === 0 ? (
         <Text size="sm" c="dimmed">
           Sin ingredientes seleccionados
@@ -100,17 +137,46 @@ const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
                 </Table.Td>
                 <Table.Td ta="center">
                   <Text size="sm">
-                    {resolveSymbol(
-                      unitCodeMap.get(ing.ingredient_id) ?? "",
-                    )}
+                    {resolveSymbol(unitCodeMap.get(ing.ingredient_id) ?? "")}
                   </Text>
                 </Table.Td>
                 <Table.Td ta="center">
-                  <Text size="sm">{ing.quantity_ingredient}</Text>
+                  <Group justify="center">
+                    <NumberInput
+                      value={ing.quantity_ingredient}
+                      min={0}
+                      step={
+                        unitCodeMap.get(ing.ingredient_id) === "UNIT" ? 1 : 0.25
+                      }
+                      leftSection={resolveSymbol(
+                        unitCodeMap.get(ing.ingredient_id) ?? "",
+                      )}
+                      onChange={(v) =>
+                        handleQuantityChange(ing.ingredient_id, v)
+                      }
+                      w={90}
+                    />
+                  </Group>
                 </Table.Td>
 
-                <Table.Td ta="center">
-                  <Switch size="sm" checked={ing.is_removable} readOnly />
+                <Table.Td
+                  ta="center"
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Switch
+                    size="sm"
+                    checked={ing.is_removable}
+                    onChange={(evt) =>
+                      handleRemovableChange(
+                        ing.ingredient_id,
+                        evt.currentTarget.checked,
+                      )
+                    }
+                  />
                 </Table.Td>
                 <Table.Td ta="center">
                   <ActionIcon
@@ -127,26 +193,19 @@ const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
         </Table>
       )}
 
-      <div className="flex items-center gap-2">
+      <Group gap="xs">
         <Select
           placeholder="Agregar ingrediente..."
           searchable
+          clearable
           data={availableIngredients}
           value={selected ? String(selected) : null}
-          onChange={(v) => setSelected(v ? Number(v) : null)}
-          onSearchChange={setSearch}
-          className="flex-1"
-          renderOption={({ option }) => {
-            const id = Number(option.value);
-            return (
-              <Group gap="xs" justify="space-between">
-                <Text size="sm">{option.label}</Text>
-                <Text size="xs" c="dimmed">
-                  {resolveSymbol(unitCodeMap.get(id) ?? "")}
-                </Text>
-              </Group>
-            );
+          onChange={(v) => {
+            setSelected(v ? Number(v) : null);
+            setSearch("");
           }}
+          onSearchChange={setSearch}
+          style={{ flex: 1 }}
         />
         <NumberInput value={quantity} min={0} onChange={setQuantity} w={80} />
         <Switch
@@ -158,8 +217,8 @@ const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
         <Button onClick={handleAdd} disabled={!selected}>
           Agregar
         </Button>
-      </div>
-    </div>
+      </Group>
+    </Stack>
   );
 };
 
