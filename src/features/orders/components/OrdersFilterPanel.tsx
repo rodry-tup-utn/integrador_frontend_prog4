@@ -1,4 +1,4 @@
-import { Group, Select, Button, Title } from "@mantine/core";
+import { Group, Select, Button } from "@mantine/core";
 import { IconFilterOff } from "@tabler/icons-react";
 import type {
   OrderClientFilters,
