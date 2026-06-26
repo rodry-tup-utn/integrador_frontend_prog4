@@ -142,7 +142,7 @@ const OrderDetailModal = ({
       opened={opened}
       onClose={onClose}
       title={order ? `Orden #${order.id}` : "Detalle de orden"}
-      size="auto"
+      size="xl"
       styles={{ body: { padding: 0 } }}
     >
       {isLoading ? (
@@ -268,7 +268,7 @@ const OrderDetailModal = ({
                       </Table.Tr>
                     </Table.Thead>
                     <Table.Tbody>
-                      {order.items.map((item) => (
+                      {order.order_items.map((item) => (
                         <Table.Tr key={item.product_id}>
                           <Table.Td>{item.name_snap}</Table.Td>
                           <Table.Td>{item.quantity}</Table.Td>
@@ -333,10 +333,14 @@ const OrderDetailModal = ({
                     <IconMapPin size={20} />
                     <Title order={5}>Dirección</Title>
                   </Group>
-                  <Text>
-                    {order.address.alias} — {order.address.line_one},{" "}
-                    {order.address.city}, {order.address.province}
-                  </Text>
+                  {order.address ? (
+                    <Text>
+                      {order.address.alias} — {order.address.line_one},{" "}
+                      {order.address.city}, {order.address.province}
+                    </Text>
+                  ) : (
+                    <Text c="dimmed">Retiro en local</Text>
+                  )}
                 </Paper>
 
                 <Paper withBorder p="md" radius="md">

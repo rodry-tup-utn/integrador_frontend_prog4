@@ -14,7 +14,7 @@ export interface OrderItemPublic {
 }
 
 export interface OrderCreate {
-  address_id: number;
+  address_id: number | null;
   payment_method_code: string;
   notes?: string | null;
   items: OrderItemCreate[];
@@ -53,7 +53,7 @@ export interface OrderHistorialPublic {
 export interface OrderPublic {
   id: number;
   user_id: number;
-  address_id: number;
+  address_id: number | null;
   state_code: string;
   payment_method_code: string;
   subtotal: string | number;
@@ -61,6 +61,7 @@ export interface OrderPublic {
   shipping_cost: string | number;
   notes?: string | null;
   created_at: string;
+  order_items: OrderItemPublic[];
 }
 
 export interface OrderAdmin extends OrderPublic {
@@ -69,9 +70,9 @@ export interface OrderAdmin extends OrderPublic {
 
 export interface OrderDetailPublic extends OrderPublic {
   user: OrderUserPublic;
-  address: OrderAddressPublic;
+  address: OrderAddressPublic | null;
   state: StateOrderPublic;
-  items: OrderItemPublic[];
+  order_items: OrderItemPublic[];
   historials: OrderHistorialPublic[];
 }
 
