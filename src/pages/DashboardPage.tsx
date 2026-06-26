@@ -26,7 +26,6 @@ import {
   IconChefHat,
   IconLock,
   IconChartBar,
-  IconSettings,
 } from "@tabler/icons-react";
 import type { Icon } from "@tabler/icons-react";
 import { ROUTES } from "../shared/constants/routes";
@@ -120,13 +119,6 @@ const getQuickLinks = (roles: string[]): QuickLinkSection[] => {
           description: "Ver métricas del sistema",
           icon: IconChartBar,
           color: "cyan",
-        },
-        {
-          to: ROUTES.ADMIN_CONFIG,
-          label: "Configuración",
-          description: "Configuración del sistema",
-          icon: IconSettings,
-          color: "gray",
         },
       ],
     });
