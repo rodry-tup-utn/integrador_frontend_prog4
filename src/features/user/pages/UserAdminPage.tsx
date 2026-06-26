@@ -63,6 +63,7 @@ const UserAdminPage = () => {
         maw={400}
       />
       <Paper shadow="sm" withBorder radius="md" mb="md">
+        <Table.ScrollContainer minWidth={600}>
         <Table striped highlightOnHover color="primary" verticalSpacing={"md"}>
           <Table.Thead>
             <Table.Tr>
@@ -107,6 +108,7 @@ const UserAdminPage = () => {
             )}
           </Table.Tbody>
         </Table>
+        </Table.ScrollContainer>
       </Paper>
       <Group justify="space-between">
         <Text size="sm" c="dimmed">

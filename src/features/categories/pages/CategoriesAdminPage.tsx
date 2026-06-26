@@ -156,38 +156,40 @@ export default function CategoriesAdminPage() {
         </Button>
       </Group>
       <Paper shadow="sm" withBorder radius="md" mb="md">
-        <Table striped highlightOnHover>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>ID</Table.Th>
-              <Table.Th>Nombre</Table.Th>
-              <Table.Th>Descripción</Table.Th>
-              <Table.Th>Estado</Table.Th>
-              <Table.Th style={{ textAlign: "center" }}>Acciones</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {isLoading ? (
+        <Table.ScrollContainer minWidth={500}>
+          <Table striped highlightOnHover>
+            <Table.Thead>
               <Table.Tr>
-                <Table.Td colSpan={5}>
-                  <Text ta="center" py="xl">
-                    Cargando...
-                  </Text>
-                </Table.Td>
+                <Table.Th>ID</Table.Th>
+                <Table.Th>Nombre</Table.Th>
+                <Table.Th>Descripción</Table.Th>
+                <Table.Th>Estado</Table.Th>
+                <Table.Th style={{ textAlign: "center" }}>Acciones</Table.Th>
               </Table.Tr>
-            ) : !treeData?.length ? (
-              <Table.Tr>
-                <Table.Td colSpan={5}>
-                  <Text ta="center" py="xl">
-                    No hay categorías.
-                  </Text>
-                </Table.Td>
-              </Table.Tr>
-            ) : (
-              treeData.map((node) => renderTreeNode(node, 0))
-            )}
-          </Table.Tbody>
-        </Table>
+            </Table.Thead>
+            <Table.Tbody>
+              {isLoading ? (
+                <Table.Tr>
+                  <Table.Td colSpan={5}>
+                    <Text ta="center" py="xl">
+                      Cargando...
+                    </Text>
+                  </Table.Td>
+                </Table.Tr>
+              ) : !treeData?.length ? (
+                <Table.Tr>
+                  <Table.Td colSpan={5}>
+                    <Text ta="center" py="xl">
+                      No hay categorías.
+                    </Text>
+                  </Table.Td>
+                </Table.Tr>
+              ) : (
+                treeData.map((node) => renderTreeNode(node, 0))
+              )}
+            </Table.Tbody>
+          </Table>
+        </Table.ScrollContainer>
       </Paper>
       <Text size="sm" c="dimmed">
         Total: {treeData?.length || 0} categorías raíz

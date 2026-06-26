@@ -1,4 +1,5 @@
 import {
+  Box,
   Group,
   Button,
   Text,
@@ -81,36 +82,50 @@ const Header = ({
           size="xl"
           fw={800}
           c="teal.8"
+          visibleFrom="xs"
         >
           Food Store
         </Text>
         {isAuthenticated && (
-          <ActionButton
-            onClick={() => navigate(ROUTES.HOME)}
-            label="Dashboard"
-            icon={IconHome}
-            text="Dashboard"
-            color="cyan"
-            variant="subtle"
-          />
+          <Box visibleFrom="sm">
+            <ActionButton
+              onClick={() => navigate(ROUTES.HOME)}
+              label="Dashboard"
+              icon={IconHome}
+              text="Dashboard"
+              color="teal"
+              variant="subtle"
+            />
+          </Box>
         )}
       </Group>
 
       <Group gap="sm">
-        <ActionButton
-          onClick={() => navigate(-1)}
-          label="Volver"
-          icon={IconArrowLeft}
-          variant="subtle"
-          color="cyan"
-          text="Volver"
-        />
+        <Box visibleFrom="sm">
+          <ActionButton
+            onClick={() => navigate(-1)}
+            label="Volver"
+            icon={IconArrowLeft}
+            variant="subtle"
+            color="teal"
+            text="Volver"
+          />
+        </Box>
+        <Box hiddenFrom="sm">
+          <ActionButton
+            onClick={() => navigate(-1)}
+            label="Volver"
+            icon={IconArrowLeft}
+            variant="subtle"
+            color="teal"
+          />
+        </Box>
         {!isAuthenticated && (
           <>
-            <Button component={Link} to={ROUTES.LOGIN} variant="light">
+            <Button component={Link} to={ROUTES.LOGIN} variant="light" size="sm">
               Iniciar sesión
             </Button>
-            <Button component={Link} to={ROUTES.REGISTER}>
+            <Button component={Link} to={ROUTES.REGISTER} size="sm">
               Registrarse
             </Button>
           </>

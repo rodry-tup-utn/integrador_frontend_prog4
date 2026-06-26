@@ -1,25 +1,11 @@
-import { useState } from "react";
+import { Card, Group, Stack, Text, Badge, Divider } from "@mantine/core";
 import {
-  Card,
-  Group,
-  Stack,
-  Text,
-  Badge,
-  Collapse,
-  Divider,
-  Table,
-  Loader,
-  Center,
-} from "@mantine/core";
-import {
-  IconChevronDown,
-  IconChevronUp,
   IconArrowBigRightLines,
+  IconReceiptDollar,
   IconXMark,
 } from "@tabler/icons-react";
 import type { OrderAdmin, OrderStateCode } from "../types/order";
 import { STATE_COLORS, STATE_LABELS, nextState } from "../types/configs";
-import { useAdminOrderDetail } from "../hooks/admin/useAdminOrderDetail";
 import ActionButton from "../../../shared/components/ActionButton";
 import { isCancellable } from "../helpers/helpers";
 
@@ -40,48 +26,64 @@ function relativeTime(dateStr: string): string {
   return `hace ${Math.floor(hrs / 24)}d`;
 }
 
+function getDelayColor(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 15) return "teal";
+  if (mins < 30) return "yellow";
+  return "red";
+}
+
 export function OrderCard({
   order,
   onAdvance,
   onCancel,
-  borderColor = "green",
+  borderColor,
 }: OrderCardProps) {
-  const [opened, setOpened] = useState(false);
-  const { data: detail, isLoading } = useAdminOrderDetail(
-    opened ? order.id : null,
-  );
   const code = order.state_code as OrderStateCode;
   const next = nextState(code);
 
   return (
     <Card
-      style={{
-        borderColor,
-        borderWidth: "2px",
-      }}
+      withBorder
+      shadow="sm"
       padding="md"
-      radius="md"
+      radius="lg"
+      bg={`${STATE_COLORS[code]}.5`}
+      bd={borderColor ? `2px solid ${borderColor}` : undefined}
     >
-      <Stack gap="xs">
+      <Stack gap="sm">
         <Group justify="space-between" wrap="nowrap">
           <Group gap="xs" wrap="nowrap">
-            <Text fw={700}>#{order.id}</Text>
-            <Text size="sm" c="dimmed" lineClamp={1}>
-              {order.user.name} {order.user.lastname}
+            <Text c="white" fw={800}>
+              #{order.id}{" "}
             </Text>
+            <Badge color={STATE_COLORS[code] || "gray"} variant="light">
+              {STATE_LABELS[code] || code}
+            </Badge>
           </Group>
-          <Text size="xs" c="dimmed" style={{ whiteSpace: "nowrap" }}>
+          <Badge
+            variant="light"
+            color={getDelayColor(order.created_at)}
+            size="sm"
+            style={{ whiteSpace: "nowrap" }}
+          >
             {relativeTime(order.created_at)}
-          </Text>
+          </Badge>
         </Group>
 
-        <Group justify="space-between">
-          <Badge color={STATE_COLORS[code] || "gray"} variant="light" size="sm">
-            {STATE_LABELS[code] || code}
-          </Badge>
-          <Text size="sm" c="dimmed">
-            ${Number(order.subtotal).toFixed(2)}
+        <Group justify="space-between" wrap="nowrap">
+          <Text size="sm" c="white" lineClamp={1}>
+            {order.user.name} {order.user.lastname}
           </Text>
+          <Group>
+            <Group gap="xs">
+              <IconReceiptDollar color="white"></IconReceiptDollar>
+              <Text fw={600} c="white" size="md">
+                ${Number(order.subtotal).toFixed(2)}
+              </Text>
+            </Group>
+          </Group>
         </Group>
 
         <Group gap="xs">
@@ -97,7 +99,7 @@ export function OrderCard({
           )}
           {isCancellable(order.state_code) && (
             <ActionButton
-              variant="subtle"
+              variant="light"
               color="orange"
               text="Cancelar"
               icon={IconXMark}
@@ -105,46 +107,23 @@ export function OrderCard({
               label="Cancelar Orden"
             />
           )}
-          <ActionButton
-            variant="subtle"
-            color="gray"
-            text="Mostrar Detalles"
-            icon={opened ? IconChevronUp : IconChevronDown}
-            onClick={() => setOpened((v) => !v)}
-            label={opened ? "Mostrar detalles" : "Ocultar Detalles"}
-          />
         </Group>
 
-        <Collapse expanded={opened}>
-          <Divider my="sm" />
+        <Divider my="xs" />
 
-          {isLoading ? (
-            <Center py="md">
-              <Loader size="md" />
-            </Center>
-          ) : !detail || detail.items.length === 0 ? (
-            <Text c="dimmed" size="md" ta="center" py="md">
-              Sin productos
-            </Text>
-          ) : (
-            <Table>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th>Producto</Table.Th>
-                  <Table.Th>Cant.</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                {detail.items.map((item) => (
-                  <Table.Tr key={item.product_id}>
-                    <Table.Td>{item.name_snap}</Table.Td>
-                    <Table.Td>{item.quantity}</Table.Td>
-                  </Table.Tr>
-                ))}
-              </Table.Tbody>
-            </Table>
-          )}
-        </Collapse>
+        {order.order_items.length === 0 ? (
+          <Text c="white" size="sm" ta="center" py="xs">
+            Sin productos
+          </Text>
+        ) : (
+          <Group gap="sm" justify="center">
+            {order.order_items.map((item) => (
+              <Badge key={item.product_id} variant="light" color="gray">
+                {item.name_snap} x{item.quantity}
+              </Badge>
+            ))}
+          </Group>
+        )}
       </Stack>
     </Card>
   );

@@ -96,9 +96,6 @@ export const sidebarSections: SidebarSection[] = [
       { to: ROUTES.ADMIN_USERS, label: "Usuarios", icon: IconUsers },
       { to: ROUTES.ADMIN_CATEGORIES, label: "Categorías", icon: IconCategory },
       { to: ROUTES.ADMIN_METRICS, label: "Métricas", icon: IconChartBar },
-      { to: ROUTES.ADMIN_CONFIG, label: "Configuración", icon: IconSettings },
-      // { to: "/admin/metrics", label: "Métricas", icon: IconChartBar },
-      // { to: "/admin/config", label: "Configuración", icon: IconSettings },
     ],
   },
 ];

@@ -38,7 +38,7 @@ export const OrderFiltersPanel = ({ filters, onChange }: Props) => {
         value={filters.state_code || null}
         onChange={(val) => update({ state_code: val as OrderStateCode | null })}
         clearable
-        w={180}
+        w={{ base: "100%", sm: 180 }}
       />
       <input
         type="date"
@@ -48,6 +48,9 @@ export const OrderFiltersPanel = ({ filters, onChange }: Props) => {
           padding: "4px 8px",
           borderRadius: 4,
           border: "1px solid #ced4da",
+          width: "100%",
+          maxWidth: 200,
+          boxSizing: "border-box",
         }}
       />
       <input
@@ -58,6 +61,9 @@ export const OrderFiltersPanel = ({ filters, onChange }: Props) => {
           padding: "4px 8px",
           borderRadius: 4,
           border: "1px solid #ced4da",
+          width: "100%",
+          maxWidth: 200,
+          boxSizing: "border-box",
         }}
       />
       <Select
@@ -66,7 +72,7 @@ export const OrderFiltersPanel = ({ filters, onChange }: Props) => {
         value={filters.sort_by || null}
         onChange={(val) => update({ sort_by: val as OrderSortBy | null })}
         clearable
-        w={160}
+        w={{ base: "100%", sm: 160 }}
       />
       <Select
         placeholder="Dirección"
@@ -74,7 +80,7 @@ export const OrderFiltersPanel = ({ filters, onChange }: Props) => {
         value={filters.order || null}
         onChange={(val) => update({ order: val as OrderDirection | null })}
         clearable
-        w={170}
+        w={{ base: "100%", sm: 170 }}
       />
       <Button
         variant="light"
