@@ -91,6 +91,7 @@ export const IngredientsAdminPage = () => {
         mb="md"
       />
       <Paper shadow="sm" withBorder radius="md" mb="md">
+        <Table.ScrollContainer minWidth={700}>
         <Table striped highlightOnHover>
           <Table.Thead>
             <Table.Tr>
@@ -145,6 +146,7 @@ export const IngredientsAdminPage = () => {
             )}
           </Table.Tbody>
         </Table>
+        </Table.ScrollContainer>
       </Paper>
       <Group justify="space-between">
         <Text size="sm" c="dimmed">
