@@ -1,4 +1,11 @@
-import { Stack, Title, Text, ScrollArea } from "@mantine/core";
+import {
+  Stack,
+  Title,
+  Text,
+  ScrollArea,
+  Paper,
+  SimpleGrid,
+} from "@mantine/core";
 import type { OrderAdmin, OrderStateCode } from "../types/order";
 import { STATE_COLORS, STATE_LABELS } from "../types/configs";
 import { OrderCard } from "./OrderCard";
@@ -22,37 +29,39 @@ export function KitchenColumn({
   const label = STATE_LABELS[state] || state;
 
   return (
-    <Stack p="md" gap="sm">
-      <Title order={4} c={color}>
-        {label}
-        <Text component="span" size="sm" c="dimmed">
-          ({orders.length})
-        </Text>
-      </Title>
+    <Paper shadow="md" withBorder>
+      <Stack p="md" gap="sm">
+        <Title order={4} c={color}>
+          {label}
+          <Text component="span" size="sm" c="dimmed">
+            ({orders.length})
+          </Text>
+        </Title>
 
-      {isLoading ? (
-        <Text c="dimmed" size="sm" ta="center" py="xl">
-          Cargando...
-        </Text>
-      ) : orders.length === 0 ? (
-        <Text c="dimmed" size="sm" ta="center" py="xl">
-          Sin pedidos
-        </Text>
-      ) : (
-        <ScrollArea h="calc(100vh - 280px)" offsetScrollbars>
-          <Stack gap="sm">
-            {orders.map((order) => (
-              <OrderCard
-                key={order.id}
-                order={order}
-                onAdvance={onAdvance}
-                onCancel={onCancel}
-                borderColor={STATE_COLORS[order.state_code as OrderStateCode]}
-              />
-            ))}
-          </Stack>
-        </ScrollArea>
-      )}
-    </Stack>
+        {isLoading ? (
+          <Text c="dimmed" size="sm" ta="center" py="xl">
+            Cargando...
+          </Text>
+        ) : orders.length === 0 ? (
+          <Text c="dimmed" size="sm" ta="center" py="xl">
+            Sin pedidos
+          </Text>
+        ) : (
+          <ScrollArea h="calc(100vh - 280px)" offsetScrollbars>
+            <SimpleGrid cols={{ base: 1, md: 2 }}>
+              {orders.map((order) => (
+                <OrderCard
+                  key={order.id}
+                  order={order}
+                  onAdvance={onAdvance}
+                  onCancel={onCancel}
+                  borderColor={STATE_COLORS[order.state_code as OrderStateCode]}
+                />
+              ))}
+            </SimpleGrid>
+          </ScrollArea>
+        )}
+      </Stack>
+    </Paper>
   );
 }

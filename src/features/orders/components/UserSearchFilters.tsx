@@ -1,4 +1,4 @@
-import { Group, TextInput } from "@mantine/core";
+import { Group, TextInput, Title } from "@mantine/core";
 
 interface Props {
   userName: string;
@@ -19,23 +19,24 @@ export const UserSearchFilters = ({
 }: Props) => {
   return (
     <Group gap="sm" mb="md" wrap="wrap">
+      <Title order={5}>Filtros por Usuario</Title>
+      <TextInput
+        placeholder="Apellido"
+        value={userLastname}
+        onChange={(e) => onUserLastnameChange(e.currentTarget.value)}
+        w={{ base: "100%", sm: 180 }}
+      />
       <TextInput
         placeholder="Nombre"
         value={userName}
         onChange={(e) => onUserNameChange(e.currentTarget.value)}
-        w={180}
+        w={{ base: "100%", sm: 180 }}
       />
       <TextInput
         placeholder="Email"
         value={userEmail}
         onChange={(e) => onUserEmailChange(e.currentTarget.value)}
-        w={200}
-      />
-      <TextInput
-        placeholder="Apellido"
-        value={userLastname}
-        onChange={(e) => onUserLastnameChange(e.currentTarget.value)}
-        w={180}
+        w={{ base: "100%", sm: 200 }}
       />
     </Group>
   );
