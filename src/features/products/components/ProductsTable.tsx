@@ -83,7 +83,8 @@ const ProductsTable = ({
   };
 
   return (
-    <Table striped="odd" stripedColor="#fff" highlightOnHover>
+    <Table.ScrollContainer minWidth={900}>
+      <Table striped="odd" stripedColor="#fff" highlightOnHover>
       <Table.Thead>
         <Table.Tr>
           <Table.Th>ID</Table.Th>
@@ -230,6 +231,7 @@ const ProductsTable = ({
         )}
       </Table.Tbody>
     </Table>
+    </Table.ScrollContainer>
   );
 };
 

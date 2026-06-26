@@ -1,4 +1,4 @@
-import { Title, Group, Stack, Badge } from "@mantine/core";
+import { Title, Group, SimpleGrid } from "@mantine/core";
 import type { OrderAdmin, OrderStateCode } from "../types/order";
 import { useKitchenOrders } from "../hooks/useKitchenOrders";
 import { useAdminOrderMutations } from "../hooks/admin/useAdminOrderMutations";
@@ -6,15 +6,12 @@ import { KitchenColumn } from "../components/KitchenColumn";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
 import { nextState, stateLabel } from "../types/configs";
 import { STATE_COLORS } from "../types/configs";
-import { useState } from "react";
-import ActionButton from "../../../shared/components/ActionButton";
-import { IconEye, IconEyeClosed } from "@tabler/icons-react";
+
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 import { notifications } from "@mantine/notifications";
 
 export function KitchenPage() {
   const columns = useKitchenOrders();
-  const [showDelivered, setShowDelivered] = useState(true);
 
   const { changeOrderState, cancelOrderByStaff } = useAdminOrderMutations();
 
@@ -52,32 +49,19 @@ export function KitchenPage() {
         <Title order={2} mb="lg">
           Cocina
         </Title>
-        <Stack>
-          <Badge variant="outline" color="lime">
-            Finalizados
-          </Badge>
-          <ActionButton
-            label={showDelivered ? "Ocultar" : "Mostrar"}
-            onClick={() => setShowDelivered(!showDelivered)}
-            color="lime"
-            icon={showDelivered ? IconEye : IconEyeClosed}
+      </Group>
+      <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+        {columns.map((col) => (
+          <KitchenColumn
+            key={col.state}
+            state={col.state as OrderStateCode}
+            orders={col.orders}
+            isLoading={col.isLoading}
+            onAdvance={handleAdvance}
+            onCancel={handleCancel}
           />
-        </Stack>
-      </Group>
-      <Group grow align="flex-start" gap="md">
-        {columns
-          .filter((col) => showDelivered || col.state !== "DELIVERED")
-          .map((col) => (
-            <KitchenColumn
-              key={col.state}
-              state={col.state as OrderStateCode}
-              orders={col.orders}
-              isLoading={col.isLoading}
-              onAdvance={handleAdvance}
-              onCancel={handleCancel}
-            />
-          ))}
-      </Group>
+        ))}
+      </SimpleGrid>
     </>
   );
 }

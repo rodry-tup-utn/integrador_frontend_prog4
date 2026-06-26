@@ -2,7 +2,7 @@ import { useQueries } from "@tanstack/react-query";
 import { orderService } from "../services/orderService";
 import { orderKeys, type OrderFilters } from "../types/order";
 
-const KITCHEN_STATES = ["CONFIRMED", "IN_PREP", "DELIVERED"] as const;
+const KITCHEN_STATES = ["CONFIRMED", "IN_PREP"] as const;
 
 export function useKitchenOrders() {
   const results = useQueries({
@@ -16,6 +16,7 @@ export function useKitchenOrders() {
           state_code: state,
           limit: 50,
         } as OrderFilters),
+      refetchInterval: 60_000,
     })),
   });
 

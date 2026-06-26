@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { Button, Group, Paper, Stack, Text, Title } from "@mantine/core";
+import {
+  Button,
+  Container,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { useProfile } from "../hooks/profile/useProfile";
 import { useProfileMutations } from "../hooks/profile/useProfileMutations";
@@ -123,74 +131,76 @@ export const ProfilePage = () => {
   }
 
   return (
-    <Stack gap="lg">
-      <Title order={2}>Mi Perfil</Title>
-      <ProfileInfoCard
-        profile={profile}
-        editing={editing}
-        formData={userData}
-        updatingProfile={updatingProfile}
-        onStartEdit={handleEditing}
-        onCancelEdit={cancelEdit}
-        onSaveProfile={handleSaveProfile}
-        onChange={(field, value) =>
-          setUserData({ ...userData, [field]: value })
-        }
-      />
+    <Container size="md">
+      <Stack gap="lg">
+        <Title order={2}>Mi Perfil</Title>
+        <ProfileInfoCard
+          profile={profile}
+          editing={editing}
+          formData={userData}
+          updatingProfile={updatingProfile}
+          onStartEdit={handleEditing}
+          onCancelEdit={cancelEdit}
+          onSaveProfile={handleSaveProfile}
+          onChange={(field, value) =>
+            setUserData({ ...userData, [field]: value })
+          }
+        />
 
-      <Paper shadow="sm" withBorder bd={"2px solid teal"} radius="xl" p="lg">
-        <Group justify="space-between" mb="md">
-          <Title order={4}>Direcciones</Title>
-          <Button
-            variant="light"
-            leftSection={<IconPlus size={16} />}
-            onClick={() => setNewModalOpen(true)}
-          >
-            Agregar
-          </Button>
-        </Group>
+        <Paper shadow="sm" withBorder bd={"2px solid teal"} radius="xl" p="lg">
+          <Group justify="space-between" mb="md">
+            <Title order={4}>Direcciones</Title>
+            <Button
+              variant="light"
+              leftSection={<IconPlus size={16} />}
+              onClick={() => setNewModalOpen(true)}
+            >
+              Agregar
+            </Button>
+          </Group>
 
-        {addressesLoading ? (
-          <Text>Cargando direcciones...</Text>
-        ) : !addresses?.length ? (
-          <Text c="dimmed" py="xl" ta="center">
-            No tenés direcciones registradas.
-          </Text>
-        ) : (
-          <Stack gap="sm">
-            {addresses.map((addr) => (
-              <AddressCard
-                key={addr.id}
-                address={addr}
-                isRestoring={isRestoring}
-                onEdit={() => handleOpenEdit(addr)}
-                onDelete={() => handleDeleteAddress(addr)}
-                onRestore={() => handleRestoreAddress(addr)}
-              />
-            ))}
-          </Stack>
-        )}
-      </Paper>
-      <AddressModal
-        key="new"
-        title="Nueva Direccion"
-        label="Agregar"
-        opened={newModalOpen}
-        onAction={handleCreateAddress}
-        onClose={() => setNewModalOpen(false)}
-        isLoading={isCreating}
-        addressData={null}
-      />
-      <AddressModal
-        key={selectedAddress?.id ?? "edit"}
-        title="Editar Direccion"
-        label="Actualizar"
-        opened={editModalOpen}
-        onAction={handleUpdateAddress}
-        onClose={() => setEditModalOpen(false)}
-        isLoading={isUpdating}
-        addressData={selectedAddress}
-      />
-    </Stack>
+          {addressesLoading ? (
+            <Text>Cargando direcciones...</Text>
+          ) : !addresses?.length ? (
+            <Text c="dimmed" py="xl" ta="center">
+              No tenés direcciones registradas.
+            </Text>
+          ) : (
+            <Stack gap="sm">
+              {addresses.map((addr) => (
+                <AddressCard
+                  key={addr.id}
+                  address={addr}
+                  isRestoring={isRestoring}
+                  onEdit={() => handleOpenEdit(addr)}
+                  onDelete={() => handleDeleteAddress(addr)}
+                  onRestore={() => handleRestoreAddress(addr)}
+                />
+              ))}
+            </Stack>
+          )}
+        </Paper>
+        <AddressModal
+          key="new"
+          title="Nueva Direccion"
+          label="Agregar"
+          opened={newModalOpen}
+          onAction={handleCreateAddress}
+          onClose={() => setNewModalOpen(false)}
+          isLoading={isCreating}
+          addressData={null}
+        />
+        <AddressModal
+          key={selectedAddress?.id ?? "edit"}
+          title="Editar Direccion"
+          label="Actualizar"
+          opened={editModalOpen}
+          onAction={handleUpdateAddress}
+          onClose={() => setEditModalOpen(false)}
+          isLoading={isUpdating}
+          addressData={selectedAddress}
+        />
+      </Stack>
+    </Container>
   );
 };
