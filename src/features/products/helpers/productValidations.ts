@@ -27,9 +27,21 @@ export const validateField = (name: string, value: string | number): string => {
 };
 
 export const validateAll = (data: ProductCreate): Record<keyof ProductCreate, string> => {
-  return Object.fromEntries(
+  const errors = Object.fromEntries(
     Object.entries(data).map(([key, value]) => [key, validateField(key, value)]),
   ) as Record<keyof ProductCreate, string>;
+
+  if (data.type === "MANUFACTURED") {
+    const hasZero = data.ingredients.some((i) => i.quantity_ingredient <= 0);
+    if (hasZero) {
+      errors.ingredients =
+        "Todos los ingredientes deben tener una cantidad mayor a 0";
+    } else if (data.ingredients.length === 0) {
+      errors.ingredients = "Debe haber al menos un ingrediente";
+    }
+  }
+
+  return errors;
 };
 
 

@@ -18,6 +18,7 @@ import {
   type IngredientInProduct,
   type ProductIngredientBatchItem,
 } from "../types/product";
+import { notifications } from "@mantine/notifications";
 
 interface IngredientSelectorProps {
   value: ProductIngredientBatchItem[];
@@ -69,6 +70,13 @@ const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
 
   const handleAdd = () => {
     if (!selected) return;
+    if (quantity == 0) {
+      notifications.show({
+        message: "La cantidad de ingrediente no puede ser 0",
+        color: "red",
+      });
+      return;
+    }
     onChange([
       ...value,
       {
@@ -90,10 +98,18 @@ const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
     ingredientId: number,
     newQuantity: number | string,
   ) => {
+    const parsed = Number(newQuantity);
+    if (parsed === 0 && newQuantity !== "") {
+      notifications.show({
+        message: "La cantidad de ingrediente no puede ser 0",
+        color: "red",
+      });
+      return;
+    }
     onChange(
       value.map((ing) =>
         ing.ingredient_id === ingredientId
-          ? { ...ing, quantity_ingredient: Number(newQuantity) || 0 }
+          ? { ...ing, quantity_ingredient: parsed || 0 }
           : ing,
       ),
     );
@@ -154,7 +170,7 @@ const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
                       onChange={(v) =>
                         handleQuantityChange(ing.ingredient_id, v)
                       }
-                      w={90}
+                      w={130}
                     />
                   </Group>
                 </Table.Td>

@@ -165,14 +165,18 @@ const ProductCreateModal = ({
   const handleSubmit = () => {
     const newErrors = validateAll(formData);
     setErrors(newErrors);
-    const hasErrors = Object.values(newErrors).some((err) => err !== "");
-    if (hasErrors) {
+    const errorMessages = Object.values(newErrors).filter(Boolean);
+    if (errorMessages.length > 0) {
+      notifications.show({
+        title: "Error de validación",
+        message: errorMessages.join(".\n "),
+        color: "red",
+      });
       return;
-    } else {
-      const submitData =
-        formData.type === "FINAL" ? { ...formData, ingredients: [] } : formData;
-      onSubmit(submitData);
     }
+    const submitData =
+      formData.type === "FINAL" ? { ...formData, ingredients: [] } : formData;
+    onSubmit(submitData);
   };
 
   const handleClose = () => {
