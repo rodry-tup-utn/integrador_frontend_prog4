@@ -10,13 +10,8 @@ import {
   Divider,
   Textarea,
   ActionIcon,
-  Badge,
 } from "@mantine/core";
-import {
-  IconShoppingCart,
-  IconArrowLeft,
-  IconReportMoneyFilled,
-} from "@tabler/icons-react";
+import { IconShoppingCart, IconArrowLeft } from "@tabler/icons-react";
 import { useQueries } from "@tanstack/react-query";
 import { useCartStore } from "../store/cart.store";
 import { useProfileAddresses } from "../../user/hooks/profile/userProfileAddresses";
@@ -55,20 +50,17 @@ const CheckoutPage = () => {
   const { createCheckout, isCreating: isPaying } = usePaymentMutation();
 
   const [mode, setMode] = useState<PageMode>("form");
-  const [createdOrder, setCreatedOrder] = useState<OrderPublic | null>(
-    null,
-  );
+  const [createdOrder, setCreatedOrder] = useState<OrderPublic | null>(null);
   const [userSelectedAddressId, setUserSelectedAddressId] = useState<
-    number | null
-  >(null);
+    number | null | undefined
+  >(undefined);
   const [paymentMethod, setPaymentMethod] = useState<string>("EFECTIVO");
   const [notes, setNotes] = useState("");
 
-  const selectedAddressId =
-    userSelectedAddressId ??
-    addresses?.find((a) => a.is_main)?.id ??
-    addresses?.[0]?.id ??
-    null;
+  const hasMadeSelection = userSelectedAddressId !== undefined;
+  const effectiveAddressId = hasMadeSelection
+    ? userSelectedAddressId
+    : (addresses?.find((a) => a.is_main)?.id ?? addresses?.[0]?.id ?? null);
 
   const ingredientQueries = useQueries({
     queries: items.map((item) => ({
@@ -95,16 +87,18 @@ const CheckoutPage = () => {
     );
   }
 
+  const SHIPPING_COST = 5500;
   const total = getTotalPrice();
+  const shippingCost = effectiveAddressId ? SHIPPING_COST : 0;
+  const orderTotal = Number(total) + shippingCost;
 
   const handleCreateOrder = async () => {
-    if (!selectedAddressId) return;
-
     try {
       const newOrder = await createOrder({
-        address_id: selectedAddressId,
+        address_id: effectiveAddressId,
         payment_method_code: paymentMethod,
         notes: notes || null,
+        shipping_cost: shippingCost,
         items: items.map((i) => ({
           product_id: i.product.id,
           quantity: i.quantity,
@@ -123,8 +117,7 @@ const CheckoutPage = () => {
           });
         } catch {
           notifications.show({
-            message:
-              "Pedido creado. Confirmalo manualmente desde Mis pedidos.",
+            message: "Pedido creado. Confirmalo manualmente desde Mis pedidos.",
             color: "yellow",
           });
         }
@@ -134,10 +127,7 @@ const CheckoutPage = () => {
       setCreatedOrder(orderToShow);
       setMode("success");
     } catch (error: unknown) {
-      const msg = extractApiErrorMessage(
-        error,
-        "No se pudo crear el pedido",
-      );
+      const msg = extractApiErrorMessage(error, "No se pudo crear el pedido");
       notifications.show({ message: msg, color: "red" });
     }
   };
@@ -237,28 +227,12 @@ const CheckoutPage = () => {
           ))}
         </Stack>
         <Divider my="sm" />
-        <Group justify="space-between">
-          <Text fw={600}>Total</Text>
-          <Badge
-            variant="light"
-            pl="sm"
-            fw={600}
-            c="green.9"
-            w={120}
-            ta="right"
-            size="xl"
-            radius="md"
-            leftSection={<IconReportMoneyFilled />}
-          >
-            {Number(total).toLocaleString("es-AR")}
-          </Badge>
-        </Group>
       </Paper>
 
       <AddressSelector
         addresses={addresses}
         isLoading={addressesLoading}
-        selectedAddressId={selectedAddressId}
+        selectedAddressId={effectiveAddressId}
         onChange={setUserSelectedAddressId}
       />
 
@@ -282,15 +256,43 @@ const CheckoutPage = () => {
         />
       </Paper>
 
-      <Group justify="space-between" mt="md">
-        <Button variant="subtle" onClick={() => navigate(-1)}>
-          Volver
-        </Button>
+      <Paper withBorder p="md" radius="md">
+        <Title order={6} mb="sm">
+          Resumen Financiero
+        </Title>
+        <Stack gap="xs" px="xs">
+          <Group justify="space-between">
+            <Text size="sm" c="dimmed">
+              Subtotal
+            </Text>
+            <Text size="sm">${Number(total).toLocaleString("es-AR")}</Text>
+          </Group>
+          <Group justify="space-between">
+            <Text size="sm" c="dimmed">
+              Envío
+            </Text>
+            <Text size="sm">
+              {shippingCost === 0
+                ? "$0 (Retiro en local)"
+                : `$${shippingCost.toLocaleString("es-AR")}`}
+            </Text>
+          </Group>
+          <Divider my="xs" />
+          <Group justify="space-between">
+            <Text fw={600}>Total</Text>
+            <Text fw={700} c="green.9">
+              ${orderTotal.toLocaleString("es-AR")}
+            </Text>
+          </Group>
+        </Stack>
+      </Paper>
+
+      <Group justify="end" mt="md">
         <Button
           size="lg"
           onClick={handleCreateOrder}
           loading={isCreating}
-          disabled={!selectedAddressId || items.length === 0}
+          disabled={items.length === 0}
         >
           Crear pedido
         </Button>
