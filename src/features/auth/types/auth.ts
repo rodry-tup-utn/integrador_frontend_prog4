@@ -31,7 +31,7 @@ export interface UserInfo {
 
 export interface AuthContextType {
   user: UserInfo | null;
-  logout: () => void;
+  logout: () => Promise<void>;
   login: (data: FormData) => Promise<UserSessionRead>;
   isAuthenticated: boolean;
   isLoading: boolean;
