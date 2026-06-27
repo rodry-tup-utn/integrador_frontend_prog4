@@ -30,10 +30,8 @@ export const ProfilePage = () => {
     createAddress,
     updateAddress,
     deleteAddress,
-    restoreAddress,
     isCreating,
     isUpdating,
-    isRestoring,
   } = useProfileAddressMutations();
 
   const [editing, setEditing] = useState(false);
@@ -103,16 +101,6 @@ export const ProfilePage = () => {
     });
   };
 
-  const handleRestoreAddress = (addr: AddressRead) => {
-    showConfirm({
-      title: `¿Restaurar dirección "${addr.alias}"?`,
-      confirmLabel: "Restaurar",
-      color: "green",
-      onConfirm: () => restoreAddress(addr.id),
-      successMessage: `Dirección "${addr.alias}" restaurada`,
-    });
-  };
-
   const handleEditing = () => {
     setUserData({
       name: profile?.name,
@@ -171,10 +159,8 @@ export const ProfilePage = () => {
                 <AddressCard
                   key={addr.id}
                   address={addr}
-                  isRestoring={isRestoring}
                   onEdit={() => handleOpenEdit(addr)}
                   onDelete={() => handleDeleteAddress(addr)}
-                  onRestore={() => handleRestoreAddress(addr)}
                 />
               ))}
             </Stack>
