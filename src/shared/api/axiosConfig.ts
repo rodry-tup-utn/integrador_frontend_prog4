@@ -51,7 +51,8 @@ api.interceptors.response.use(
       error.response?.status === 401 &&
       !originalRequest._retry &&
       !url.includes("/auth/refresh") &&
-      !url.includes("/login")
+      !url.includes("/login") &&
+      !url.includes("/auth/logout")
     ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -68,9 +69,18 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError);
-        if (window.location.pathname !== "/login") {
+        const publicRoutes = [
+          "/",
+          "/login",
+          "/register",
+          "/products",
+          "/ingredients",
+          "/forbidden",
+        ];
+        if (!publicRoutes.includes(window.location.pathname)) {
           window.location.href = "/login";
         }
+
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
