@@ -10,8 +10,8 @@ import { useMeasurementUnits } from "../hooks/useMeasurementUnits";
 interface RowIngredientProps {
   item: IngredientPrivate;
   onEdit: (id: string) => void;
-  onDelete: (id: number) => Promise<void>;
-  onRestore: (id: number) => Promise<void>;
+  onDelete: (id: number) => Promise<unknown>;
+  onRestore: (id: number) => Promise<unknown>;
   isDeleting?: boolean;
   isRestoring?: boolean;
   isAdmin: boolean;
@@ -58,7 +58,7 @@ export const RowIngredient = ({
     showConfirm({
       title: deleteAction.text,
       confirmLabel: deleteAction.label,
-      onConfirm: async () => deleteAction.fn(),
+      onConfirm: async () => { await deleteAction.fn(); },
       successMessage: "Operacion completada!",
       color: deleteAction.color,
     });
