@@ -22,7 +22,9 @@ import { useCategoryMutations } from "../hooks/useCategoryMutations";
 import type { CategoryNodePrivate } from "../types/category";
 import { CategoryCreateModal } from "../components/CategoryCreateModal";
 import { CategoryEditModal } from "../components/CategoryEditModal";
+import { notifications } from "@mantine/notifications";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 import ActionButton from "../../../shared/components/ActionButton";
 
 export default function CategoriesAdminPage() {
@@ -47,7 +49,7 @@ export default function CategoriesAdminPage() {
 
   const handleDelete = (item: CategoryNodePrivate) => {
     showConfirm({
-      title: "Eliminar categoria?",
+      title: `Eliminar categoria "${item.name}"?`,
       color: "red",
       confirmLabel: "Eliminar",
       onConfirm: () => deleteCategory(item.id),
@@ -55,14 +57,21 @@ export default function CategoriesAdminPage() {
     });
   };
 
-  const handleRestore = (item: CategoryNodePrivate) => {
-    showConfirm({
-      title: "¿Restaurar categoria?",
-      confirmLabel: "Restaurar",
-      color: "green",
-      onConfirm: () => restoreCategory(item.id),
-      successMessage: `Categoría ${item.name} restaurada`,
-    });
+  const handleRestore = async (item: CategoryNodePrivate) => {
+    try {
+      await restoreCategory(item.id);
+      notifications.show({
+        title: "Operación Exitosa",
+        color: "green",
+        message: `Categoría ${item.name} restaurada`,
+      });
+    } catch (error: unknown) {
+      const msg = extractApiErrorMessage(
+        error,
+        `No se pudo restaurar "${item.name}"`,
+      );
+      notifications.show({ message: msg, color: "red" });
+    }
   };
 
   const renderTreeNode = (node: CategoryNodePrivate, depth: number) => {

@@ -35,6 +35,7 @@ const CartDrawer = ({ opened, onClose }: CartDrawerProps) => {
         confirmLabel: "Iniciar sesión",
         successMessage: "",
         color: "orange",
+        showSuccess: false,
         onConfirm: async () => navigate(ROUTES.LOGIN),
       });
       return;

@@ -1,10 +1,12 @@
 import { Badge, Group, Stack, Table, Text } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import type { UserAdminRead, UserRoleRead } from "../../types/user";
 import { roleConfig } from "../../types/configs";
 import ActionButton from "../../../../shared/components/ActionButton";
 import { IconEdit, IconRestore, IconTrash } from "@tabler/icons-react";
 import { showConfirm } from "../../../../shared/components/ShowConfirm";
 import { useAdminUserMutations } from "../../hooks/admin/useAdminUserMutations";
+import { extractApiErrorMessage } from "../../../../shared/helpers/apiErrors";
 import { useState } from "react";
 
 interface Props {
@@ -21,19 +23,26 @@ const UserAdminRow = ({ user, handleEdit: onEdit }: Props) => {
   const { restoreUser, deleteUser, isLoading, restorePass } =
     useAdminUserMutations();
 
-  const handleRestore = (user: UserAdminRead) => {
-    showConfirm({
-      title: `¿Restaurar usuario ${user.name}?`,
-      confirmLabel: "Restaurar",
-      color: "green",
-      onConfirm: () => restoreUser(user.id),
-      successMessage: `Usuario ${user.name} restaurado!`,
-    });
+  const handleRestore = async (user: UserAdminRead) => {
+    try {
+      await restoreUser(user.id);
+      notifications.show({
+        title: "Operación Exitosa",
+        color: "green",
+        message: `Usuario ${user.name} restaurado!`,
+      });
+    } catch (error: unknown) {
+      const msg = extractApiErrorMessage(
+        error,
+        `No se pudo restaurar ${user.name}`,
+      );
+      notifications.show({ title: "Error", message: msg, color: "red" });
+    }
   };
 
   const handleDelete = (user: UserAdminRead) => {
     showConfirm({
-      title: `¿Eliminar usuario ${user.name}?`,
+      title: `¿Eliminar usuario "${user.name}"?`,
       confirmLabel: "Eliminar",
       color: "red",
       onConfirm: () => deleteUser(user.id),

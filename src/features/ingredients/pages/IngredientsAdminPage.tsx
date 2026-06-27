@@ -92,60 +92,60 @@ export const IngredientsAdminPage = () => {
       />
       <Paper shadow="sm" withBorder radius="md" mb="md">
         <Table.ScrollContainer minWidth={700}>
-        <Table striped highlightOnHover>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>ID</Table.Th>
-              <Table.Th>Nombre</Table.Th>
-              <Table.Th ta="center">Stock</Table.Th>
-              <Table.Th ta="center">Unidad</Table.Th>
-              <Table.Th ta="center">Tipo</Table.Th>
-              <Table.Th ta="center">Estado</Table.Th>
-              <Table.Th ta="center">Acciones</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {isLoading ? (
+          <Table striped highlightOnHover>
+            <Table.Thead>
               <Table.Tr>
-                <Table.Td colSpan={7}>
-                  <Text ta="center" py="xl">
-                    Cargando...
-                  </Text>
-                </Table.Td>
+                <Table.Th>ID</Table.Th>
+                <Table.Th>Nombre</Table.Th>
+                <Table.Th ta="center">Stock</Table.Th>
+                <Table.Th ta="center">Unidad</Table.Th>
+                <Table.Th ta="center">Tipo</Table.Th>
+                <Table.Th ta="center">Estado</Table.Th>
+                <Table.Th ta="center">Acciones</Table.Th>
               </Table.Tr>
-            ) : (ingredients?.data?.length ?? 0) === 0 ? (
-              <Table.Tr>
-                <Table.Td colSpan={7}>
-                  <Text ta="center" py="xl">
-                    No hay ingredientes.
-                  </Text>
-                </Table.Td>
-              </Table.Tr>
-            ) : (
-              ingredients?.data.map((item) => (
-                <RowIngredient
-                  key={item.id}
-                  item={item}
-                  isAdmin={isAdmin}
-                  onEdit={(id) => {
-                    // find the ingredient from data and set it
-                    const found = ingredients?.data.find(
-                      (i) => i.id.toString() === id,
-                    );
-                    if (found) {
-                      setSelectedItem(found);
-                      setIsModalOpen(true);
-                    }
-                  }}
-                  onDelete={deleteIngredient}
-                  onRestore={restoreIngredient}
-                  isDeleting={isDeleting}
-                  isRestoring={isRestoring}
-                />
-              ))
-            )}
-          </Table.Tbody>
-        </Table>
+            </Table.Thead>
+            <Table.Tbody>
+              {isLoading ? (
+                <Table.Tr>
+                  <Table.Td colSpan={7}>
+                    <Text ta="center" py="xl">
+                      Cargando...
+                    </Text>
+                  </Table.Td>
+                </Table.Tr>
+              ) : (ingredients?.data?.length ?? 0) === 0 ? (
+                <Table.Tr>
+                  <Table.Td colSpan={7}>
+                    <Text ta="center" py="xl">
+                      No hay ingredientes.
+                    </Text>
+                  </Table.Td>
+                </Table.Tr>
+              ) : (
+                ingredients?.data.map((item) => (
+                  <RowIngredient
+                    key={item.id}
+                    item={item}
+                    isAdmin={isAdmin}
+                    onEdit={(id) => {
+                      // find the ingredient from data and set it
+                      const found = ingredients?.data.find(
+                        (i) => i.id.toString() === id,
+                      );
+                      if (found) {
+                        setSelectedItem(found);
+                        setIsModalOpen(true);
+                      }
+                    }}
+                    onDelete={deleteIngredient}
+                    onRestore={restoreIngredient}
+                    isDeleting={isDeleting}
+                    isRestoring={isRestoring}
+                  />
+                ))
+              )}
+            </Table.Tbody>
+          </Table>
         </Table.ScrollContainer>
       </Paper>
       <Group justify="space-between">

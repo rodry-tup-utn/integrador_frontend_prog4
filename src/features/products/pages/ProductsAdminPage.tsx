@@ -73,20 +73,26 @@ const ProductsAdminPage = () => {
     showConfirm({
       confirmLabel: "Eliminar",
       onConfirm: () => deleteProduct(item.id),
-      title: `Eliminar el producto ${item.name}`,
+      title: `¿Eliminar el producto "${item.name}"`,
       color: "red",
       successMessage: `Producto ${item.name} eliminado correctamente`,
     });
   };
 
-  const handleRestore = (item: ProductPrivate) => {
-    showConfirm({
-      confirmLabel: "Restaurar",
-      onConfirm: () => restoreProduct(item.id),
-      title: `Restaurar el producto ${item.name}`,
-      color: "teal",
-      successMessage: `Producto ${item.name} restaurado correctamente`,
-    });
+  const handleRestore = async (item: ProductPrivate) => {
+    try {
+      await restoreProduct(item.id);
+      notifications.show({
+        title: "Operacion Exitosa",
+        message: `Producto ${item.name} restaurado`,
+      });
+    } catch (error: unknown) {
+      const msg = extractApiErrorMessage(
+        error,
+        `No se pudo restaurar el producto ${item.name}`,
+      );
+      notifications.show({ message: msg, color: "red" });
+    }
   };
 
   const handleCreate = (data: ProductCreate) => {

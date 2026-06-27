@@ -26,18 +26,12 @@ export const useProfileAddressMutations = () => {
     mutationFn: (id: number) => userService.profile.addresses.delete(id),
     onSuccess: invalidateAddresses,
   });
-  const restoreAddress = useMutation({
-    mutationFn: (id: number) => userService.profile.addresses.restore(id),
-    onSuccess: invalidateAddresses,
-  });
   return {
     createAddress: createAddress.mutateAsync,
     updateAddress: updateAddress.mutateAsync,
     deleteAddress: deleteAddress.mutateAsync,
-    restoreAddress: restoreAddress.mutateAsync,
     isCreating: createAddress.isPending,
     isUpdating: updateAddress.isPending,
     isDeleting: deleteAddress.isPending,
-    isRestoring: restoreAddress.isPending,
   };
 };
