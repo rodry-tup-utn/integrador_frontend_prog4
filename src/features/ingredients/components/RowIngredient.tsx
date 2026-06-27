@@ -1,6 +1,8 @@
 import type { IngredientPrivate } from "../types/ingredient";
 import { Table, Badge, Group, Text } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 import ActionButton from "../../../shared/components/ActionButton";
 import { IconEdit, IconEye, IconRestore, IconTrash } from "@tabler/icons-react";
 import { useMeasurementUnits } from "../hooks/useMeasurementUnits";
@@ -8,8 +10,8 @@ import { useMeasurementUnits } from "../hooks/useMeasurementUnits";
 interface RowIngredientProps {
   item: IngredientPrivate;
   onEdit: (id: string) => void;
-  onDelete: (id: number) => void;
-  onRestore: (id: number) => void;
+  onDelete: (id: number) => Promise<void>;
+  onRestore: (id: number) => Promise<void>;
   isDeleting?: boolean;
   isRestoring?: boolean;
   isAdmin: boolean;
@@ -28,8 +30,8 @@ export const RowIngredient = ({
   const isDeleted = !!item.deleted_at;
 
   const unitLabel =
-    measurementUnits?.find((u) => u.code === item.measurement_unit_code)?.name
-    ?? item.measurement_unit_code;
+    measurementUnits?.find((u) => u.code === item.measurement_unit_code)
+      ?.name ?? item.measurement_unit_code;
 
   const restoreAction = {
     text: `¿Restaurar "${item.name}"?`,
@@ -49,13 +51,34 @@ export const RowIngredient = ({
   const finalAction = isDeleted ? restoreAction : deleteAction;
 
   const handleAction = () => {
+    if (isDeleted) {
+      handleRestoreDirect();
+      return;
+    }
     showConfirm({
-      title: finalAction.text,
-      confirmLabel: finalAction.label,
-      onConfirm: async () => finalAction.fn(),
+      title: deleteAction.text,
+      confirmLabel: deleteAction.label,
+      onConfirm: async () => deleteAction.fn(),
       successMessage: "Operacion completada!",
-      color: finalAction.color,
+      color: deleteAction.color,
     });
+  };
+
+  const handleRestoreDirect = async () => {
+    try {
+      await onRestore(item.id);
+      notifications.show({
+        title: "Operación Exitosa",
+        color: "green",
+        message: `"${item.name}" restaurado`,
+      });
+    } catch (error: unknown) {
+      const msg = extractApiErrorMessage(
+        error,
+        `No se pudo restaurar "${item.name}"`,
+      );
+      notifications.show({ message: msg, color: "red" });
+    }
   };
 
   const label =
