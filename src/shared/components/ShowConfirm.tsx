@@ -1,5 +1,5 @@
+import { openConfirmModal, closeAllModals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
-import { Button, Group, Stack, Text } from "@mantine/core";
 import { extractApiErrorMessage } from "../helpers/apiErrors";
 
 interface Props {
@@ -8,6 +8,7 @@ interface Props {
   color?: string;
   onConfirm: () => Promise<unknown>;
   successMessage: string;
+  showSuccess?: boolean;
 }
 
 export const showConfirm = ({
@@ -16,50 +17,36 @@ export const showConfirm = ({
   color = "cyan",
   onConfirm,
   successMessage = "La operación se realizó correctamente",
+  showSuccess = true,
 }: Props) => {
-  const onClick = async () => {
-    notifications.clean();
+  openConfirmModal({
+    title,
+    labels: { confirm: confirmLabel, cancel: "Cancelar" },
+    confirmProps: { color },
+    closeOnConfirm: true,
+    centered: true,
+    onConfirm: async () => {
+      try {
+        await onConfirm();
+        closeAllModals();
+        if (showSuccess) {
+          notifications.show({
+            title: "Operación Exitosa",
+            color: "green",
+            message: successMessage,
+            autoClose: 4000,
+          });
+        }
+      } catch (error: unknown) {
+        const errorMessage = extractApiErrorMessage(error);
 
-    try {
-      await onConfirm();
-      notifications.show({
-        title: "Operación Exitosa",
-        color: "green",
-        message: successMessage,
-        autoClose: 4000,
-      });
-    } catch (error: unknown) {
-      const errorMessage = extractApiErrorMessage(error);
-
-      notifications.show({
-        title: "Error al procesar la operación",
-        color: "red",
-        message: errorMessage,
-        autoClose: 6000,
-      });
-    }
-  };
-
-  notifications.show({
-    color,
-    withBorder: true,
-    autoClose: false, // no se cierra solo
-    message: (
-      <Stack gap="md">
-        <Text size="md">{title}</Text>
-        <Group justify="flex-end">
-          <Button size="xs" color={color} onClick={onClick}>
-            {confirmLabel}
-          </Button>
-          <Button
-            size="xs"
-            color="cyan"
-            onClick={() => notifications.clean()} // cierra la notif
-          >
-            Cancelar
-          </Button>
-        </Group>
-      </Stack>
-    ),
+        notifications.show({
+          title: "Error al procesar la operación",
+          color: "red",
+          message: errorMessage,
+          autoClose: 6000,
+        });
+      }
+    },
   });
 };
