@@ -2,7 +2,6 @@ import { Badge, Card, Group, Stack, Text } from "@mantine/core";
 import {
   IconEdit,
   IconMapPin,
-  IconRestore,
   IconTrash,
 } from "@tabler/icons-react";
 import type { AddressRead } from "../types/user";
@@ -11,27 +10,20 @@ import ActionButton from "../../../shared/components/ActionButton";
 
 interface Props {
   address: AddressRead;
-  isRestoring: boolean;
   onEdit: () => void;
   onDelete: () => void;
-  onRestore: () => void;
 }
 
 const AddressCard = ({
   address,
-  isRestoring,
   onEdit,
   onDelete,
-  onRestore,
 }: Props) => {
-  const isDeleted = !!address.deleted_at;
-
   return (
     <Card
       shadow="none"
       withBorder
       radius="md"
-      opacity={isDeleted ? 0.6 : undefined}
       padding="md"
     >
       <Group justify="space-between" wrap="nowrap" align="center">
@@ -42,11 +34,6 @@ const AddressCard = ({
             {address.is_main && (
               <Badge size="xs" variant="light" color="teal">
                 Principal
-              </Badge>
-            )}
-            {isDeleted && (
-              <Badge size="xs" variant="dot" color="red">
-                Eliminada
               </Badge>
             )}
           </Group>
@@ -69,11 +56,10 @@ const AddressCard = ({
             color="blue"
           />
           <ActionButton
-            icon={isDeleted ? IconRestore : IconTrash}
-            label={isDeleted ? "Restaurar" : "Eliminar"}
-            onClick={isDeleted ? onRestore : onDelete}
-            color={isDeleted ? "green" : "red"}
-            disabled={isDeleted ? isRestoring : isDeleted}
+            icon={IconTrash}
+            label="Eliminar"
+            onClick={onDelete}
+            color="red"
           />
         </Group>
       </Group>
