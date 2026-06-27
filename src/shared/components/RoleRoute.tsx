@@ -23,6 +23,7 @@ export const RoleRoute = ({ allowedRoles, errorMessage }: Props) => {
     }
   }, [isAuthenticated, user, hasRole, errorMessage, isLoading]);
   if (isLoading) return <p>Cargando sesión...</p>;
-  if (!isAuthenticated || !hasRole) return <Navigate to="/forbidden" replace />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!hasRole) return <Navigate to="/forbidden" replace />;
   return <Outlet />;
 };
