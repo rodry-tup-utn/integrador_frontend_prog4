@@ -3,27 +3,34 @@ import { IconLogout } from "@tabler/icons-react";
 import { useAuth } from "../../features/auth/context/AuthContext";
 import NavLinkSidebar from "./NavLinkSidebar";
 import { sidebarSections } from "./sidebarLinks";
-import { useNavigate } from "react-router-dom";
+import { useCartStore } from "../../features/cart/store/cart.store";
 
 interface SidebarProps {
   onMobileClose?: () => void;
 }
 
 const Sidebar = ({ onMobileClose }: SidebarProps) => {
-  const navigate = useNavigate();
+  const { clearCart } = useCartStore();
   const { user, logout } = useAuth();
   const visibleSections = sidebarSections.filter(
     (section) =>
       !section.roles || section.roles.some((r) => user?.roles.includes(r)),
   );
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
+  const handleLogout = async () => {
+    await logout();
+    clearCart();
+    window.location.href = "/";
   };
 
   return (
-    <Stack h="100%" justify="space-between" px={'xs'} pt={'xs'} className="overflow-y-scroll">
+    <Stack
+      h="100%"
+      justify="space-between"
+      px={"xs"}
+      pt={"xs"}
+      className="overflow-y-scroll"
+    >
       {/* Links */}
       <Stack gap={0} style={{ overflowY: "auto" }}>
         {visibleSections.map((section) => (
