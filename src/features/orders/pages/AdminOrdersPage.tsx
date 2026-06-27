@@ -21,8 +21,10 @@ import { IconArrowBigRightLines, IconXMark } from "@tabler/icons-react";
 import { isCancellable, isProgressable } from "../helpers/helpers";
 import { notifications } from "@mantine/notifications";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
+import { useAuth } from "../../auth/context/AuthContext";
 
 export const AdminOrdersPage = () => {
+  const { user } = useAuth();
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<OrderFilters>({});
   const [detailOrderId, setDetailOrderId] = useState<number | null>(null);
@@ -50,12 +52,12 @@ export const AdminOrdersPage = () => {
 
   const handleCancel = (order: OrderPublic) => {
     showConfirm({
-      title: "¿Cancelar esta orden?",
+      title: `¿Cancelar orden #${order.id}?`,
       confirmLabel: "Confirmar",
       onConfirm: () =>
         cancelOrderByStaff({
           id: order.id,
-          data: { reason: "Cancelado por administrador" },
+          data: { reason: `Cancelado por usuario: ${user?.email}` },
         }),
       successMessage: "Orden cancelada exitosamente",
       color: "red",
@@ -68,7 +70,8 @@ export const AdminOrdersPage = () => {
     try {
       await changeOrderState({ id: order.id, data: { state_code: next } });
       notifications.show({
-        message: `Orden ${order.id} avanzada a ${stateLabel(next)}`,
+        title: `Orden #${order.id} actualizada`,
+        message: `Estado avanzado a ${stateLabel(next)}`,
         color: STATE_COLORS[next],
       });
     } catch (error: unknown) {
@@ -76,7 +79,11 @@ export const AdminOrdersPage = () => {
         error,
         "No se pudo actualizar la orden",
       );
-      notifications.show({ message: msg, color: "red" });
+      notifications.show({
+        title: "Error al actualizar estado",
+        message: msg,
+        color: "red",
+      });
     }
   };
 
