@@ -18,7 +18,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Notifications position="top-right"></Notifications>
+        <Notifications position="top-right" autoClose={5000}></Notifications>
         <ModalsProvider>
           <WsManager />
           <RouterProvider router={router} />
