@@ -77,8 +77,7 @@ const ProductsPage = () => {
     limit: 50,
   });
 
-  const visibleProducts =
-    productsList?.data?.filter((prod) => prod.available) ?? [];
+  const visibleProducts = productsList?.data ?? [];
 
   return (
     <div className="flex flex-col gap-6 p-6">

@@ -18,7 +18,12 @@ import {
   FileInput,
 } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
-import { IconInfoCircle, IconPhoto, IconTrash, IconExclamationCircleFilled } from "@tabler/icons-react";
+import {
+  IconInfoCircle,
+  IconPhoto,
+  IconTrash,
+  IconExclamationCircleFilled,
+} from "@tabler/icons-react";
 import { CategorySelector } from "../../categories/components/CategorySelector";
 import IngredientSelector from "./IngredientSelector";
 import {
