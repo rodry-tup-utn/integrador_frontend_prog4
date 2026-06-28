@@ -36,6 +36,7 @@ import {
 import { useClientOrderMutations } from "../hooks/client/useClientOrderMutations";
 import usePaymentMutation from "../../payment/hooks/payment.mutations.hooks";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
+import { markManualUpdate } from "../../../shared/hooks/useOrderWebSocket";
 
 interface Props {
   order: OrderDetailPublic | null;
@@ -106,6 +107,7 @@ const OrderDetailModal = ({
   const handleConfirmCash = async () => {
     if (!order) return;
     try {
+      markManualUpdate(order.id);
       await confirmByClient(order.id);
       notifications.show({
         title: "Pedido confirmado",
