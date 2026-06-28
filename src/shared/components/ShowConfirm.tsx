@@ -1,6 +1,9 @@
 import { openConfirmModal, closeAllModals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
-import { IconExclamationCircleFilled, IconCircleCheckFilled } from "@tabler/icons-react";
+import {
+  IconExclamationCircleFilled,
+  IconCircleCheckFilled,
+} from "@tabler/icons-react";
 import { extractApiErrorMessage } from "../helpers/apiErrors";
 
 interface Props {
@@ -37,7 +40,6 @@ export const showConfirm = ({
             message: successMessage,
             radius: "lg",
             icon: <IconCircleCheckFilled />,
-            autoClose: 4000,
           });
         }
       } catch (error: unknown) {
