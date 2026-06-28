@@ -9,7 +9,7 @@ import { STATE_COLORS } from "../types/configs";
 
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 import { notifications } from "@mantine/notifications";
-import { IconExclamationCircleFilled } from "@tabler/icons-react";
+import { IconExclamationCircleFilled, IconArrowRight } from "@tabler/icons-react";
 
 export function KitchenPage() {
   const columns = useKitchenOrders();
@@ -26,6 +26,8 @@ export function KitchenPage() {
       notifications.show({
         message: `Orden avanzada a ${stateLabel(next)}`,
         color: STATE_COLORS[next],
+        radius: "lg",
+        icon: <IconArrowRight />,
       });
     } catch (error: unknown) {
       const mgs = extractApiErrorMessage(error, "Error al avanzar la orden");

@@ -11,7 +11,7 @@ import {
   Textarea,
   ActionIcon,
 } from "@mantine/core";
-import { IconShoppingCart, IconArrowLeft, IconExclamationCircleFilled, IconCircleCheckFilled, IconAlertTriangleFilled } from "@tabler/icons-react";
+import { IconShoppingCart, IconArrowLeft, IconExclamationCircleFilled, IconCircleCheckFilled, IconAlertTriangleFilled, IconInfoCircleFilled } from "@tabler/icons-react";
 import { useQueries } from "@tanstack/react-query";
 import { useCartStore } from "../store/cart.store";
 import { useProfileAddresses } from "../../user/hooks/profile/userProfileAddresses";
@@ -162,6 +162,8 @@ const CheckoutPage = () => {
       notifications.show({
         message: "Redirigiendo a Mercado Pago...",
         color: "cyan",
+        radius: "lg",
+        icon: <IconInfoCircleFilled />,
       });
       window.location.href = preference.init_point;
     } catch (error: unknown) {

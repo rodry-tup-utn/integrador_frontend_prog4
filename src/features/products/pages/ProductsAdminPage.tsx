@@ -191,6 +191,8 @@ const ProductsAdminPage = () => {
           "Error al actualizar el producto",
         ),
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };

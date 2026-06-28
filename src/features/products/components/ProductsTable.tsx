@@ -11,6 +11,7 @@ import {
   IconRestore,
   IconTrash,
   IconEyeSearch,
+  IconArrowRight,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/context/AuthContext";
@@ -70,6 +71,8 @@ const ProductsTable = ({
       notifications.show({
         message: `Producto ${product.name} cambiado a ${state.label}`,
         color: state.color,
+        radius: "lg",
+        icon: <IconArrowRight />,
       });
     } catch (error) {
       const message = extractApiErrorMessage(

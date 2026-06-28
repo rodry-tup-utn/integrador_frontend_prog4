@@ -8,7 +8,7 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { IconPlus, IconCircleCheckFilled } from "@tabler/icons-react";
+import { IconPlus, IconCircleCheckFilled, IconExclamationCircleFilled } from "@tabler/icons-react";
 import { useProfile } from "../hooks/profile/useProfile";
 import { useProfileMutations } from "../hooks/profile/useProfileMutations";
 import { useProfileAddresses } from "../hooks/profile/userProfileAddresses";
@@ -65,7 +65,11 @@ export const ProfilePage = () => {
       setNewModalOpen(false);
     } catch (error: unknown) {
       notifications.show({
+        title: "Error al crear dirección",
         message: extractApiErrorMessage(error, "No se pudo crear la direccion"),
+        color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };
@@ -89,10 +93,14 @@ export const ProfilePage = () => {
       setEditModalOpen(false);
     } catch (error: unknown) {
       notifications.show({
+        title: "Error al actualizar dirección",
         message: extractApiErrorMessage(
           error,
           "No se pudo actualizar la direccion",
         ),
+        color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };

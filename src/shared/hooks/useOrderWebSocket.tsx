@@ -1,5 +1,12 @@
 import { useEffect, useRef } from "react";
 import { notifications } from "@mantine/notifications";
+import {
+  IconExclamationCircleFilled,
+  IconCircleCheckFilled,
+  IconAlertTriangleFilled,
+  IconInfoCircleFilled,
+  IconArrowRight,
+} from "@tabler/icons-react";
 import { queryClient } from "../api/queryClient";
 import { orderKeys } from "../../features/orders/types/order";
 
@@ -32,6 +39,21 @@ const STATE_COLORS: Record<string, string> = {
   DELIVERED: "green",
   CANCELLED: "red",
 };
+
+function getOrderIcon(state?: string) {
+  switch (state) {
+    case "DELIVERED":
+      return <IconCircleCheckFilled />;
+    case "CANCELLED":
+      return <IconExclamationCircleFilled />;
+    case "PENDING":
+      return <IconAlertTriangleFilled />;
+    case "IN_PREP":
+      return <IconArrowRight />;
+    default:
+      return <IconInfoCircleFilled />;
+  }
+}
 
 const EVENT_CONFIG: Record<
   string,
@@ -97,6 +119,8 @@ export function useOrderWebSocket(enabled: boolean) {
               title: config.title(msg.data.order_id),
               message: config.message(msg.data.state ?? ""),
               color,
+              radius: "lg",
+              icon: getOrderIcon(msg.data.state),
             });
           }
         } catch {

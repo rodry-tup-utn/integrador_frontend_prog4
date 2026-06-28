@@ -31,6 +31,7 @@ import {
   IconCash,
   IconCreditCard,
   IconBuildingBank,
+  IconInfoCircleFilled,
 } from "@tabler/icons-react";
 import { useClientOrderMutations } from "../hooks/client/useClientOrderMutations";
 import usePaymentMutation from "../../payment/hooks/payment.mutations.hooks";
@@ -88,6 +89,8 @@ const OrderDetailModal = ({
       notifications.show({
         message: "Redirigiendo a Mercado Pago...",
         color: "cyan",
+        radius: "lg",
+        icon: <IconInfoCircleFilled />,
       });
       window.location.href = preference.init_point;
     } catch (error: unknown) {
