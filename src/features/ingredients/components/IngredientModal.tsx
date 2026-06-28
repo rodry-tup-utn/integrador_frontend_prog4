@@ -4,7 +4,10 @@ import type { IngredientPrivate } from "../types/ingredient";
 import { useMeasurementUnits } from "../hooks/useMeasurementUnits";
 import { formatDate } from "../helpers/helpers";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
-import { IconExclamationCircleFilled } from "@tabler/icons-react";
+import {
+  IconCircleCheckFilled,
+  IconExclamationCircleFilled,
+} from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 import {
   Modal,
