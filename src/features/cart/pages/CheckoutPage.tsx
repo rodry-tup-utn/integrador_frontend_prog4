@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Title,
@@ -10,8 +10,17 @@ import {
   Divider,
   Textarea,
   ActionIcon,
+  Badge,
 } from "@mantine/core";
-import { IconShoppingCart, IconArrowLeft, IconExclamationCircleFilled, IconCircleCheckFilled, IconAlertTriangleFilled, IconInfoCircleFilled } from "@tabler/icons-react";
+import {
+  IconShoppingCart,
+  IconArrowLeft,
+  IconExclamationCircleFilled,
+  IconCircleCheckFilled,
+  IconAlertTriangleFilled,
+  IconInfoCircleFilled,
+  IconX,
+} from "@tabler/icons-react";
 import { useQueries } from "@tanstack/react-query";
 import { useCartStore } from "../store/cart.store";
 import { useProfileAddresses } from "../../user/hooks/profile/userProfileAddresses";
@@ -30,6 +39,11 @@ import CheckoutSuccessMercadoPago from "../components/CheckoutSuccessMercadoPago
 import CheckoutCartItem from "../components/CheckoutCartItem";
 import AddressSelector from "../components/AddressSelector";
 import PaymentMethodSelector from "../components/PaymentMethodSelector";
+import {
+  markManualUpdate,
+  subscribeToOrder,
+} from "../../../shared/hooks/useOrderWebSocket";
+import { useClientOrderDetail } from "../../orders/hooks/client/useClientOrderDetail";
 
 type PageMode = "form" | "success";
 
@@ -51,6 +65,14 @@ const CheckoutPage = () => {
 
   const [mode, setMode] = useState<PageMode>("form");
   const [createdOrder, setCreatedOrder] = useState<OrderPublic | null>(null);
+  const { data: liveOrder } = useClientOrderDetail(createdOrder?.id ?? null);
+
+  useEffect(() => {
+    if (createdOrder) {
+      markManualUpdate(createdOrder.id);
+      subscribeToOrder(createdOrder.id);
+    }
+  }, [createdOrder]);
   const [userSelectedAddressId, setUserSelectedAddressId] = useState<
     number | null | undefined
   >(undefined);
@@ -105,23 +127,17 @@ const CheckoutPage = () => {
           personalization: i.personalization?.length ? i.personalization : null,
         })),
       });
-
       let orderToShow: OrderPublic = newOrder;
 
       if (paymentMethod === "EFECTIVO") {
         try {
+          markManualUpdate(newOrder.id);
           orderToShow = await confirmByClient(newOrder.id);
-          notifications.show({
-            title: "Pedido confirmado",
-            message: "Pedido confirmado — pagás en efectivo al recibir",
-            color: "green",
-            radius: "lg",
-            icon: <IconCircleCheckFilled />,
-          });
         } catch {
           notifications.show({
             title: "Pedido pendiente",
-            message: "No se pudo confirmar automáticamente. Ingresá a Mis pedidos para confirmar el pago en efectivo.",
+            message:
+              "No se pudo confirmar automáticamente. Ingresá a Mis pedidos para confirmar el pago en efectivo.",
             color: "orange",
             radius: "lg",
             icon: <IconAlertTriangleFilled />,
@@ -134,7 +150,12 @@ const CheckoutPage = () => {
       setMode("success");
     } catch (error: unknown) {
       const msg = extractApiErrorMessage(error, "No se pudo crear el pedido");
-      notifications.show({ message: msg, color: "red", radius: "lg", icon: <IconExclamationCircleFilled /> });
+      notifications.show({
+        message: msg,
+        color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
+      });
     }
   };
 
@@ -142,15 +163,27 @@ const CheckoutPage = () => {
     if (!createdOrder) return;
 
     try {
+      markManualUpdate(createdOrder.id);
       const confirmed = await confirmByClient(createdOrder.id);
       setCreatedOrder(confirmed);
-      notifications.show({ title: "Pedido confirmado", message: "Pedido confirmado 😃", color: "green", radius: "lg", icon: <IconCircleCheckFilled /> });
+      notifications.show({
+        title: "Pedido confirmado",
+        message: "Pedido confirmado 😃",
+        color: "green",
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
+      });
     } catch (error) {
       const msg = extractApiErrorMessage(
         error,
         "No se pudo confirmar el pedido",
       );
-      notifications.show({ message: msg, color: "red", radius: "lg", icon: <IconExclamationCircleFilled /> });
+      notifications.show({
+        message: msg,
+        color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
+      });
     }
   };
 
@@ -168,12 +201,36 @@ const CheckoutPage = () => {
       window.location.href = preference.init_point;
     } catch (error: unknown) {
       const msg = extractApiErrorMessage(error);
-      notifications.show({ message: msg, color: "red", radius: "lg", icon: <IconExclamationCircleFilled /> });
+      notifications.show({
+        message: msg,
+        color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
+      });
     }
   };
 
   if (mode === "success" && createdOrder) {
+    const displayOrder = liveOrder ?? createdOrder;
     const goToOrders = () => navigate(ROUTES.MY_ORDERS);
+
+    if (displayOrder.state_code === "CANCELLED") {
+      return (
+        <Stack align="center" gap="lg" py="xl">
+          <IconX size={48} stroke={1} color="red" />
+          <Title order={3}>Pedido cancelado</Title>
+          <Text c="dimmed" ta="center">
+            Este pedido fue cancelado.
+          </Text>
+          <Badge color="red" size="lg">
+            Cancelado
+          </Badge>
+          <Button variant="subtle" onClick={goToOrders}>
+            Ir a mis pedidos
+          </Button>
+        </Stack>
+      );
+    }
 
     switch (paymentMethod) {
       case "EFECTIVO":
@@ -187,10 +244,16 @@ const CheckoutPage = () => {
           />
         );
       case "TRANSFERENCIA":
-        return <CheckoutSuccessTransfer onGoToOrders={goToOrders} />;
+        return (
+          <CheckoutSuccessTransfer
+            order={liveOrder ?? createdOrder}
+            onGoToOrders={goToOrders}
+          />
+        );
       case "MERCADOPAGO":
         return (
           <CheckoutSuccessMercadoPago
+            order={liveOrder ?? createdOrder}
             onPay={handlePayMp}
             isPaying={isPaying}
             onGoToOrders={goToOrders}
