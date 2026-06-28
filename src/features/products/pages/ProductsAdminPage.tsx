@@ -83,8 +83,11 @@ const ProductsAdminPage = () => {
     try {
       await restoreProduct(item.id);
       notifications.show({
-        title: "Operacion Exitosa",
+        title: "Éxito",
         message: `Producto ${item.name} restaurado`,
+        color: "green",
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
       });
     } catch (error: unknown) {
       const msg = extractApiErrorMessage(
@@ -99,7 +102,7 @@ const ProductsAdminPage = () => {
     createProduct(data, {
       onSuccess: () => {
         setCreateOpen(false);
-        notifications.show({ color: "green", message: "Producto creado" });
+        notifications.show({ title: "Producto creado", message: "Producto creado", color: "green", radius: "lg", icon: <IconCircleCheckFilled /> });
       },
       onError: (error) => {
         notifications.show({
@@ -177,6 +180,8 @@ const ProductsAdminPage = () => {
         title: "Producto actualizado",
         message: msg,
         color: "green",
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
       });
     } catch (error) {
       notifications.show({

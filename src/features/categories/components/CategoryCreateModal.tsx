@@ -13,7 +13,7 @@ import {
   FileInput,
   ActionIcon,
 } from "@mantine/core";
-import { IconPhoto, IconTrash, IconExclamationCircleFilled } from "@tabler/icons-react";
+import { IconPhoto, IconTrash, IconExclamationCircleFilled, IconCircleCheckFilled } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 import type { CategoryCreate } from "../types/category";
 import { CategorySelector } from "./CategorySelector";
@@ -77,6 +77,8 @@ export const CategoryCreateModal = ({ opened, onClose }: Props) => {
         title: "Éxito",
         message: `Categoría "${categoryName}" creada exitosamente`,
         color: "green",
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
       });
       onClose();
     } catch (error: unknown) {

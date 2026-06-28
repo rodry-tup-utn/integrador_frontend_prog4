@@ -18,6 +18,7 @@ import type { OrderDetailPublic, OrderStateCode } from "../types/order";
 import { STATE_COLORS, STATE_LABELS } from "../types/configs";
 import {
   IconClock,
+  IconCircleCheckFilled,
   IconCircleCheck,
   IconChefHat,
   IconTruckDelivery,
@@ -104,8 +105,11 @@ const OrderDetailModal = ({
     try {
       await confirmByClient(order.id);
       notifications.show({
+        title: "Pedido confirmado",
         message: "Pedido confirmado — pagás en efectivo al recibir",
         color: "green",
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
       });
     } catch (error: unknown) {
       notifications.show({

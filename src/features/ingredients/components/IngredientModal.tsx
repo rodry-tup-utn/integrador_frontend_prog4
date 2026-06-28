@@ -94,9 +94,11 @@ export const IngredientModal = ({
       const result = await actionConfig.submit();
 
       notifications.show({
-        title: "Exito al guardar",
+        title: "Éxito al guardar",
         message: `Ingrediente ${result.name} ${actionConfig.successMessage} exitosamente`,
         color: "green",
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
       });
 
       onClose();

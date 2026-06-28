@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button, Group, Stack, Checkbox } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconDeviceFloppy, IconExclamationCircleFilled } from "@tabler/icons-react";
+import { IconDeviceFloppy, IconExclamationCircleFilled, IconCircleCheckFilled } from "@tabler/icons-react";
 import type { UserAdminRead } from "../../types/user";
 import { roleConfig } from "../../types/configs";
 import { useAdminUserMutations } from "../../hooks/admin/useAdminUserMutations";
@@ -51,6 +51,8 @@ export const AdminEditUserRoles = ({ user, onClose }: Props) => {
         title: "Roles actualizados",
         message: "Los roles se actualizaron correctamente",
         color: "green",
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
       });
       onClose();
     } catch (error: unknown) {

@@ -16,7 +16,7 @@ import {
   SimpleGrid,
   FileInput,
 } from "@mantine/core";
-import { IconEdit, IconExclamationCircleFilled, IconPhoto, IconTrash } from "@tabler/icons-react";
+import { IconEdit, IconExclamationCircleFilled, IconPhoto, IconTrash, IconCircleCheckFilled } from "@tabler/icons-react";
 import {
   ProductCategoriesCard,
   ProductPriceCard,
@@ -66,8 +66,11 @@ const ProductsAdminDetail = () => {
         onSuccess: () => {
           setEditModalOpened(false);
           notifications.show({
+            title: "Producto actualizado",
             color: "green",
             message: "Producto actualizado",
+            radius: "lg",
+            icon: <IconCircleCheckFilled />,
           });
         },
         onError: (error) => {

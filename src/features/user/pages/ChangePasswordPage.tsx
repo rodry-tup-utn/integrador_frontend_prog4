@@ -9,7 +9,7 @@ import {
   Text,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconExclamationCircleFilled } from "@tabler/icons-react";
+import { IconExclamationCircleFilled, IconCircleCheckFilled } from "@tabler/icons-react";
 import { useProfileMutations } from "../hooks/profile/useProfileMutations";
 import { useNavigate } from "react-router-dom";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
@@ -47,8 +47,11 @@ export const ChangePasswordPage = () => {
     try {
       await updatePass({ old_pass: oldPass, new_pass: newPass });
       notifications.show({
+        title: "Contraseña actualizada",
         message: "Contraseña actualizada correctamente",
         color: "green",
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
       });
       setOldPass("");
       setNewPass("");

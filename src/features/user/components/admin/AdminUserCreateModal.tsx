@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import { type UserCreateByAdmin, type RoleCodes } from "../../types/user";
 import { useAdminUserMutations } from "../../hooks/admin/useAdminUserMutations";
-import { IconPlus, IconExclamationCircleFilled } from "@tabler/icons-react";
+import { IconPlus, IconExclamationCircleFilled, IconCircleCheckFilled } from "@tabler/icons-react";
 import { extractApiErrorMessage } from "../../../../shared/helpers/apiErrors";
 
 interface Props {
@@ -48,6 +48,8 @@ export const AdminUserCreateModal = ({ opened, onClose }: Props) => {
         title: "Éxito",
         message: `Usuario "${newUser.name} creado exitosamente`,
         color: "green",
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
       });
       onClose();
     } catch (error: unknown) {

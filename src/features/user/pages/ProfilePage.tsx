@@ -8,7 +8,7 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { IconPlus } from "@tabler/icons-react";
+import { IconPlus, IconCircleCheckFilled } from "@tabler/icons-react";
 import { useProfile } from "../hooks/profile/useProfile";
 import { useProfileMutations } from "../hooks/profile/useProfileMutations";
 import { useProfileAddresses } from "../hooks/profile/userProfileAddresses";
@@ -56,8 +56,11 @@ export const ProfilePage = () => {
     try {
       await createAddress(data);
       notifications.show({
+        title: "Dirección agregada",
         message: `Direccion ${data.alias} agregada!`,
         color: "green",
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
       });
       setNewModalOpen(false);
     } catch (error: unknown) {
@@ -77,8 +80,11 @@ export const ProfilePage = () => {
     try {
       await updateAddress({ id: selectedAddress.id, data: data });
       notifications.show({
+        title: "Dirección actualizada",
         message: `Direccion ${selectedAddress.alias} actualizada correctamente`,
         color: "green",
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
       });
       setEditModalOpen(false);
     } catch (error: unknown) {

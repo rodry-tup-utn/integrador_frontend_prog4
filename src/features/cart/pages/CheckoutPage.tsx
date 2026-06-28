@@ -11,7 +11,7 @@ import {
   Textarea,
   ActionIcon,
 } from "@mantine/core";
-import { IconShoppingCart, IconArrowLeft, IconExclamationCircleFilled } from "@tabler/icons-react";
+import { IconShoppingCart, IconArrowLeft, IconExclamationCircleFilled, IconCircleCheckFilled, IconAlertTriangleFilled } from "@tabler/icons-react";
 import { useQueries } from "@tanstack/react-query";
 import { useCartStore } from "../store/cart.store";
 import { useProfileAddresses } from "../../user/hooks/profile/userProfileAddresses";
@@ -112,13 +112,19 @@ const CheckoutPage = () => {
         try {
           orderToShow = await confirmByClient(newOrder.id);
           notifications.show({
+            title: "Pedido confirmado",
             message: "Pedido confirmado — pagás en efectivo al recibir",
             color: "green",
+            radius: "lg",
+            icon: <IconCircleCheckFilled />,
           });
         } catch {
           notifications.show({
-            message: "Pedido creado. Confirmalo manualmente desde Mis pedidos.",
-            color: "yellow",
+            title: "Pedido pendiente",
+            message: "No se pudo confirmar automáticamente. Ingresá a Mis pedidos para confirmar el pago en efectivo.",
+            color: "orange",
+            radius: "lg",
+            icon: <IconAlertTriangleFilled />,
           });
         }
       }
@@ -138,7 +144,7 @@ const CheckoutPage = () => {
     try {
       const confirmed = await confirmByClient(createdOrder.id);
       setCreatedOrder(confirmed);
-      notifications.show({ message: "Pedido confirmado 😃", color: "green" });
+      notifications.show({ title: "Pedido confirmado", message: "Pedido confirmado 😃", color: "green", radius: "lg", icon: <IconCircleCheckFilled /> });
     } catch (error) {
       const msg = extractApiErrorMessage(
         error,

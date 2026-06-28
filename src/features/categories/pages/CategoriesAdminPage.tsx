@@ -17,6 +17,7 @@ import {
   IconTrash,
   IconChevronRight,
   IconExclamationCircleFilled,
+  IconCircleCheckFilled,
 } from "@tabler/icons-react";
 import { useAdminCategoryTree } from "../hooks/useAdminCategoryTree";
 import { useCategoryMutations } from "../hooks/useCategoryMutations";
@@ -62,16 +63,23 @@ export default function CategoriesAdminPage() {
     try {
       await restoreCategory(item.id);
       notifications.show({
-        title: "Operación Exitosa",
+        title: "Éxito",
         color: "green",
         message: `Categoría ${item.name} restaurada`,
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
       });
     } catch (error: unknown) {
       const msg = extractApiErrorMessage(
         error,
         `No se pudo restaurar "${item.name}"`,
       );
-      notifications.show({ message: msg, color: "red", radius: "lg", icon: <IconExclamationCircleFilled /> });
+      notifications.show({
+        message: msg,
+        color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
+      });
     }
   };
 
@@ -136,15 +144,16 @@ export default function CategoriesAdminPage() {
                 }}
                 color="blue"
               />
-
-              <ActionButton
-                icon={isDeleted ? IconRestore : IconTrash}
-                onClick={() =>
-                  isDeleted ? handleRestore(node) : handleDelete(node)
-                }
-                label={isDeleted ? "Restaurar" : "Eliminar"}
-                color={isDeleted ? "green" : "red"}
-              />
+              {!node.has_children && (
+                <ActionButton
+                  icon={isDeleted ? IconRestore : IconTrash}
+                  onClick={() =>
+                    isDeleted ? handleRestore(node) : handleDelete(node)
+                  }
+                  label={isDeleted ? "Restaurar" : "Eliminar"}
+                  color={isDeleted ? "green" : "red"}
+                />
+              )}
             </Group>
           </Table.Td>
         </Table.Tr>

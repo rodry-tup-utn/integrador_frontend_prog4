@@ -3,7 +3,7 @@ import { notifications } from "@mantine/notifications";
 import type { UserAdminRead, UserRoleRead } from "../../types/user";
 import { roleConfig } from "../../types/configs";
 import ActionButton from "../../../../shared/components/ActionButton";
-import { IconEdit, IconRestore, IconTrash, IconExclamationCircleFilled } from "@tabler/icons-react";
+import { IconEdit, IconRestore, IconTrash, IconExclamationCircleFilled, IconCircleCheckFilled } from "@tabler/icons-react";
 import { showConfirm } from "../../../../shared/components/ShowConfirm";
 import { useAdminUserMutations } from "../../hooks/admin/useAdminUserMutations";
 import { extractApiErrorMessage } from "../../../../shared/helpers/apiErrors";
@@ -27,9 +27,11 @@ const UserAdminRow = ({ user, handleEdit: onEdit }: Props) => {
     try {
       await restoreUser(user.id);
       notifications.show({
-        title: "Operación Exitosa",
+        title: "Éxito",
         color: "green",
         message: `Usuario ${user.name} restaurado!`,
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
       });
     } catch (error: unknown) {
       const msg = extractApiErrorMessage(
