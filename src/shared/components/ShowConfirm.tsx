@@ -1,5 +1,6 @@
 import { openConfirmModal, closeAllModals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
+import { IconExclamationCircleFilled } from "@tabler/icons-react";
 import { extractApiErrorMessage } from "../helpers/apiErrors";
 
 interface Props {
@@ -44,6 +45,8 @@ export const showConfirm = ({
           title: "Error al procesar la operación",
           color: "red",
           message: errorMessage,
+          radius: "lg",
+          icon: <IconExclamationCircleFilled />,
           autoClose: 6000,
         });
       }

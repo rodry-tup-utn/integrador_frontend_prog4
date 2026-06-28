@@ -3,7 +3,7 @@ import { notifications } from "@mantine/notifications";
 import type { UserAdminRead, UserRoleRead } from "../../types/user";
 import { roleConfig } from "../../types/configs";
 import ActionButton from "../../../../shared/components/ActionButton";
-import { IconEdit, IconRestore, IconTrash } from "@tabler/icons-react";
+import { IconEdit, IconRestore, IconTrash, IconExclamationCircleFilled } from "@tabler/icons-react";
 import { showConfirm } from "../../../../shared/components/ShowConfirm";
 import { useAdminUserMutations } from "../../hooks/admin/useAdminUserMutations";
 import { extractApiErrorMessage } from "../../../../shared/helpers/apiErrors";
@@ -36,7 +36,7 @@ const UserAdminRow = ({ user, handleEdit: onEdit }: Props) => {
         error,
         `No se pudo restaurar ${user.name}`,
       );
-      notifications.show({ title: "Error", message: msg, color: "red" });
+      notifications.show({ title: "Error", message: msg, color: "red", radius: "lg", icon: <IconExclamationCircleFilled /> });
     }
   };
 

@@ -16,6 +16,7 @@ import {
   IconRestore,
   IconTrash,
   IconChevronRight,
+  IconExclamationCircleFilled,
 } from "@tabler/icons-react";
 import { useAdminCategoryTree } from "../hooks/useAdminCategoryTree";
 import { useCategoryMutations } from "../hooks/useCategoryMutations";
@@ -70,7 +71,7 @@ export default function CategoriesAdminPage() {
         error,
         `No se pudo restaurar "${item.name}"`,
       );
-      notifications.show({ message: msg, color: "red" });
+      notifications.show({ message: msg, color: "red", radius: "lg", icon: <IconExclamationCircleFilled /> });
     }
   };
 

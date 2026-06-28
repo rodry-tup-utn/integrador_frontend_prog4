@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { IconAt, IconPassword } from "@tabler/icons-react";
+import { IconAt, IconPassword, IconExclamationCircleFilled } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 export const LoginPage = () => {
@@ -33,6 +33,8 @@ export const LoginPage = () => {
         color: "red",
         title: "Error",
         message: extractApiErrorMessage(err, "Error al iniciar sesión"),
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };

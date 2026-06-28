@@ -17,7 +17,7 @@ import { OrderDetailModal } from "../components/OrderDetailModal";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
 import { nextState, STATE_COLORS, stateLabel } from "../types/configs";
 import ActionButton from "../../../shared/components/ActionButton";
-import { IconArrowBigRightLines, IconXMark } from "@tabler/icons-react";
+import { IconArrowBigRightLines, IconXMark, IconExclamationCircleFilled } from "@tabler/icons-react";
 import { isCancellable, isProgressable } from "../helpers/helpers";
 import { notifications } from "@mantine/notifications";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
@@ -83,6 +83,8 @@ export const AdminOrdersPage = () => {
         title: "Error al actualizar estado",
         message: msg,
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };

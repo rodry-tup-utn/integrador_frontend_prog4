@@ -9,6 +9,7 @@ import { STATE_COLORS } from "../types/configs";
 
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 import { notifications } from "@mantine/notifications";
+import { IconExclamationCircleFilled } from "@tabler/icons-react";
 
 export function KitchenPage() {
   const columns = useKitchenOrders();
@@ -28,7 +29,7 @@ export function KitchenPage() {
       });
     } catch (error: unknown) {
       const mgs = extractApiErrorMessage(error, "Error al avanzar la orden");
-      notifications.show({ message: mgs, color: "red" });
+      notifications.show({ message: mgs, color: "red", radius: "lg", icon: <IconExclamationCircleFilled /> });
     }
   };
 

@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import { type UserCreateByAdmin, type RoleCodes } from "../../types/user";
 import { useAdminUserMutations } from "../../hooks/admin/useAdminUserMutations";
-import { IconPlus } from "@tabler/icons-react";
+import { IconPlus, IconExclamationCircleFilled } from "@tabler/icons-react";
 import { extractApiErrorMessage } from "../../../../shared/helpers/apiErrors";
 
 interface Props {
@@ -56,6 +56,8 @@ export const AdminUserCreateModal = ({ opened, onClose }: Props) => {
         message:
           extractApiErrorMessage(error, "Error al crear el usuario"),
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };

@@ -7,7 +7,7 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import { IconPlus, IconSearch } from "@tabler/icons-react";
+import { IconPlus, IconSearch, IconExclamationCircleFilled } from "@tabler/icons-react";
 import { useState } from "react";
 import { useDebouncedValue } from "@mantine/hooks";
 import ProductsTable from "../components/ProductsTable";
@@ -91,7 +91,7 @@ const ProductsAdminPage = () => {
         error,
         `No se pudo restaurar el producto ${item.name}`,
       );
-      notifications.show({ message: msg, color: "red" });
+      notifications.show({ message: msg, color: "red", radius: "lg", icon: <IconExclamationCircleFilled /> });
     }
   };
 
@@ -105,6 +105,8 @@ const ProductsAdminPage = () => {
         notifications.show({
           color: "red",
           message: extractApiErrorMessage(error, "Error al crear el producto"),
+          radius: "lg",
+          icon: <IconExclamationCircleFilled />,
         });
       },
     });
@@ -124,6 +126,8 @@ const ProductsAdminPage = () => {
         title: "Error",
         message: "No se pudo cargar el producto",
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };

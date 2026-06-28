@@ -16,7 +16,7 @@ import {
   SimpleGrid,
   FileInput,
 } from "@mantine/core";
-import { IconEdit, IconPhoto, IconTrash } from "@tabler/icons-react";
+import { IconEdit, IconExclamationCircleFilled, IconPhoto, IconTrash } from "@tabler/icons-react";
 import {
   ProductCategoriesCard,
   ProductPriceCard,
@@ -74,6 +74,8 @@ const ProductsAdminDetail = () => {
           notifications.show({
             color: "red",
             message: extractApiErrorMessage(error, "Error al actualizar"),
+            radius: "lg",
+            icon: <IconExclamationCircleFilled />,
           });
         },
       },
@@ -99,6 +101,8 @@ const ProductsAdminDetail = () => {
         title: "Error",
         message: extractApiErrorMessage(error, "No se pudo subir la imagen"),
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     } finally {
       setFileKey((k) => k + 1);

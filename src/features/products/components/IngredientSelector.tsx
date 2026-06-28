@@ -10,7 +10,7 @@ import {
   Table,
   Text,
 } from "@mantine/core";
-import { IconTrash } from "@tabler/icons-react";
+import { IconExclamationCircleFilled, IconTrash } from "@tabler/icons-react";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useAdminIngredientsList } from "../../ingredients/hooks/useAdminIngredientsList";
 import { useMeasurementUnits } from "../../ingredients/hooks/useMeasurementUnits";
@@ -18,6 +18,7 @@ import {
   type IngredientInProduct,
   type ProductIngredientBatchItem,
 } from "../types/product";
+import { notifications } from "@mantine/notifications";
 
 interface IngredientSelectorProps {
   value: ProductIngredientBatchItem[];
@@ -69,6 +70,17 @@ const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
 
   const handleAdd = () => {
     if (!selected) return;
+
+    if (Number(quantity) <= 0) {
+      notifications.show({
+        title: "Error al agregar ingrediente",
+        message: "La cantidad de ingrediente a agregar no puede ser 0",
+        color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
+      });
+      return;
+    }
 
     onChange([
       ...value,

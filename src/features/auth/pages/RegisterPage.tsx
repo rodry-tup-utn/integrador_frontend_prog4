@@ -13,7 +13,7 @@ import { usePublicUserCreate } from "../../user/hooks/public/usePublicUserCreate
 import type { UserCreate } from "../../user/types/user";
 import { notifications } from "@mantine/notifications";
 import { useNavigate, Navigate } from "react-router-dom";
-import { IconAt, IconPhone, IconUser } from "@tabler/icons-react";
+import { IconAt, IconPhone, IconUser, IconExclamationCircleFilled } from "@tabler/icons-react";
 import { useState } from "react";
 import { useForm } from "../../../shared/hooks/useForm";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
@@ -43,6 +43,8 @@ const RegisterPage = () => {
       notifications.show({
         message: "Las contraseñas no coinciden",
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
       return;
     }
@@ -58,6 +60,8 @@ const RegisterPage = () => {
       notifications.show({
         message: message || "Erro al crear el usuario",
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };

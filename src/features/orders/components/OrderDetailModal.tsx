@@ -21,6 +21,7 @@ import {
   IconCircleCheck,
   IconChefHat,
   IconTruckDelivery,
+  IconExclamationCircleFilled,
   IconX,
   IconPackages,
   IconMapPin,
@@ -92,6 +93,8 @@ const OrderDetailModal = ({
       notifications.show({
         message: extractApiErrorMessage(error),
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };
@@ -108,6 +111,8 @@ const OrderDetailModal = ({
       notifications.show({
         message: extractApiErrorMessage(error),
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };

@@ -11,7 +11,7 @@ import {
   Textarea,
   ActionIcon,
 } from "@mantine/core";
-import { IconShoppingCart, IconArrowLeft } from "@tabler/icons-react";
+import { IconShoppingCart, IconArrowLeft, IconExclamationCircleFilled } from "@tabler/icons-react";
 import { useQueries } from "@tanstack/react-query";
 import { useCartStore } from "../store/cart.store";
 import { useProfileAddresses } from "../../user/hooks/profile/userProfileAddresses";
@@ -128,7 +128,7 @@ const CheckoutPage = () => {
       setMode("success");
     } catch (error: unknown) {
       const msg = extractApiErrorMessage(error, "No se pudo crear el pedido");
-      notifications.show({ message: msg, color: "red" });
+      notifications.show({ message: msg, color: "red", radius: "lg", icon: <IconExclamationCircleFilled /> });
     }
   };
 
@@ -144,7 +144,7 @@ const CheckoutPage = () => {
         error,
         "No se pudo confirmar el pedido",
       );
-      notifications.show({ message: msg, color: "red" });
+      notifications.show({ message: msg, color: "red", radius: "lg", icon: <IconExclamationCircleFilled /> });
     }
   };
 
@@ -160,7 +160,7 @@ const CheckoutPage = () => {
       window.location.href = preference.init_point;
     } catch (error: unknown) {
       const msg = extractApiErrorMessage(error);
-      notifications.show({ message: msg, color: "red" });
+      notifications.show({ message: msg, color: "red", radius: "lg", icon: <IconExclamationCircleFilled /> });
     }
   };
 

@@ -6,6 +6,7 @@ import type {
 } from "../types/product";
 import {
   IconEdit,
+  IconExclamationCircleFilled,
   IconInfoCircle,
   IconRestore,
   IconTrash,
@@ -78,6 +79,8 @@ const ProductsTable = ({
       notifications.show({
         message: message,
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };
