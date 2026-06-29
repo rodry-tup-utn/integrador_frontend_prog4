@@ -22,7 +22,7 @@ const STOCK_URL = "/stock/product";
 export const productService = {
   public: {
     getAll: async (filters: ProductFilters = {}): Promise<ProductList> => {
-      const response = await api.get<ProductList>(PUBLIC_URL, {
+      const response = await api.get<ProductList>(`${PUBLIC_URL}`, {
         params: filters,
       });
       return response.data;
