@@ -1,6 +1,8 @@
-import { useParams } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { useAdminProductDetail } from "../hooks/product.queries.hooks";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  useAdminProductDetail,
+  useProductWithIngredients,
+} from "../hooks/product.queries.hooks";
 import {
   Badge,
   Button,
@@ -11,12 +13,9 @@ import {
   Text,
   Title,
   Stack,
-  ActionIcon,
   Image,
   SimpleGrid,
-  FileInput,
 } from "@mantine/core";
-import { IconEdit, IconExclamationCircleFilled, IconPhoto, IconTrash, IconCircleCheckFilled } from "@tabler/icons-react";
 import {
   ProductCategoriesCard,
   ProductPriceCard,
@@ -25,111 +24,22 @@ import {
   ProductTypeCard,
   ProductIngredientsCard,
 } from "../components/ProductsDetailCards";
-import ProductCreateModal from "../components/ProductCreateModal";
-import { useProductMutation } from "../hooks/product.mutation.hooks";
-import { notifications } from "@mantine/notifications";
-import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
+import { IconEdit } from "@tabler/icons-react";
 import NotFoundState from "../../../shared/components/NotFoundState";
-import useImageUpload from "../../upload/hooks/useImageUpload";
-import type { ProductCreate } from "../types/product";
+import placeholder from "../../../assets/placeholder.jpeg";
 
 const ProductsAdminDetail = () => {
   const { id } = useParams();
   const prodId = Number(id);
 
   const { data: product, isLoading } = useAdminProductDetail(prodId);
-  const { updateProduct, isUpdating } = useProductMutation();
-
-  const { uploadImage, deleteImage, isUploading } = useImageUpload();
-
-  const [localImages, setLocalImages] = useState<string[]>([]);
-  const [editModalOpened, setEditModalOpened] = useState(false);
-
-  useEffect(() => {
-    if (product) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setLocalImages(product.images_url ?? []);
-    }
-  }, [product]);
-
-  const [fileKey, setFileKey] = useState(0);
+  const { data: productIngredients } = useProductWithIngredients(prodId);
+  const navigate = useNavigate();
 
   if (!id || isNaN(prodId))
     return <NotFoundState message="Producto no encontrado" />;
   if (isLoading) return <>Cargando...</>;
   if (!product) return <NotFoundState message="Producto no encontrado" />;
-
-  const handleModalSubmit = (data: ProductCreate) => {
-    updateProduct(
-      { id: prodId, data },
-      {
-        onSuccess: () => {
-          setEditModalOpened(false);
-          notifications.show({
-            title: "Producto actualizado",
-            color: "green",
-            message: "Producto actualizado",
-            radius: "lg",
-            icon: <IconCircleCheckFilled />,
-          });
-        },
-        onError: (error) => {
-          notifications.show({
-            color: "red",
-            message: extractApiErrorMessage(error, "Error al actualizar"),
-            radius: "lg",
-            icon: <IconExclamationCircleFilled />,
-          });
-        },
-      },
-    );
-  };
-
-  const handleAddImage = async (file: File | null) => {
-    if (!file) return;
-    try {
-      const result = await uploadImage(file);
-      const updatedImages = [...localImages, result.url];
-      setLocalImages(updatedImages);
-      updateProduct(
-        { id: prodId, data: { images_url: updatedImages } },
-        {
-          onError: () => {
-            setLocalImages(localImages);
-          },
-        },
-      );
-    } catch (error) {
-      notifications.show({
-        title: "Error",
-        message: extractApiErrorMessage(error, "No se pudo subir la imagen"),
-        color: "red",
-        radius: "lg",
-        icon: <IconExclamationCircleFilled />,
-      });
-    } finally {
-      setFileKey((k) => k + 1);
-    }
-  };
-
-  const handleRemoveImage = async (url: string) => {
-    const updatedImages = localImages.filter((u) => u !== url);
-    setLocalImages(updatedImages);
-    try {
-      const publicId = extractPublicId(url);
-      if (publicId) await deleteImage(publicId);
-    } catch {
-      // si falla cleanup igual continuamos
-    }
-    updateProduct(
-      { id: prodId, data: { images_url: updatedImages } },
-      {
-        onError: () => {
-          setLocalImages(localImages);
-        },
-      },
-    );
-  };
 
   return (
     <>
@@ -161,7 +71,7 @@ const ProductsAdminDetail = () => {
               </Stack>
               <Button
                 leftSection={<IconEdit size={18} />}
-                onClick={() => setEditModalOpened(true)}
+                onClick={() => navigate("/admin/products?edit=" + prodId)}
               >
                 Editar producto
               </Button>
@@ -193,9 +103,9 @@ const ProductsAdminDetail = () => {
               <Text size="md" fw={700}>
                 Imágenes
               </Text>
-              {localImages.length > 0 ? (
+              {product.images_url && product.images_url.length > 0 ? (
                 <SimpleGrid cols={2} spacing="sm">
-                  {localImages.map((url) => (
+                  {product.images_url.map((url: string) => (
                     <Stack key={url} gap={3} align="center">
                       <Image
                         src={url}
@@ -204,31 +114,18 @@ const ProductsAdminDetail = () => {
                         fit="contain"
                         radius="sm"
                       />
-                      <ActionIcon
-                        color="red"
-                        variant="light"
-                        size="sm"
-                        onClick={() => handleRemoveImage(url)}
-                      >
-                        <IconTrash size={14} />
-                      </ActionIcon>
                     </Stack>
                   ))}
                 </SimpleGrid>
               ) : (
-                <Text size="sm" c="dimmed">
-                  Sin imágenes
-                </Text>
+                <Image
+                  src={placeholder}
+                  h={120}
+                  w="auto"
+                  fit="contain"
+                  radius="sm"
+                ></Image>
               )}
-              <FileInput
-                key={fileKey}
-                placeholder="Agregar imagen"
-                leftSection={<IconPhoto size={16} />}
-                accept="image/jpeg,image/png,image/webp"
-                onChange={handleAddImage}
-                loading={isUploading}
-                clearable
-              />
             </Stack>
           </Paper>
         </Grid.Col>
@@ -254,7 +151,9 @@ const ProductsAdminDetail = () => {
 
         {product.type === "MANUFACTURED" && (
           <Grid.Col span={12}>
-            <ProductIngredientsCard ingredients={product.ingredients ?? []} />
+            <ProductIngredientsCard
+              ingredients={productIngredients?.ingredients ?? []}
+            />
           </Grid.Col>
         )}
 
@@ -299,21 +198,8 @@ const ProductsAdminDetail = () => {
           </Paper>
         </Grid.Col>
       </Grid>
-
-      <ProductCreateModal
-        opened={editModalOpened}
-        onClose={() => setEditModalOpened(false)}
-        onSubmit={handleModalSubmit}
-        isSubmitting={isUpdating}
-        initialData={product}
-      />
     </>
   );
 };
-
-function extractPublicId(url: string): string | null {
-  const match = url.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[a-z]+)?$/);
-  return match?.[1] ?? null;
-}
 
 export default ProductsAdminDetail;

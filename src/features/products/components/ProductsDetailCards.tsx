@@ -10,7 +10,7 @@ import {
   Image,
 } from "@mantine/core";
 import { IconFolder, IconImageInPicture } from "@tabler/icons-react";
-import type { ProductDetail, ProductIngredientResponse } from "../types/product";
+import type { IngredientInProduct, ProductDetail } from "../types/product";
 import { useMeasurementUnits } from "../../ingredients/hooks/useMeasurementUnits";
 import placeholder from "../../../assets/placeholder.jpeg";
 
@@ -162,8 +162,13 @@ export const ProductCategoriesCard = ({
 export const ProductIngredientsCard = ({
   ingredients,
 }: {
-  ingredients: ProductIngredientResponse[];
+  ingredients: IngredientInProduct[];
 }) => {
+  const { data: measurementUnits } = useMeasurementUnits();
+  const unitSymbolMap = new Map(
+    (measurementUnits ?? []).map((u) => [u.code, u.name]),
+  );
+  const resolveSymbol = (code: string) => unitSymbolMap.get(code) ?? code;
   return (
     <Paper
       p="md"
@@ -183,6 +188,7 @@ export const ProductIngredientsCard = ({
             <Table.Tr>
               <Table.Th>Nombre</Table.Th>
               <Table.Th ta="center">Cantidad</Table.Th>
+              <Table.Th ta="center">Unidad</Table.Th>
               <Table.Th ta="center">Removible</Table.Th>
             </Table.Tr>
           </Table.Thead>
@@ -195,7 +201,12 @@ export const ProductIngredientsCard = ({
                   </Text>
                 </Table.Td>
                 <Table.Td ta="center">
-                  <Text size="sm">{ing.quantity}</Text>
+                  <Text size="sm">{ing.quantity_ingredient}</Text>
+                </Table.Td>
+                <Table.Td ta="center">
+                  <Text size="sm">
+                    {resolveSymbol(ing.measurement_unit_code)}{" "}
+                  </Text>
                 </Table.Td>
                 <Table.Td ta="center">
                   <Text size="sm">{ing.is_removable ? "Sí" : "No"}</Text>

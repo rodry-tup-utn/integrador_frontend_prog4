@@ -13,7 +13,8 @@ import {
   IconExclamationCircleFilled,
   IconCircleCheckFilled,
 } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useDebouncedValue } from "@mantine/hooks";
 import ProductsTable from "../components/ProductsTable";
 import { useAdminProducts } from "../hooks/product.queries.hooks";
@@ -50,6 +51,11 @@ const ProductsAdminPage = () => {
   const [typeFilter, setTypeFilter] = useState<TypeProduct | undefined>(
     undefined,
   );
+  const [keepImages, setKeepImages] = useState(false);
+
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const editId = searchParams.get("edit");
 
   const filters: ProductFilters = {
     offset: (page - 1) * LIMIT,
@@ -111,6 +117,7 @@ const ProductsAdminPage = () => {
   const handleCreate = (data: ProductCreate) => {
     createProduct(data, {
       onSuccess: () => {
+        setKeepImages(true);
         setCreateOpen(false);
         notifications.show({
           title: "Producto creado",
@@ -137,6 +144,7 @@ const ProductsAdminPage = () => {
         queryKey: productKeys.getWithCategory(data),
         queryFn: () => productService.stock.getWithCategory(data),
       });
+      setKeepImages(false);
       setEditingProductId(data);
       setProdToEdit(detail);
       setCreateOpen(true);
@@ -150,6 +158,33 @@ const ProductsAdminPage = () => {
       });
     }
   };
+
+  useEffect(() => {
+    if (editId) {
+      const id = Number(editId);
+      navigate("/admin/products", { replace: true });
+      queryClient
+        .fetchQuery({
+          queryKey: productKeys.getWithCategory(id),
+          queryFn: () => productService.stock.getWithCategory(id),
+        })
+        .then((detail) => {
+          setKeepImages(false);
+          setEditingProductId(id);
+          setProdToEdit(detail);
+          setCreateOpen(true);
+        })
+        .catch(() => {
+          notifications.show({
+            title: "Error",
+            message: "No se pudo cargar el producto",
+            color: "red",
+            radius: "lg",
+            icon: <IconExclamationCircleFilled />,
+          });
+        });
+    }
+  }, [editId, navigate]);
 
   const handleModalClose = () => {
     setCreateOpen(false);
@@ -188,6 +223,7 @@ const ProductsAdminPage = () => {
           ),
         );
       }
+      setKeepImages(true);
       const msg = prodToEdit
         ? `${prodToEdit?.name} actualizado`
         : "Producto actualizado con éxito";
@@ -262,6 +298,7 @@ const ProductsAdminPage = () => {
               label="Nuevo Producto"
               text="Nuevo producto"
               onClick={() => {
+                setKeepImages(false);
                 setCreateOpen(true);
               }}
               color="teal"
@@ -309,6 +346,7 @@ const ProductsAdminPage = () => {
           onSubmit={handleSubmit}
           isSubmitting={isCreating}
           initialData={prodToEdit ?? undefined}
+          keepImages={keepImages}
         />
       }
     </div>

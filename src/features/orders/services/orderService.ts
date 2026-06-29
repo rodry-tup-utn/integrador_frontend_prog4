@@ -17,12 +17,12 @@ const ORDER_URL = "/orders/order";
 export const orderService = {
   client: {
     create: async (data: OrderCreate): Promise<OrderPublic> => {
-      const response = await api.post<OrderPublic>(`${CLIENT_URL}/`, data);
+      const response = await api.post<OrderPublic>(`${CLIENT_URL}`, data);
       return response.data;
     },
 
     list: async (filters: OrderFilters): Promise<OrderList> => {
-      const response = await api.get<OrderList>(`${CLIENT_URL}/`, {
+      const response = await api.get<OrderList>(`${CLIENT_URL}`, {
         params: filters,
       });
       return response.data;
@@ -45,7 +45,7 @@ export const orderService = {
 
   order: {
     list: async (filters: OrderFilters): Promise<OrderAdminList> => {
-      const response = await api.get<OrderAdminList>(`${ORDER_URL}/`, {
+      const response = await api.get<OrderAdminList>(`${ORDER_URL}`, {
         params: filters,
       });
       return response.data;

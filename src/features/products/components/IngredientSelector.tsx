@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState, useMemo } from "react";
 import {
   ActionIcon,
   Button,
@@ -11,7 +11,6 @@ import {
   Text,
 } from "@mantine/core";
 import { IconExclamationCircleFilled, IconTrash } from "@tabler/icons-react";
-import { useDebouncedValue } from "@mantine/hooks";
 import { useAdminIngredientsList } from "../../ingredients/hooks/useAdminIngredientsList";
 import { useMeasurementUnits } from "../../ingredients/hooks/useMeasurementUnits";
 import {
@@ -28,16 +27,10 @@ interface IngredientSelectorProps {
 
 const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
   const [search, setSearch] = useState("");
-  const [debouncedSearch] = useDebouncedValue(search, 250);
-  const { data: searchIngredients } = useAdminIngredientsList({
-    offset: 0,
-    limit: 10,
-    search: debouncedSearch,
-  });
 
   const { data: allIngredients } = useAdminIngredientsList({
     offset: 0,
-    limit: 200,
+    limit: 1000,
   });
   const [selected, setSelected] = useState<number | null>(null);
   const [quantity, setQuantity] = useState<number | string>(0);
@@ -45,8 +38,9 @@ const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
 
   const { data: measurementUnits } = useMeasurementUnits();
 
-  const unitSymbolMap = new Map(
-    (measurementUnits ?? []).map((u) => [u.code, u.symbol]),
+  const unitSymbolMap = useMemo(
+    () => new Map((measurementUnits ?? []).map((u) => [u.code, u.symbol])),
+    [measurementUnits],
   );
 
   const ingredientMap = new Map(
@@ -58,15 +52,25 @@ const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
       [],
   );
 
-  const resolveSymbol = (code: string) => unitSymbolMap.get(code) ?? code;
+  const resolveSymbol = useCallback(
+    (code: string) => unitSymbolMap.get(code) ?? code,
+    [unitSymbolMap],
+  );
 
-  const availableIngredients =
-    searchIngredients?.data
+  const availableIngredients = useMemo(() => {
+    const filtered = search
+      ? (allIngredients?.data ?? []).filter((ing) =>
+          ing.name.toLowerCase().includes(search.toLowerCase()),
+        )
+      : (allIngredients?.data ?? []);
+    return filtered
       .filter((ing) => !value.some((i) => i.ingredient_id === ing.id))
+      .slice(0, 10)
       .map((ing) => ({
         value: String(ing.id),
         label: `${ing.name} (${resolveSymbol(ing.measurement_unit_code)})`,
-      })) ?? [];
+      }));
+  }, [allIngredients, search, value, resolveSymbol]);
 
   const handleAdd = () => {
     if (!selected) return;
