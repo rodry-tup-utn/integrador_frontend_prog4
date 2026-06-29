@@ -3,11 +3,16 @@ import { notifications } from "@mantine/notifications";
 import type { UserAdminRead, UserRoleRead } from "../../types/user";
 import { roleConfig } from "../../types/configs";
 import ActionButton from "../../../../shared/components/ActionButton";
-import { IconEdit, IconRestore, IconTrash, IconExclamationCircleFilled, IconCircleCheckFilled } from "@tabler/icons-react";
+import {
+  IconEdit,
+  IconRestore,
+  IconTrash,
+  IconExclamationCircleFilled,
+  IconCircleCheckFilled,
+} from "@tabler/icons-react";
 import { showConfirm } from "../../../../shared/components/ShowConfirm";
 import { useAdminUserMutations } from "../../hooks/admin/useAdminUserMutations";
 import { extractApiErrorMessage } from "../../../../shared/helpers/apiErrors";
-import { useState } from "react";
 
 interface Props {
   user: UserAdminRead;
@@ -16,9 +21,7 @@ interface Props {
 
 const UserAdminRow = ({ user, handleEdit: onEdit }: Props) => {
   const isDeleted = !!user.deleted_at;
-  const [now] = useState(() => Date.now());
-  const isRoleExpired = (role: UserRoleRead) =>
-    !!role.expires_at && new Date(role.expires_at).getTime() < now;
+  const isRoleExpired = (role: UserRoleRead) => !!role.expires_at;
 
   const { restoreUser, deleteUser, isLoading, restorePass } =
     useAdminUserMutations();
@@ -38,7 +41,13 @@ const UserAdminRow = ({ user, handleEdit: onEdit }: Props) => {
         error,
         `No se pudo restaurar ${user.name}`,
       );
-      notifications.show({ title: "Error", message: msg, color: "red", radius: "lg", icon: <IconExclamationCircleFilled /> });
+      notifications.show({
+        title: "Error",
+        message: msg,
+        color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
+      });
     }
   };
 
@@ -83,20 +92,13 @@ const UserAdminRow = ({ user, handleEdit: onEdit }: Props) => {
             <Stack justify="center" align="center" gap="xs">
               {user.roles.map((role) => {
                 const revoked = isRoleExpired(role);
+                if (revoked) return;
                 return (
                   <Badge
                     key={role.role_user.code}
                     color={roleConfig[role.role_user.code]?.color ?? "gray"}
-                    variant={revoked ? "dot" : "light"}
+                    variant={"light"}
                     size="sm"
-                    style={
-                      revoked
-                        ? {
-                            textDecoration: "line-through",
-                            opacity: 0.5,
-                          }
-                        : undefined
-                    }
                   >
                     {roleConfig[role.role_user.code]?.label ??
                       role.role_user.code}
