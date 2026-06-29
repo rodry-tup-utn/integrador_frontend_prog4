@@ -4,7 +4,6 @@ import {
   Alert,
   Button,
   Group,
-  Loader,
   Modal,
   SegmentedControl,
   Select,
@@ -17,7 +16,6 @@ import {
   ActionIcon,
   FileInput,
 } from "@mantine/core";
-import { useDebouncedValue } from "@mantine/hooks";
 import {
   IconInfoCircle,
   IconPhoto,
@@ -30,8 +28,8 @@ import {
   mapIngredientToBatchItem,
   validateAll,
 } from "../helpers/productValidations";
+import { useAdminIngredientsList } from "../../ingredients/hooks/useAdminIngredientsList";
 import { useMeasurementUnits } from "../../ingredients/hooks/useMeasurementUnits";
-import { useCalculateStock } from "../hooks/useCalculateStock";
 import useImageUpload from "../../upload/hooks/useImageUpload";
 import { notifications } from "@mantine/notifications";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
@@ -90,12 +88,26 @@ const ProductCreateModal = ({
     ingredients: "",
   });
 
+  const { data: allIngredients } = useAdminIngredientsList({
+    offset: 0,
+    limit: 1000,
+  });
   const { data: measurementUnits } = useMeasurementUnits();
   const { uploadImage, deleteImage } = useImageUpload();
 
-  const [debouncedIngredients] = useDebouncedValue(formData.ingredients, 1000);
-  const { data: stockResult, isFetching } =
-    useCalculateStock(debouncedIngredients);
+  const calculatedStock = useMemo(() => {
+    if (formData.type !== "MANUFACTURED" || formData.ingredients.length === 0)
+      return 0;
+    const stocks = formData.ingredients.map((item) => {
+      const ing = allIngredients?.data.find(
+        (i) => i.id === item.ingredient_id,
+      );
+      if (!ing || ing.stock === null || item.quantity_ingredient === 0)
+        return Infinity;
+      return Math.floor(ing.stock / item.quantity_ingredient);
+    });
+    return stocks.length > 0 ? Math.min(...stocks) : 0;
+  }, [formData.ingredients, allIngredients, formData.type]);
 
   const unitOptions = useMemo(
     () =>
@@ -261,16 +273,11 @@ const ProductCreateModal = ({
                 readOnly={formData.type == "MANUFACTURED"}
                 value={
                   formData.type === "MANUFACTURED"
-                    ? (stockResult?.stock ?? formData.stock)
+                    ? (calculatedStock ?? formData.stock)
                     : formData.stock
                 }
                 onChange={handleChange}
                 error={errors.stock}
-                rightSection={
-                  isFetching && formData.type === "MANUFACTURED" ? (
-                    <Loader size="xs" />
-                  ) : undefined
-                }
               />
             </Group>
 
