@@ -46,54 +46,51 @@ interface QuickLinkSection {
 const getQuickLinks = (roles: string[]): QuickLinkSection[] => {
   const sections: QuickLinkSection[] = [];
 
-  sections.push({
-    title: "General",
-    links: [
-      {
-        to: ROUTES.PUBLIC_PRODUCTS,
-        label: "Productos",
-        description: "Explorar el menú",
-        icon: IconBurger,
-        color: "blue",
-      },
-      {
-        to: ROUTES.PUBLIC_INGREDIENTS,
-        label: "Ingredientes",
-        description: "Explora nuestros Ingredientes",
-        icon: IconMeat,
-        color: "orange",
-      },
-      {
-        to: ROUTES.PROFILE,
-        label: "Mi Perfil",
-        description: "Ver y editar información personal",
-        icon: IconUser,
-        color: "teal",
-      },
-      {
-        to: ROUTES.CHANGE_PASSWORD,
-        label: "Contraseña",
-        description: "Cambiar contraseña",
-        icon: IconLock,
-        color: "violet",
-      },
-    ],
-  });
+  const generalLinks: QuickLink[] = [
+    {
+      to: ROUTES.PUBLIC_PRODUCTS,
+      label: "Productos",
+      description: "Explorar el menú",
+      icon: IconBurger,
+      color: "blue",
+    },
+    {
+      to: ROUTES.PUBLIC_INGREDIENTS,
+      label: "Ingredientes",
+      description: "Explora nuestros Ingredientes",
+      icon: IconMeat,
+      color: "orange",
+    },
+    {
+      to: ROUTES.PROFILE,
+      label: "Mi Perfil",
+      description: "Ver y editar información personal",
+      icon: IconUser,
+      color: "teal",
+    },
+    {
+      to: ROUTES.CHANGE_PASSWORD,
+      label: "Contraseña",
+      description: "Cambiar contraseña",
+      icon: IconLock,
+      color: "violet",
+    },
+  ];
 
-  if (roles.includes("CLIENT")) {
-    sections.push({
-      title: "Cliente",
-      links: [
-        {
-          to: ROUTES.MY_ORDERS,
-          label: "Mis Pedidos",
-          description: "Ver historial de pedidos",
-          icon: IconShoppingBag,
-          color: "grape",
-        },
-      ],
+  if (roles.includes("CLIENT") || roles.includes("ADMIN")) {
+    generalLinks.push({
+      to: ROUTES.MY_ORDERS,
+      label: "Mis Pedidos",
+      description: "Ver historial de pedidos",
+      icon: IconShoppingBag,
+      color: "grape",
     });
   }
+
+  sections.push({
+    title: "General",
+    links: generalLinks,
+  });
 
   if (roles.includes("ADMIN")) {
     sections.push({
