@@ -1,5 +1,4 @@
-import { useParams } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   useAdminProductDetail,
   useProductWithIngredients,
@@ -14,18 +13,9 @@ import {
   Text,
   Title,
   Stack,
-  ActionIcon,
   Image,
   SimpleGrid,
-  FileInput,
 } from "@mantine/core";
-import {
-  IconEdit,
-  IconExclamationCircleFilled,
-  IconPhoto,
-  IconTrash,
-  IconCircleCheckFilled,
-} from "@tabler/icons-react";
 import {
   ProductCategoriesCard,
   ProductPriceCard,
@@ -34,13 +24,9 @@ import {
   ProductTypeCard,
   ProductIngredientsCard,
 } from "../components/ProductsDetailCards";
-import ProductCreateModal from "../components/ProductCreateModal";
-import { useProductMutation } from "../hooks/product.mutation.hooks";
-import { notifications } from "@mantine/notifications";
-import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
+import { IconEdit } from "@tabler/icons-react";
 import NotFoundState from "../../../shared/components/NotFoundState";
-import useImageUpload from "../../upload/hooks/useImageUpload";
-import type { ProductCreate } from "../types/product";
+import placeholder from "../../../assets/placeholder.jpeg";
 
 const ProductsAdminDetail = () => {
   const { id } = useParams();
@@ -48,128 +34,12 @@ const ProductsAdminDetail = () => {
 
   const { data: product, isLoading } = useAdminProductDetail(prodId);
   const { data: productIngredients } = useProductWithIngredients(prodId);
-  const {
-    updateProduct,
-    isUpdating,
-    updateIngredientsBatch,
-    removeIngredient,
-  } = useProductMutation();
-
-  const { uploadImage, deleteImage, isUploading } = useImageUpload();
-
-  const [localImages, setLocalImages] = useState<string[]>([]);
-  const [editModalOpened, setEditModalOpened] = useState(false);
-
-  useEffect(() => {
-    if (product) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setLocalImages(product.images_url ?? []);
-    }
-  }, [product]);
-
-  const [fileKey, setFileKey] = useState(0);
+  const navigate = useNavigate();
 
   if (!id || isNaN(prodId))
     return <NotFoundState message="Producto no encontrado" />;
   if (isLoading) return <>Cargando...</>;
   if (!product) return <NotFoundState message="Producto no encontrado" />;
-
-  const handleModalSubmit = async (data: ProductCreate) => {
-    try {
-      const { ingredients, ...productFields } = data;
-
-      await updateProduct({ id: prodId, data: productFields });
-
-      if (data.type === "MANUFACTURED") {
-        if (ingredients.length > 0) {
-          await updateIngredientsBatch({
-            product_id: prodId,
-            data: { ingredients },
-          });
-        }
-
-        const originalIds = new Set(
-          (product?.ingredients ?? []).map((i) => i.ingredient_id),
-        );
-        const currentIds = new Set(ingredients.map((i) => i.ingredient_id));
-        const removedIds = [...originalIds].filter((id) => !currentIds.has(id));
-
-        await Promise.all(
-          removedIds.map((id) =>
-            removeIngredient({ productId: prodId, ingredientId: id }),
-          ),
-        );
-      }
-
-      setEditModalOpened(false);
-      notifications.show({
-        title: "Producto actualizado",
-        message: "Producto actualizado con éxito",
-        color: "green",
-        radius: "lg",
-        icon: <IconCircleCheckFilled />,
-      });
-    } catch (error) {
-      notifications.show({
-        title: "Error al actualizar",
-        message: extractApiErrorMessage(
-          error,
-          "Error al actualizar el producto",
-        ),
-        color: "red",
-        radius: "lg",
-        icon: <IconExclamationCircleFilled />,
-      });
-    }
-  };
-
-  const handleAddImage = async (file: File | null) => {
-    if (!file) return;
-    const previousImages = localImages;
-    try {
-      const result = await uploadImage(file);
-      const updatedImages = [...previousImages, result.url];
-      setLocalImages(updatedImages);
-      await updateProduct({ id: prodId, data: { images_url: updatedImages } });
-    } catch (error) {
-      setLocalImages(previousImages);
-      notifications.show({
-        title: "Error",
-        message: extractApiErrorMessage(error, "No se pudo subir la imagen"),
-        color: "red",
-        radius: "lg",
-        icon: <IconExclamationCircleFilled />,
-      });
-    } finally {
-      setFileKey((k) => k + 1);
-    }
-  };
-
-  const handleRemoveImage = async (url: string) => {
-    const previousImages = localImages;
-    const updatedImages = previousImages.filter((u) => u !== url);
-    setLocalImages(updatedImages);
-
-    try {
-      const publicId = extractPublicId(url);
-      if (publicId) await deleteImage(publicId);
-    } catch {
-      // cloudinary falló, continuamos igual
-    }
-
-    try {
-      await updateProduct({ id: prodId, data: { images_url: updatedImages } });
-    } catch {
-      setLocalImages(previousImages);
-      notifications.show({
-        title: "Error",
-        message: "No se pudo actualizar la lista de imágenes",
-        color: "red",
-        radius: "lg",
-        icon: <IconExclamationCircleFilled />,
-      });
-    }
-  };
 
   return (
     <>
@@ -201,7 +71,7 @@ const ProductsAdminDetail = () => {
               </Stack>
               <Button
                 leftSection={<IconEdit size={18} />}
-                onClick={() => setEditModalOpened(true)}
+                onClick={() => navigate("/admin/products?edit=" + prodId)}
               >
                 Editar producto
               </Button>
@@ -233,9 +103,9 @@ const ProductsAdminDetail = () => {
               <Text size="md" fw={700}>
                 Imágenes
               </Text>
-              {localImages.length > 0 ? (
+              {product.images_url && product.images_url.length > 0 ? (
                 <SimpleGrid cols={2} spacing="sm">
-                  {localImages.map((url) => (
+                  {product.images_url.map((url: string) => (
                     <Stack key={url} gap={3} align="center">
                       <Image
                         src={url}
@@ -244,31 +114,18 @@ const ProductsAdminDetail = () => {
                         fit="contain"
                         radius="sm"
                       />
-                      <ActionIcon
-                        color="red"
-                        variant="light"
-                        size="sm"
-                        onClick={() => handleRemoveImage(url)}
-                      >
-                        <IconTrash size={14} />
-                      </ActionIcon>
                     </Stack>
                   ))}
                 </SimpleGrid>
               ) : (
-                <Text size="sm" c="dimmed">
-                  Sin imágenes
-                </Text>
+                <Image
+                  src={placeholder}
+                  h={120}
+                  w="auto"
+                  fit="contain"
+                  radius="sm"
+                ></Image>
               )}
-              <FileInput
-                key={fileKey}
-                placeholder="Agregar imagen"
-                leftSection={<IconPhoto size={16} />}
-                accept="image/jpeg,image/png,image/webp"
-                onChange={handleAddImage}
-                loading={isUploading}
-                clearable
-              />
             </Stack>
           </Paper>
         </Grid.Col>
@@ -341,21 +198,8 @@ const ProductsAdminDetail = () => {
           </Paper>
         </Grid.Col>
       </Grid>
-
-      <ProductCreateModal
-        opened={editModalOpened}
-        onClose={() => setEditModalOpened(false)}
-        onSubmit={handleModalSubmit}
-        isSubmitting={isUpdating}
-        initialData={product}
-      />
     </>
   );
 };
-
-function extractPublicId(url: string): string | null {
-  const match = url.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[a-z]+)?$/);
-  return match?.[1] ?? null;
-}
 
 export default ProductsAdminDetail;
