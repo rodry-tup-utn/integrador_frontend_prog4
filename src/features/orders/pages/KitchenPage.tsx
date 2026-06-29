@@ -8,7 +8,12 @@ import { nextState, stateLabel } from "../types/configs";
 import { STATE_COLORS } from "../types/configs";
 
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
+import { markManualUpdate } from "../../../shared/hooks/useOrderWebSocket";
 import { notifications } from "@mantine/notifications";
+import {
+  IconExclamationCircleFilled,
+  IconArrowRight,
+} from "@tabler/icons-react";
 
 export function KitchenPage() {
   const columns = useKitchenOrders();
@@ -20,15 +25,23 @@ export function KitchenPage() {
     const next = nextState(code);
     if (!next) return;
 
+    markManualUpdate(order.id);
     try {
       await changeOrderState({ id: order.id, data: { state_code: next } });
       notifications.show({
         message: `Orden avanzada a ${stateLabel(next)}`,
         color: STATE_COLORS[next],
+        radius: "lg",
+        icon: <IconArrowRight />,
       });
     } catch (error: unknown) {
       const mgs = extractApiErrorMessage(error, "Error al avanzar la orden");
-      notifications.show({ message: mgs, color: "red" });
+      notifications.show({
+        message: mgs,
+        color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
+      });
     }
   };
 
@@ -37,7 +50,10 @@ export function KitchenPage() {
     showConfirm({
       title: `Cancelar orden #${order.id}?`,
       confirmLabel: "Cancelar",
-      onConfirm: () => cancelOrderByStaff({ id: order.id, data: data }),
+      onConfirm: () => {
+        markManualUpdate(order.id);
+        return cancelOrderByStaff({ id: order.id, data: data });
+      },
       successMessage: `Orden #${order.id} cancelada`,
       color: "red",
     });

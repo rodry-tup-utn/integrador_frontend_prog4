@@ -17,14 +17,18 @@ import { OrderDetailModal } from "../components/OrderDetailModal";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
 import { nextState, STATE_COLORS, stateLabel } from "../types/configs";
 import ActionButton from "../../../shared/components/ActionButton";
-import { IconArrowBigRightLines, IconXMark } from "@tabler/icons-react";
+import {
+  IconArrowBigRightLines,
+  IconXMark,
+  IconExclamationCircleFilled,
+  IconArrowRight,
+} from "@tabler/icons-react";
 import { isCancellable, isProgressable } from "../helpers/helpers";
 import { notifications } from "@mantine/notifications";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
-import { useAuth } from "../../auth/context/AuthContext";
+import { markManualUpdate } from "../../../shared/hooks/useOrderWebSocket";
 
 export const AdminOrdersPage = () => {
-  const { user } = useAuth();
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<OrderFilters>({});
   const [detailOrderId, setDetailOrderId] = useState<number | null>(null);
@@ -54,11 +58,13 @@ export const AdminOrdersPage = () => {
     showConfirm({
       title: `¿Cancelar orden #${order.id}?`,
       confirmLabel: "Confirmar",
-      onConfirm: () =>
-        cancelOrderByStaff({
+      onConfirm: () => {
+        markManualUpdate(order.id);
+        return cancelOrderByStaff({
           id: order.id,
-          data: { reason: `Cancelado por usuario: ${user?.email}` },
-        }),
+          data: { reason: `Cancelado por Administrador` },
+        });
+      },
       successMessage: "Orden cancelada exitosamente",
       color: "red",
     });
@@ -67,12 +73,15 @@ export const AdminOrdersPage = () => {
   const handleAdvance = async (order: OrderPublic) => {
     const next = nextState(order.state_code as OrderStateCode);
     if (!next) return;
+    markManualUpdate(order.id);
     try {
       await changeOrderState({ id: order.id, data: { state_code: next } });
       notifications.show({
         title: `Orden #${order.id} actualizada`,
         message: `Estado avanzado a ${stateLabel(next)}`,
         color: STATE_COLORS[next],
+        radius: "lg",
+        icon: <IconArrowRight />,
       });
     } catch (error: unknown) {
       const msg = extractApiErrorMessage(
@@ -83,6 +92,8 @@ export const AdminOrdersPage = () => {
         title: "Error al actualizar estado",
         message: msg,
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };

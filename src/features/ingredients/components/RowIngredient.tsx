@@ -4,7 +4,7 @@ import { notifications } from "@mantine/notifications";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 import ActionButton from "../../../shared/components/ActionButton";
-import { IconEdit, IconEye, IconRestore, IconTrash } from "@tabler/icons-react";
+import { IconEdit, IconEye, IconExclamationCircleFilled, IconRestore, IconTrash, IconCircleCheckFilled } from "@tabler/icons-react";
 import { useMeasurementUnits } from "../hooks/useMeasurementUnits";
 
 interface RowIngredientProps {
@@ -68,16 +68,18 @@ export const RowIngredient = ({
     try {
       await onRestore(item.id);
       notifications.show({
-        title: "Operación Exitosa",
+        title: "Éxito",
         color: "green",
         message: `"${item.name}" restaurado`,
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
       });
     } catch (error: unknown) {
       const msg = extractApiErrorMessage(
         error,
         `No se pudo restaurar "${item.name}"`,
       );
-      notifications.show({ message: msg, color: "red" });
+      notifications.show({ message: msg, color: "red", radius: "lg", icon: <IconExclamationCircleFilled /> });
     }
   };
 

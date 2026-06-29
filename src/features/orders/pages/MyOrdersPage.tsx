@@ -10,7 +10,7 @@ import { OrderDetailModal } from "../components/OrderDetailModal";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
 import {
   subscribeToOrder,
-  unsubscribeFromOrder,
+  markManualUpdate,
 } from "../../../shared/hooks/useOrderWebSocket";
 import ActionButton from "../../../shared/components/ActionButton";
 import { IconXMark } from "@tabler/icons-react";
@@ -35,23 +35,18 @@ export const MyOrdersPage = () => {
     currentIds.forEach((id) => {
       if (!prevIdsRef.current.has(id)) subscribeToOrder(id);
     });
-    prevIdsRef.current.forEach((id) => {
-      if (!currentIds.has(id)) unsubscribeFromOrder(id);
-    });
 
     prevIdsRef.current = currentIds;
-
-    return () => {
-      currentIds.forEach((id) => unsubscribeFromOrder(id));
-      prevIdsRef.current = new Set();
-    };
   }, [orders?.data]);
 
   const handleCancel = (order: OrderPublic) => {
     showConfirm({
       title: "Desea cancelar su orden",
       confirmLabel: "Confirmar",
-      onConfirm: () => cancelOrder(order.id),
+      onConfirm: async () => {
+        markManualUpdate(order.id);
+        await cancelOrder(order.id);
+      },
       successMessage: "Su orden ha sido cancelada exitosamente",
       color: "orange",
     });

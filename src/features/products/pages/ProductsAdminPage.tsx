@@ -7,7 +7,12 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import { IconPlus, IconSearch } from "@tabler/icons-react";
+import {
+  IconPlus,
+  IconSearch,
+  IconExclamationCircleFilled,
+  IconCircleCheckFilled,
+} from "@tabler/icons-react";
 import { useState } from "react";
 import { useDebouncedValue } from "@mantine/hooks";
 import ProductsTable from "../components/ProductsTable";
@@ -83,15 +88,23 @@ const ProductsAdminPage = () => {
     try {
       await restoreProduct(item.id);
       notifications.show({
-        title: "Operacion Exitosa",
+        title: "Éxito",
         message: `Producto ${item.name} restaurado`,
+        color: "green",
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
       });
     } catch (error: unknown) {
       const msg = extractApiErrorMessage(
         error,
         `No se pudo restaurar el producto ${item.name}`,
       );
-      notifications.show({ message: msg, color: "red" });
+      notifications.show({
+        message: msg,
+        color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
+      });
     }
   };
 
@@ -99,12 +112,20 @@ const ProductsAdminPage = () => {
     createProduct(data, {
       onSuccess: () => {
         setCreateOpen(false);
-        notifications.show({ color: "green", message: "Producto creado" });
+        notifications.show({
+          title: "Producto creado",
+          message: "Producto creado",
+          color: "green",
+          radius: "lg",
+          icon: <IconCircleCheckFilled />,
+        });
       },
       onError: (error) => {
         notifications.show({
           color: "red",
           message: extractApiErrorMessage(error, "Error al crear el producto"),
+          radius: "lg",
+          icon: <IconExclamationCircleFilled />,
         });
       },
     });
@@ -124,6 +145,8 @@ const ProductsAdminPage = () => {
         title: "Error",
         message: "No se pudo cargar el producto",
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };
@@ -173,6 +196,8 @@ const ProductsAdminPage = () => {
         title: "Producto actualizado",
         message: msg,
         color: "green",
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
       });
     } catch (error) {
       notifications.show({
@@ -182,6 +207,8 @@ const ProductsAdminPage = () => {
           "Error al actualizar el producto",
         ),
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };

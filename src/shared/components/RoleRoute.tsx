@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useAuth } from "../../features/auth/context/AuthContext";
 import { notifications } from "@mantine/notifications";
+import { IconAlertTriangleFilled } from "@tabler/icons-react";
 import { Navigate, Outlet } from "react-router-dom";
 
 interface Props {
@@ -18,6 +19,8 @@ export const RoleRoute = ({ allowedRoles, errorMessage }: Props) => {
         message:
           errorMessage || "No tienes permisos para acceder a esta sección",
         color: "orange",
+        radius: "lg",
+        icon: <IconAlertTriangleFilled />,
       });
       hasNotified.current = true;
     }

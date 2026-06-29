@@ -18,9 +18,11 @@ import type { OrderDetailPublic, OrderStateCode } from "../types/order";
 import { STATE_COLORS, STATE_LABELS } from "../types/configs";
 import {
   IconClock,
+  IconCircleCheckFilled,
   IconCircleCheck,
   IconChefHat,
   IconTruckDelivery,
+  IconExclamationCircleFilled,
   IconX,
   IconPackages,
   IconMapPin,
@@ -29,10 +31,12 @@ import {
   IconCash,
   IconCreditCard,
   IconBuildingBank,
+  IconInfoCircleFilled,
 } from "@tabler/icons-react";
 import { useClientOrderMutations } from "../hooks/client/useClientOrderMutations";
 import usePaymentMutation from "../../payment/hooks/payment.mutations.hooks";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
+import { markManualUpdate } from "../../../shared/hooks/useOrderWebSocket";
 
 interface Props {
   order: OrderDetailPublic | null;
@@ -86,12 +90,16 @@ const OrderDetailModal = ({
       notifications.show({
         message: "Redirigiendo a Mercado Pago...",
         color: "cyan",
+        radius: "lg",
+        icon: <IconInfoCircleFilled />,
       });
       window.location.href = preference.init_point;
     } catch (error: unknown) {
       notifications.show({
         message: extractApiErrorMessage(error),
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };
@@ -99,15 +107,21 @@ const OrderDetailModal = ({
   const handleConfirmCash = async () => {
     if (!order) return;
     try {
+      markManualUpdate(order.id);
       await confirmByClient(order.id);
       notifications.show({
+        title: "Pedido confirmado",
         message: "Pedido confirmado — pagás en efectivo al recibir",
         color: "green",
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
       });
     } catch (error: unknown) {
       notifications.show({
         message: extractApiErrorMessage(error),
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };

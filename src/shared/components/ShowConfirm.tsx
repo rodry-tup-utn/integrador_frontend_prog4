@@ -1,5 +1,9 @@
 import { openConfirmModal, closeAllModals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
+import {
+  IconExclamationCircleFilled,
+  IconCircleCheckFilled,
+} from "@tabler/icons-react";
 import { extractApiErrorMessage } from "../helpers/apiErrors";
 
 interface Props {
@@ -31,10 +35,11 @@ export const showConfirm = ({
         closeAllModals();
         if (showSuccess) {
           notifications.show({
-            title: "Operación Exitosa",
+            title: "Éxito",
             color: "green",
             message: successMessage,
-            autoClose: 4000,
+            radius: "lg",
+            icon: <IconCircleCheckFilled />,
           });
         }
       } catch (error: unknown) {
@@ -44,6 +49,8 @@ export const showConfirm = ({
           title: "Error al procesar la operación",
           color: "red",
           message: errorMessage,
+          radius: "lg",
+          icon: <IconExclamationCircleFilled />,
           autoClose: 6000,
         });
       }

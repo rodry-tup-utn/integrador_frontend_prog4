@@ -7,7 +7,7 @@ import {
   Badge,
   NumberInput,
 } from "@mantine/core";
-import { IconTrash, IconShoppingCart } from "@tabler/icons-react";
+import { IconTrash, IconShoppingCart, IconAlertTriangleFilled } from "@tabler/icons-react";
 import { useCartStore } from "../store/cart.store";
 import { useAuth } from "../../auth/context/AuthContext";
 import { showConfirm } from "../../../shared/components/ShowConfirm";
@@ -49,6 +49,8 @@ const CartDrawer = ({ opened, onClose }: CartDrawerProps) => {
       title: "Acción no permitida",
       message: "Solo los clientes pueden realizar pedidos",
       color: "orange",
+      radius: "lg",
+      icon: <IconAlertTriangleFilled />,
     });
   };
 

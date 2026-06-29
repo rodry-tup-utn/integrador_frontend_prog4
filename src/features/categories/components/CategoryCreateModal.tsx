@@ -13,7 +13,7 @@ import {
   FileInput,
   ActionIcon,
 } from "@mantine/core";
-import { IconPhoto, IconTrash } from "@tabler/icons-react";
+import { IconPhoto, IconTrash, IconExclamationCircleFilled, IconCircleCheckFilled } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 import type { CategoryCreate } from "../types/category";
 import { CategorySelector } from "./CategorySelector";
@@ -57,6 +57,8 @@ export const CategoryCreateModal = ({ opened, onClose }: Props) => {
         title: "Error",
         message: extractApiErrorMessage(error, "No se pudo subir la imagen"),
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };
@@ -75,6 +77,8 @@ export const CategoryCreateModal = ({ opened, onClose }: Props) => {
         title: "Éxito",
         message: `Categoría "${categoryName}" creada exitosamente`,
         color: "green",
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
       });
       onClose();
     } catch (error: unknown) {
@@ -83,6 +87,8 @@ export const CategoryCreateModal = ({ opened, onClose }: Props) => {
         message:
           extractApiErrorMessage(error, "Error al crear la categoría"),
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };

@@ -9,6 +9,7 @@ import {
   Text,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
+import { IconExclamationCircleFilled, IconCircleCheckFilled } from "@tabler/icons-react";
 import { useProfileMutations } from "../hooks/profile/useProfileMutations";
 import { useNavigate } from "react-router-dom";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
@@ -27,6 +28,8 @@ export const ChangePasswordPage = () => {
       notifications.show({
         message: "Las contraseñas nuevas no coinciden",
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
       return;
     }
@@ -35,6 +38,8 @@ export const ChangePasswordPage = () => {
       notifications.show({
         message: "La contraseña debe tener al menos 8 caracteres",
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
       return;
     }
@@ -42,8 +47,11 @@ export const ChangePasswordPage = () => {
     try {
       await updatePass({ old_pass: oldPass, new_pass: newPass });
       notifications.show({
+        title: "Contraseña actualizada",
         message: "Contraseña actualizada correctamente",
         color: "green",
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
       });
       setOldPass("");
       setNewPass("");
@@ -54,6 +62,8 @@ export const ChangePasswordPage = () => {
         message:
           extractApiErrorMessage(error, "Error al cambiar la contraseña"),
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };

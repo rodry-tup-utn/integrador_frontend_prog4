@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { TextInput, Button, Group, Stack, Text, Paper } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconDeviceFloppy } from "@tabler/icons-react";
+import { IconDeviceFloppy, IconExclamationCircleFilled, IconCircleCheckFilled } from "@tabler/icons-react";
 import type { UserAdminRead, UserUpdate } from "../../types/user";
 import { useAdminUserMutations } from "../../hooks/admin/useAdminUserMutations";
 import UserAdminInfo from "./UserAdminInfo";
@@ -31,6 +31,8 @@ export const AdminEditUserForm = ({ user, onClose }: Props) => {
         title: "Usuario actualizado",
         message: "Los datos se guardaron correctamente",
         color: "green",
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
       });
       onClose();
     } catch {
@@ -38,6 +40,8 @@ export const AdminEditUserForm = ({ user, onClose }: Props) => {
         title: "Error",
         message: "No se pudo actualizar el usuario",
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };

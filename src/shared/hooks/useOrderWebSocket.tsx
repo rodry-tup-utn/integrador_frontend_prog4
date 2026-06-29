@@ -1,10 +1,23 @@
 import { useEffect, useRef } from "react";
 import { notifications } from "@mantine/notifications";
+import {
+  IconExclamationCircleFilled,
+  IconCircleCheckFilled,
+  IconAlertTriangleFilled,
+  IconInfoCircleFilled,
+  IconArrowRight,
+} from "@tabler/icons-react";
 import { queryClient } from "../api/queryClient";
 import { orderKeys } from "../../features/orders/types/order";
 
 let activeWs: WebSocket | null = null;
 const subscribedOrders = new Set<number>();
+const recentlyManuallyUpdated = new Set<number>();
+
+export function markManualUpdate(orderId: number) {
+  recentlyManuallyUpdated.add(orderId);
+  setTimeout(() => recentlyManuallyUpdated.delete(orderId), 3000);
+}
 
 const WS_URL =
   (import.meta.env.VITE_API_URL as string).replace(/^http/, "ws") + "/ws";
@@ -33,17 +46,32 @@ const STATE_COLORS: Record<string, string> = {
   CANCELLED: "red",
 };
 
+function getOrderIcon(state?: string) {
+  switch (state) {
+    case "DELIVERED":
+      return <IconCircleCheckFilled />;
+    case "CANCELLED":
+      return <IconExclamationCircleFilled />;
+    case "PENDING":
+      return <IconAlertTriangleFilled />;
+    case "IN_PREP":
+      return <IconArrowRight />;
+    default:
+      return <IconInfoCircleFilled />;
+  }
+}
+
 const EVENT_CONFIG: Record<
   string,
   { title: (id: number) => string; message: (state: string) => string }
 > = {
   order_created: {
     title: (id) => `Nuevo pedido #${id}`,
-    message: (state) => STATE_LABELS[state] || state,
+    message: () => "Pendiente de pago",
   },
   order_updated: {
     title: (id) => `Pedido #${id} actualizado`,
-    message: (state) => STATE_LABELS[state] || state,
+    message: (state) => `Estado: ${STATE_LABELS[state] || state}`,
   },
   payment_approved: {
     title: (id) => `Pago aprobado para pedido #${id}`,
@@ -88,6 +116,10 @@ export function useOrderWebSocket(enabled: boolean) {
           ) {
             queryClient.invalidateQueries({ queryKey: orderKeys.all });
 
+            if (recentlyManuallyUpdated.has(msg.data.order_id)) {
+              return;
+            }
+
             const config = EVENT_CONFIG[msg.event];
             const color = msg.data.state
               ? STATE_COLORS[msg.data.state] || "blue"
@@ -97,6 +129,8 @@ export function useOrderWebSocket(enabled: boolean) {
               title: config.title(msg.data.order_id),
               message: config.message(msg.data.state ?? ""),
               color,
+              radius: "lg",
+              icon: getOrderIcon(msg.data.state),
             });
           }
         } catch {
@@ -127,6 +161,7 @@ export function useOrderWebSocket(enabled: boolean) {
 }
 
 export function subscribeToOrder(orderId: number) {
+  if (subscribedOrders.has(orderId)) return;
   subscribedOrders.add(orderId);
   if (activeWs && activeWs.readyState === WebSocket.OPEN) {
     activeWs.send(

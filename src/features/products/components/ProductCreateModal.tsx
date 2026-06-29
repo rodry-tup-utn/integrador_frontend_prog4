@@ -18,7 +18,12 @@ import {
   FileInput,
 } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
-import { IconInfoCircle, IconPhoto, IconTrash } from "@tabler/icons-react";
+import {
+  IconInfoCircle,
+  IconPhoto,
+  IconTrash,
+  IconExclamationCircleFilled,
+} from "@tabler/icons-react";
 import { CategorySelector } from "../../categories/components/CategorySelector";
 import IngredientSelector from "./IngredientSelector";
 import {
@@ -144,6 +149,8 @@ const ProductCreateModal = ({
         title: "Error",
         message: extractApiErrorMessage(error, "No se pudo subir la imagen"),
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };
@@ -171,6 +178,8 @@ const ProductCreateModal = ({
         title: "Error de validación",
         message: errorMessages.join(".\n "),
         color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
       return;
     }

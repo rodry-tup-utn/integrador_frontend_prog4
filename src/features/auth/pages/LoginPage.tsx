@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { IconAt, IconPassword } from "@tabler/icons-react";
+import { IconAt, IconPassword, IconExclamationCircleFilled, IconCircleCheckFilled } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 export const LoginPage = () => {
@@ -26,13 +26,15 @@ export const LoginPage = () => {
     const formData = new FormData(e.currentTarget);
     try {
       const data = await login(formData);
-      notifications.show({ message: `Bienvenido ${data.name}` });
+      notifications.show({ title: "Inicio de sesión", message: `¡Bienvenido ${data.name}!`, color: "green", radius: "lg", icon: <IconCircleCheckFilled /> });
       navigate("/dashboard", { replace: true });
     } catch (err: unknown) {
       notifications.show({
         color: "red",
         title: "Error",
         message: extractApiErrorMessage(err, "Error al iniciar sesión"),
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
       });
     }
   };

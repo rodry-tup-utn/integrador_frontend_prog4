@@ -55,7 +55,7 @@ const ProductCardPublic = ({ product }: { product: ProductPublic }) => {
             },
             available: {
               color: "teal",
-              label: `Disponible (${realStock})`,
+              label: "Disponible",
             },
           } as const;
 
