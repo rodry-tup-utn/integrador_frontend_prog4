@@ -42,6 +42,7 @@ interface Props {
   onSubmit: (data: ProductCreate) => void;
   isSubmitting?: boolean;
   initialData?: ProductDetailResponse;
+  keepImages?: boolean;
 }
 
 const ProductCreateModal = ({
@@ -50,6 +51,7 @@ const ProductCreateModal = ({
   onSubmit,
   isSubmitting,
   initialData,
+  keepImages = false,
 }: Props) => {
   console.log("INITIALDATA: ", initialData);
   const isEditing = initialData !== undefined;
@@ -189,10 +191,12 @@ const ProductCreateModal = ({
   };
 
   const handleClose = () => {
-    previews.forEach((url) => {
-      const publicId = extractPublicId(url);
-      if (publicId) deleteImage(publicId);
-    });
+    if (!keepImages) {
+      previews.forEach((url) => {
+        const publicId = extractPublicId(url);
+        if (publicId) deleteImage(publicId);
+      });
+    }
     setPreviews([]);
     setFormData((prev) => ({ ...prev, images_url: [] }));
     onClose();
