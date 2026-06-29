@@ -91,7 +91,7 @@ const ProductCreateModal = ({
   const { data: measurementUnits } = useMeasurementUnits();
   const { uploadImage, deleteImage } = useImageUpload();
 
-  const [debouncedIngredients] = useDebouncedValue(formData.ingredients, 400);
+  const [debouncedIngredients] = useDebouncedValue(formData.ingredients, 1000);
   const { data: stockResult, isFetching } =
     useCalculateStock(debouncedIngredients);
 
