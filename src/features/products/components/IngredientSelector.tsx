@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useCallback, useState, useMemo } from "react";
 import {
   ActionIcon,
   Button,
@@ -38,8 +38,9 @@ const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
 
   const { data: measurementUnits } = useMeasurementUnits();
 
-  const unitSymbolMap = new Map(
-    (measurementUnits ?? []).map((u) => [u.code, u.symbol]),
+  const unitSymbolMap = useMemo(
+    () => new Map((measurementUnits ?? []).map((u) => [u.code, u.symbol])),
+    [measurementUnits],
   );
 
   const ingredientMap = new Map(
@@ -51,7 +52,10 @@ const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
       [],
   );
 
-  const resolveSymbol = (code: string) => unitSymbolMap.get(code) ?? code;
+  const resolveSymbol = useCallback(
+    (code: string) => unitSymbolMap.get(code) ?? code,
+    [unitSymbolMap],
+  );
 
   const availableIngredients = useMemo(() => {
     const filtered = search
@@ -66,7 +70,7 @@ const IngredientSelector = ({ value, onChange }: IngredientSelectorProps) => {
         value: String(ing.id),
         label: `${ing.name} (${resolveSymbol(ing.measurement_unit_code)})`,
       }));
-  }, [allIngredients, search, value]);
+  }, [allIngredients, search, value, resolveSymbol]);
 
   const handleAdd = () => {
     if (!selected) return;

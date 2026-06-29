@@ -57,13 +57,6 @@ const ProductsAdminPage = () => {
   const navigate = useNavigate();
   const editId = searchParams.get("edit");
 
-  useEffect(() => {
-    if (editId) {
-      handleEdit(Number(editId));
-      navigate("/admin/products", { replace: true });
-    }
-  }, [editId]);
-
   const filters: ProductFilters = {
     offset: (page - 1) * LIMIT,
     limit: LIMIT,
@@ -165,6 +158,33 @@ const ProductsAdminPage = () => {
       });
     }
   };
+
+  useEffect(() => {
+    if (editId) {
+      const id = Number(editId);
+      navigate("/admin/products", { replace: true });
+      queryClient
+        .fetchQuery({
+          queryKey: productKeys.getWithCategory(id),
+          queryFn: () => productService.stock.getWithCategory(id),
+        })
+        .then((detail) => {
+          setKeepImages(false);
+          setEditingProductId(id);
+          setProdToEdit(detail);
+          setCreateOpen(true);
+        })
+        .catch(() => {
+          notifications.show({
+            title: "Error",
+            message: "No se pudo cargar el producto",
+            color: "red",
+            radius: "lg",
+            icon: <IconExclamationCircleFilled />,
+          });
+        });
+    }
+  }, [editId, navigate]);
 
   const handleModalClose = () => {
     setCreateOpen(false);
