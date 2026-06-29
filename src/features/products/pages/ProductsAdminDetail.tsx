@@ -1,6 +1,9 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { useAdminProductDetail } from "../hooks/product.queries.hooks";
+import {
+  useAdminProductDetail,
+  useProductWithIngredients,
+} from "../hooks/product.queries.hooks";
 import {
   Badge,
   Button,
@@ -16,7 +19,13 @@ import {
   SimpleGrid,
   FileInput,
 } from "@mantine/core";
-import { IconEdit, IconExclamationCircleFilled, IconPhoto, IconTrash, IconCircleCheckFilled } from "@tabler/icons-react";
+import {
+  IconEdit,
+  IconExclamationCircleFilled,
+  IconPhoto,
+  IconTrash,
+  IconCircleCheckFilled,
+} from "@tabler/icons-react";
 import {
   ProductCategoriesCard,
   ProductPriceCard,
@@ -38,7 +47,13 @@ const ProductsAdminDetail = () => {
   const prodId = Number(id);
 
   const { data: product, isLoading } = useAdminProductDetail(prodId);
-  const { updateProduct, isUpdating } = useProductMutation();
+  const { data: productIngredients } = useProductWithIngredients(prodId);
+  const {
+    updateProduct,
+    isUpdating,
+    updateIngredientsBatch,
+    removeIngredient,
+  } = useProductMutation();
 
   const { uploadImage, deleteImage, isUploading } = useImageUpload();
 
@@ -59,47 +74,65 @@ const ProductsAdminDetail = () => {
   if (isLoading) return <>Cargando...</>;
   if (!product) return <NotFoundState message="Producto no encontrado" />;
 
-  const handleModalSubmit = (data: ProductCreate) => {
-    updateProduct(
-      { id: prodId, data },
-      {
-        onSuccess: () => {
-          setEditModalOpened(false);
-          notifications.show({
-            title: "Producto actualizado",
-            color: "green",
-            message: "Producto actualizado",
-            radius: "lg",
-            icon: <IconCircleCheckFilled />,
+  const handleModalSubmit = async (data: ProductCreate) => {
+    try {
+      const { ingredients, ...productFields } = data;
+
+      await updateProduct({ id: prodId, data: productFields });
+
+      if (data.type === "MANUFACTURED") {
+        if (ingredients.length > 0) {
+          await updateIngredientsBatch({
+            product_id: prodId,
+            data: { ingredients },
           });
-        },
-        onError: (error) => {
-          notifications.show({
-            color: "red",
-            message: extractApiErrorMessage(error, "Error al actualizar"),
-            radius: "lg",
-            icon: <IconExclamationCircleFilled />,
-          });
-        },
-      },
-    );
+        }
+
+        const originalIds = new Set(
+          (product?.ingredients ?? []).map((i) => i.ingredient_id),
+        );
+        const currentIds = new Set(ingredients.map((i) => i.ingredient_id));
+        const removedIds = [...originalIds].filter((id) => !currentIds.has(id));
+
+        await Promise.all(
+          removedIds.map((id) =>
+            removeIngredient({ productId: prodId, ingredientId: id }),
+          ),
+        );
+      }
+
+      setEditModalOpened(false);
+      notifications.show({
+        title: "Producto actualizado",
+        message: "Producto actualizado con éxito",
+        color: "green",
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
+      });
+    } catch (error) {
+      notifications.show({
+        title: "Error al actualizar",
+        message: extractApiErrorMessage(
+          error,
+          "Error al actualizar el producto",
+        ),
+        color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
+      });
+    }
   };
 
   const handleAddImage = async (file: File | null) => {
     if (!file) return;
+    const previousImages = localImages;
     try {
       const result = await uploadImage(file);
-      const updatedImages = [...localImages, result.url];
+      const updatedImages = [...previousImages, result.url];
       setLocalImages(updatedImages);
-      updateProduct(
-        { id: prodId, data: { images_url: updatedImages } },
-        {
-          onError: () => {
-            setLocalImages(localImages);
-          },
-        },
-      );
+      await updateProduct({ id: prodId, data: { images_url: updatedImages } });
     } catch (error) {
+      setLocalImages(previousImages);
       notifications.show({
         title: "Error",
         message: extractApiErrorMessage(error, "No se pudo subir la imagen"),
@@ -113,22 +146,29 @@ const ProductsAdminDetail = () => {
   };
 
   const handleRemoveImage = async (url: string) => {
-    const updatedImages = localImages.filter((u) => u !== url);
+    const previousImages = localImages;
+    const updatedImages = previousImages.filter((u) => u !== url);
     setLocalImages(updatedImages);
+
     try {
       const publicId = extractPublicId(url);
       if (publicId) await deleteImage(publicId);
     } catch {
-      // si falla cleanup igual continuamos
+      // cloudinary falló, continuamos igual
     }
-    updateProduct(
-      { id: prodId, data: { images_url: updatedImages } },
-      {
-        onError: () => {
-          setLocalImages(localImages);
-        },
-      },
-    );
+
+    try {
+      await updateProduct({ id: prodId, data: { images_url: updatedImages } });
+    } catch {
+      setLocalImages(previousImages);
+      notifications.show({
+        title: "Error",
+        message: "No se pudo actualizar la lista de imágenes",
+        color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
+      });
+    }
   };
 
   return (
@@ -254,7 +294,9 @@ const ProductsAdminDetail = () => {
 
         {product.type === "MANUFACTURED" && (
           <Grid.Col span={12}>
-            <ProductIngredientsCard ingredients={product.ingredients ?? []} />
+            <ProductIngredientsCard
+              ingredients={productIngredients?.ingredients ?? []}
+            />
           </Grid.Col>
         )}
 
