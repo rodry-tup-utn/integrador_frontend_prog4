@@ -68,12 +68,7 @@ export const useProductMutation = () => {
       productId: number;
       ingredientId: number;
       data: ProductIngredient;
-    }) =>
-      productService.stock.addIngredient(
-        productId,
-        ingredientId,
-        data,
-      ),
+    }) => productService.stock.addIngredient(productId, ingredientId, data),
     onSuccess: invalidate,
   });
 
@@ -86,12 +81,7 @@ export const useProductMutation = () => {
       productId: number;
       ingredientId: number;
       data: ProductIngredient;
-    }) =>
-      productService.stock.updateIngredient(
-        productId,
-        ingredientId,
-        data,
-      ),
+    }) => productService.stock.updateIngredient(productId, ingredientId, data),
     onSuccess: invalidate,
   });
 
@@ -102,11 +92,7 @@ export const useProductMutation = () => {
     }: {
       productId: number;
       ingredientId: number;
-    }) =>
-      productService.stock.removeIngredient(
-        productId,
-        ingredientId,
-      ),
+    }) => productService.stock.removeIngredient(productId, ingredientId),
     onSuccess: invalidate,
   });
 
