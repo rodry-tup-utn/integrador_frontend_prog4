@@ -76,48 +76,38 @@ export const IngredientModal = ({
     ? null
     : isEditing && ingredientData
       ? {
-        successMessage: "editado",
-        submit: () =>
-          updateIngredient({
-            id: ingredientData.id,
-            data: formData,
-          }),
-      }
+          successMessage: "editado",
+          submit: () =>
+            updateIngredient({
+              id: ingredientData.id,
+              data: formData,
+            }),
+        }
       : {
-        successMessage: "creado",
-        submit: () => createIngredient(formData),
-      };
+          successMessage: "creado",
+          submit: () => createIngredient(formData),
+        };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!actionConfig) return;
-    if (formData.stock !== 0) {
-      try {
-        const result = await actionConfig.submit();
+    try {
+      const result = await actionConfig.submit();
 
-        notifications.show({
-          title: "Éxito al guardar",
-          message: `Ingrediente ${result.name} ${actionConfig.successMessage} exitosamente`,
-          color: "green",
-          radius: "lg",
-          icon: <IconCircleCheckFilled />,
-        });
+      notifications.show({
+        title: "Éxito al guardar",
+        message: `Ingrediente ${result.name} ${actionConfig.successMessage} exitosamente`,
+        color: "green",
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
+      });
 
-        onClose();
-      } catch (error: unknown) {
-        notifications.show({
-          title: "Error",
-          message: extractApiErrorMessage(error),
-          color: "red",
-          radius: "lg",
-          icon: <IconExclamationCircleFilled />,
-        });
-      }
-    } else {
+      onClose();
+    } catch (error: unknown) {
       notifications.show({
         title: "Error",
-        message: "La cantidad de stock disponible es requerida y no puede ser 0",
+        message: extractApiErrorMessage(error),
         color: "red",
         radius: "lg",
         icon: <IconExclamationCircleFilled />,
