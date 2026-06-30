@@ -59,7 +59,7 @@ const ProductsPage = () => {
     categoryStack.length === 0
       ? (categoryTree ?? [])
       : (findNode(categoryTree ?? [], categoryStack[categoryStack.length - 1])
-        ?.children ?? []);
+          ?.children ?? []);
 
   const [sortBy, order]: [string | undefined, OrderDirection | undefined] =
     filters.sortValue
@@ -197,7 +197,7 @@ const ProductsPage = () => {
         </div>
       ) : visibleProducts && visibleProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {visibleProducts.map((product) => (product.available && product.stock > 0) && (
+          {visibleProducts.filter((p) => p.available).map((product) => (
             <ProductCardPublic key={product.id} product={product} />
           ))}
         </div>
