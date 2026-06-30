@@ -1,4 +1,5 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useParams } from "react-router-dom";
 import {
   useAdminProductDetail,
   useProductWithIngredients,
@@ -24,9 +25,14 @@ import {
   ProductTypeCard,
   ProductIngredientsCard,
 } from "../components/ProductsDetailCards";
-import { IconEdit } from "@tabler/icons-react";
+import { IconEdit, IconExclamationCircleFilled, IconCircleCheckFilled } from "@tabler/icons-react";
 import NotFoundState from "../../../shared/components/NotFoundState";
 import placeholder from "../../../assets/placeholder.jpeg";
+import ProductCreateModal from "../components/ProductCreateModal";
+import { useProductMutation } from "../hooks/product.mutation.hooks";
+import { notifications } from "@mantine/notifications";
+import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
+import type { ProductCreate } from "../types/product";
 
 const ProductsAdminDetail = () => {
   const { id } = useParams();
@@ -34,12 +40,69 @@ const ProductsAdminDetail = () => {
 
   const { data: product, isLoading } = useAdminProductDetail(prodId);
   const { data: productIngredients } = useProductWithIngredients(prodId);
-  const navigate = useNavigate();
+  const [editOpen, setEditOpen] = useState(false);
+  const [keepImages, setKeepImages] = useState(false);
+  const {
+    updateProduct,
+    updateIngredientsBatch,
+    removeIngredient,
+    isUpdating,
+  } = useProductMutation();
 
   if (!id || isNaN(prodId))
     return <NotFoundState message="Producto no encontrado" />;
   if (isLoading) return <>Cargando...</>;
   if (!product) return <NotFoundState message="Producto no encontrado" />;
+
+  const handleSubmitEdit = async (data: ProductCreate) => {
+    try {
+      const { ingredients, ...productFields } = data;
+
+      await updateProduct({ id: prodId, data: productFields });
+
+      if (data.type === "MANUFACTURED") {
+        if (ingredients.length > 0) {
+          await updateIngredientsBatch({
+            product_id: prodId,
+            data: { ingredients },
+          });
+        }
+
+        const originalIds = new Set(
+          (product.ingredients ?? []).map((i) => i.ingredient_id),
+        );
+        const currentIds = new Set(ingredients.map((i) => i.ingredient_id));
+        const removedIds = [...originalIds].filter((id) => !currentIds.has(id));
+
+        await Promise.all(
+          removedIds.map((id) =>
+            removeIngredient({ productId: prodId, ingredientId: id }),
+          ),
+        );
+      }
+
+      setKeepImages(true);
+      setEditOpen(false);
+      notifications.show({
+        title: "Producto actualizado",
+        message: `${product.name} actualizado`,
+        color: "green",
+        radius: "lg",
+        icon: <IconCircleCheckFilled />,
+      });
+    } catch (error) {
+      notifications.show({
+        title: "Error al actualizar",
+        message: extractApiErrorMessage(
+          error,
+          "Error al actualizar el producto",
+        ),
+        color: "red",
+        radius: "lg",
+        icon: <IconExclamationCircleFilled />,
+      });
+    }
+  };
 
   return (
     <>
@@ -71,7 +134,7 @@ const ProductsAdminDetail = () => {
               </Stack>
               <Button
                 leftSection={<IconEdit size={18} />}
-                onClick={() => navigate("/admin/products?edit=" + prodId)}
+                onClick={() => setEditOpen(true)}
               >
                 Editar producto
               </Button>
@@ -198,6 +261,18 @@ const ProductsAdminDetail = () => {
           </Paper>
         </Grid.Col>
       </Grid>
+
+      <ProductCreateModal
+        opened={editOpen}
+        onClose={() => {
+          setEditOpen(false);
+          setKeepImages(false);
+        }}
+        onSubmit={handleSubmitEdit}
+        isSubmitting={isUpdating}
+        initialData={product}
+        keepImages={keepImages}
+      />
     </>
   );
 };
