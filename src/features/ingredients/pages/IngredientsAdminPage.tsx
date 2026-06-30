@@ -32,7 +32,7 @@ export const IngredientsAdminPage = () => {
   const [debouncedSearch] = useDebouncedValue(searchTerm, 300);
 
   const filters = {
-    search: debouncedSearch || undefined,
+    search: debouncedSearch.trim() || undefined,
     is_allergen:
       allergenFilter === "all"
         ? undefined
