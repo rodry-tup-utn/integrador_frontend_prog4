@@ -1,9 +1,5 @@
 import { Card, Group, Stack, Text, Badge, Divider } from "@mantine/core";
-import {
-  IconArrowBigRightLines,
-  IconReceiptDollar,
-  IconXMark,
-} from "@tabler/icons-react";
+import { IconArrowBigRightLines, IconXMark } from "@tabler/icons-react";
 import type { OrderAdmin, OrderStateCode } from "../types/order";
 import { STATE_COLORS, STATE_LABELS, nextState } from "../types/configs";
 import ActionButton from "../../../shared/components/ActionButton";
@@ -72,18 +68,13 @@ export function OrderCard({
           </Badge>
         </Group>
 
-        <Group justify="space-between" wrap="nowrap">
+        <Group>
+          <Text size="sm" c="white" fw={600}>
+            Cliente:
+          </Text>
           <Text size="sm" c="white" lineClamp={1}>
             {order.user.name} {order.user.lastname}
           </Text>
-          <Group>
-            <Group gap="xs">
-              <IconReceiptDollar color="white"></IconReceiptDollar>
-              <Text fw={600} c="white" size="md">
-                ${Number(order.subtotal).toFixed(2)}
-              </Text>
-            </Group>
-          </Group>
         </Group>
 
         <Group gap="xs">
@@ -118,7 +109,12 @@ export function OrderCard({
         ) : (
           <Group gap="sm" justify="center">
             {order.order_items.map((item) => (
-              <Badge key={item.product_id} variant="light" color="gray">
+              <Badge
+                key={item.product_id}
+                variant="light"
+                size="lg"
+                color="gray"
+              >
                 {item.name_snap} x{item.quantity}
               </Badge>
             ))}
