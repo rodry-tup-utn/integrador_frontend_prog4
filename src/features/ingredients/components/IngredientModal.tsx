@@ -92,7 +92,6 @@ export const IngredientModal = ({
     e.preventDefault();
 
     if (!actionConfig) return;
-
     try {
       const result = await actionConfig.submit();
 

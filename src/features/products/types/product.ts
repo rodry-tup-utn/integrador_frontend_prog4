@@ -37,6 +37,7 @@ export interface ProductDetail extends ProductBase {
 // para la tabla de admin (lo que devuelve ProductPrivateList)
 export interface ProductPrivate extends ProductBase {
   category_id: number;
+  primary_category_name?: string;
   created_at: string;
   updated_at: string | null;
   deleted_at: string | null;

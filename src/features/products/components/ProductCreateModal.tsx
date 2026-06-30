@@ -51,7 +51,6 @@ const ProductCreateModal = ({
   initialData,
   keepImages = false,
 }: Props) => {
-  console.log("INITIALDATA: ", initialData);
   const isEditing = initialData !== undefined;
   const originalType = initialData?.type;
 
@@ -295,6 +294,7 @@ const ProductCreateModal = ({
               />
               <CategorySelector
                 label="Categoría"
+                isRequired={true}
                 value={formData.category_id}
                 onChange={handleCategoryChange}
                 onlyLeaves
