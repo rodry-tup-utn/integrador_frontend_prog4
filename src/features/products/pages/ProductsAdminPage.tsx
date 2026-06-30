@@ -13,10 +13,8 @@ import {
   IconExclamationCircleFilled,
   IconCircleCheckFilled,
 } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { useDebouncedValue } from "@mantine/hooks";
-import ProductsTable from "../components/ProductsTable";
 import { useAdminProducts } from "../hooks/product.queries.hooks";
 import {
   productKeys,
@@ -35,6 +33,7 @@ import { extractApiErrorMessage } from "../../../shared/helpers/apiErrors";
 import { CategorySelector } from "../../categories/components/CategorySelector";
 import { queryClient } from "../../../shared/api/queryClient";
 import { productService } from "../services/product.services";
+import ProductsTable from "../components/ProductsTable";
 
 const ProductsAdminPage = () => {
   const LIMIT = 20;
@@ -52,10 +51,6 @@ const ProductsAdminPage = () => {
     undefined,
   );
   const [keepImages, setKeepImages] = useState(false);
-
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const editId = searchParams.get("edit");
 
   const filters: ProductFilters = {
     offset: (page - 1) * LIMIT,
@@ -158,33 +153,6 @@ const ProductsAdminPage = () => {
       });
     }
   };
-
-  useEffect(() => {
-    if (editId) {
-      const id = Number(editId);
-      navigate("/admin/products", { replace: true });
-      queryClient
-        .fetchQuery({
-          queryKey: productKeys.getWithCategory(id),
-          queryFn: () => productService.stock.getWithCategory(id),
-        })
-        .then((detail) => {
-          setKeepImages(false);
-          setEditingProductId(id);
-          setProdToEdit(detail);
-          setCreateOpen(true);
-        })
-        .catch(() => {
-          notifications.show({
-            title: "Error",
-            message: "No se pudo cargar el producto",
-            color: "red",
-            radius: "lg",
-            icon: <IconExclamationCircleFilled />,
-          });
-        });
-    }
-  }, [editId, navigate]);
 
   const handleModalClose = () => {
     setCreateOpen(false);
