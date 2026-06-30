@@ -38,7 +38,6 @@ const ProductCardPublic = ({ product }: { product: ProductPublic }) => {
   return (
     <Paper withBorder p="md" radius="md" h="100%">
       <Stack h="100%" gap="sm">
-        {/* renderizado condicional segun cantidad de stock */}
         {(() => {
           const stockState =
             !product.available || realStock === 0
