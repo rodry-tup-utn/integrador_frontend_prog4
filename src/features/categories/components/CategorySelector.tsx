@@ -10,6 +10,7 @@ interface Props {
   label?: string;
   showBreadcrumbs?: boolean;
   onlyLeaves?: boolean;
+  isRequired?: boolean
 }
 
 function flattenTree(
@@ -56,6 +57,7 @@ export const CategorySelector = ({
   label = "Categoría padre",
   showBreadcrumbs = false,
   onlyLeaves = false,
+  isRequired,
 }: Props) => {
   const { data, isLoading } = useCategoryTree(4);
 
@@ -78,6 +80,7 @@ export const CategorySelector = ({
         onChange={(v) => onChange(v ? Number(v) : null)}
         searchable
         clearable
+        required={isRequired}
         nothingFoundMessage="Sin resultados"
         disabled={isLoading}
       />
